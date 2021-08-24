@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"mbsd/models/entity"
+	"Himawari/models/entity"
 )
 
 func addChild(node *entity.Node, parsedPath []string) {

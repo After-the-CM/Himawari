@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"mbsd/models/entity"
-	"mbsd/models/sitemap"
+	"Himawari/models/entity"
+	"Himawari/models/sitemap"
 )
 
 var node = entity.Node{

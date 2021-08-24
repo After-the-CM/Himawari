@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"mbsd/controllers"
+	"Himawari/controllers"
 )
 
 func main() {
