@@ -49,6 +49,26 @@ func getChildIdx(node *entity.Node, path string) int {
 	return -2
 }
 
+func IsExist(fullPath string) bool {
+	parsedPath := strings.Split(fullPath, "/")
+	parsedPath = removeSpace(parsedPath)
+	return isExist(&entity.Nodes, parsedPath)
+}
+
+func isExist(node *entity.Node, parsedPath []string) bool {
+	if len(parsedPath) > 0 {
+		childIdx := getChildIdx(node, parsedPath[0])
+
+		if childIdx >= 0 {
+			return isExist(&(*node.Children)[childIdx], parsedPath[1:])
+		} else {
+			return false
+		}
+	} else {
+		return true
+	}
+}
+
 func jsonAddChild(node entity.Node, jsonNode *entity.JsonNode) {
 	if node.Children != nil {
 		for i, v := range *node.Children {

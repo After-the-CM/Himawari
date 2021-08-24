@@ -9,20 +9,15 @@ import (
 	"Himawari/models/sitemap"
 )
 
-var node = entity.Node{
-	Path: "/",
-}
-
 func ReadSitemap(c *gin.Context) {
-	j := sitemap.MtoJ(node)
+	j := sitemap.MtoJ(entity.Nodes)
 	c.JSON(http.StatusOK, j)
 }
 
 func AddPath(c *gin.Context) {
 	path := c.PostForm("path")
 
-	sitemap.AddPath(&node, path)
+	sitemap.AddPath(&entity.Nodes, path)
 
 	c.String(http.StatusOK, "OK")
-
 }
