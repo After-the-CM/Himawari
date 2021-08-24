@@ -1,0 +1,39 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>mbsd</title>
+    <link rel="stylesheet" type="text/css" href="/views/css/style.css">
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script type="text/x-template" id="item-template">
+        <li>
+            <div
+            :class="{bold: isFolder}"
+            @click="toggle">
+                {{ item.path }}
+                <span v-if="isFolder">[{{ isOpen ? '-' : '+' }}]</span>
+            </div>
+            <ul v-show="isOpen" v-if="isFolder">
+                <tree-item
+                class="item"
+                v-for="(child, index) in item.children"
+                :key="index"
+                :item="child"
+                ></tree-item>
+            </ul>
+        </li>
+    </script>
+</head>
+
+<body>
+    <ul id="demo">
+        <p>
+            Add Path: <input type="text" v-model="path" placeholder="/users/y0d3n/" v-on:keyup.enter="doAddPath">
+            <button v-on:click="doAddPath()" >add</button>
+        </p>
+        <tree-item class="item" :item="treeData" ></tree-item>
+    </ul>
+    <script src="/views/js/script.js"></script>
+</body>
+</html>
