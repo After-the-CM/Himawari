@@ -49,15 +49,27 @@ func getChildIdx(node *entity.Node, path string) int {
 	return -2
 }
 
-func removeSpace(parsedPath []string) []string {
-	paths := make([]string, 0)
-	for _, v := range parsedPath {
-		if v == "" {
-			continue
+func jsonAddChild(node entity.Node, jsonNode *entity.JsonNode) {
+	if node.Children != nil {
+		for i, v := range *node.Children {
+			child := &entity.JsonNode{
+				Path: v.Path,
+			}
+
+			(*jsonNode).Children = append((*jsonNode).Children, *child)
+			if v.Children != nil && *v.Children != nil {
+				jsonAddChild(v, &jsonNode.Children[i])
+			}
 		}
-		paths = append(paths, v)
 	}
-	return paths
+}
+
+func MtoJ(node entity.Node) entity.JsonNode {
+	jsonNode := entity.JsonNode{
+		Path: node.Path,
+	}
+	jsonAddChild(node, &jsonNode)
+	return jsonNode
 }
 
 func PrintMap(node entity.Node, indent int) {
@@ -73,25 +85,13 @@ func PrintMap(node entity.Node, indent int) {
 	}
 }
 
-func MtoJ(node entity.Node) entity.JsonNode {
-	jsonNode := entity.JsonNode{
-		Path: node.Path,
-	}
-	jsonAddChild(node, &jsonNode)
-	return jsonNode
-}
-
-func jsonAddChild(node entity.Node, jsonNode *entity.JsonNode) {
-	if node.Children != nil {
-		for i, v := range *node.Children {
-			child := &entity.JsonNode{
-				Path: v.Path,
-			}
-
-			(*jsonNode).Children = append((*jsonNode).Children, *child)
-			if v.Children != nil && *v.Children != nil {
-				jsonAddChild(v, &jsonNode.Children[i])
-			}
+func removeSpace(parsedPath []string) []string {
+	paths := make([]string, 0)
+	for _, v := range parsedPath {
+		if v == "" {
+			continue
 		}
+		paths = append(paths, v)
 	}
+	return paths
 }
