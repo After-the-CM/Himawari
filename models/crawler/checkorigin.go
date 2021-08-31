@@ -13,7 +13,7 @@ const (
 	httpsSch  = "https"
 )
 
-type testStruct struct {
+type TestStruct struct {
 	//リンクが存在したページのURL
 	referer string
 	//formの場合はaction
@@ -27,7 +27,7 @@ func main() {
 }
 */
 
-func checkUrlOrigin(t *testStruct) bool {
+func CheckUrlOrigin(t *TestStruct) bool {
 	base, _ := url.Parse(t.referer)
 	add, _ := url.Parse(t.path)
 	fmt.Println(base.Port())
