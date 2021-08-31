@@ -15,7 +15,7 @@ func main() {
 	router.StaticFS("/Himawari", http.Dir("./views/static"))
 
 	router.GET("/api/sitemap", controllers.ReadSitemap)
-	router.POST("/api/addPath", controllers.AddPath)
+	router.POST("/api/crawl", controllers.Crawl)
 	//	router.POST("/api/deletePath", controller.DeletePath)
 
 	router.GET("/", func(c *gin.Context) {
