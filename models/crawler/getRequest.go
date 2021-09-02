@@ -19,14 +19,13 @@ func GetRequest(r entity.RequestStruct) {
 		fmt.Println(err)
 	}
 
+	Request.Header.Set("User-Agent", "Himawari")
+
 	client := new(http.Client)
-
 	Response, err := client.Do(Request)
-
 	Response.Body.Close()
 
 	Request.URL.RawQuery = r.Param.Encode()
-	Request.Header.Set("User-Agent", "Himawari")
 
 	if err != nil {
 		fmt.Println("Unable to reach the server.")
