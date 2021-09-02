@@ -5,27 +5,28 @@ import (
 	"net/http"
 	"net/url"
 
-	"Himawari/models/entity/entity.go"
+	"Himawari/models/entity"
 )
 
-func getRequest(r entity.RequestStruct) {
+func GetRequest(r entity.RequestStruct) {
 
-	u, _ := url.Parse(r.referer)
-	a, _ := url.Parse(r.path)
-	s := u.ResolveReference(a).String()
+	base, _ := url.Parse(r.Referer)
+	rel, _ := url.Parse(r.Path)
+	abs := base.ResolveReference(rel).String()
 
-	Request, err := http.NewRequest("GET", s, nil)
+	Request, err := http.NewRequest("GET", abs, nil)
 	if err != nil {
 		fmt.Println(err)
 	}
-	Request.URL.RawQuery = g.param.Encode()
-	Request.Header.Set("User-Agent", "Himawari")
 
 	client := new(http.Client)
 
 	Response, err := client.Do(Request)
 
-	defer Response.Body.Close()
+	Response.Body.Close()
+
+	Request.URL.RawQuery = r.Param.Encode()
+	Request.Header.Set("User-Agent", "Himawari")
 
 	if err != nil {
 		fmt.Println("Unable to reach the server.")
