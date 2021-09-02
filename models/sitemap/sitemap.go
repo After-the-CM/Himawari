@@ -26,23 +26,22 @@ func addChild(node *entity.Node, parsedPath []string, request http.Request) {
 			*node.Children = append(*node.Children, *child)
 			childIdx = 0
 		}
-		if len(parsedPath) > 1 {
-			addChild(&(*node.Children)[childIdx], parsedPath[1:], request)
-		} else {
-			for _, v := range (*node.Children)[childIdx].Messages {
-				if v.URL.RawQuery == request.URL.RawQuery {
-					return
-				}
+		addChild(&(*node.Children)[childIdx], parsedPath[1:], request)
+	} else {
+		for _, v := range (*node).Messages {
+			if v.URL.RawQuery == request.URL.RawQuery {
+				return
 			}
-			(*node.Children)[childIdx].Messages = append((*node.Children)[childIdx].Messages, request)
 		}
+		(*node).Messages = append((*node).Messages, request)
 	}
+
 }
 
-func AddPath(node *entity.Node, request http.Request) {
+func Add(request http.Request) {
 	parsedPath := strings.Split(request.URL.Path, "/")
 	parsedPath = removeSpace(parsedPath)
-	addChild(node, parsedPath, request)
+	addChild(&entity.Nodes, parsedPath, request)
 }
 
 func getChildIdx(node *entity.Node, path string) int {
@@ -55,6 +54,14 @@ func getChildIdx(node *entity.Node, path string) int {
 		return -1
 	}
 	return -2
+}
+
+func getParams(node entity.Node) []string {
+	params := make([]string, len(node.Messages))
+	for i, message := range node.Messages {
+		params[i] = message.URL.Query().Encode()
+	}
+	return params
 }
 
 func IsExist(request http.Request) bool {
@@ -86,7 +93,8 @@ func jsonAddChild(node entity.Node, jsonNode *entity.JsonNode) {
 	if node.Children != nil {
 		for i, v := range *node.Children {
 			child := &entity.JsonNode{
-				Path: v.Path,
+				Path:   v.Path,
+				Params: getParams(v),
 			}
 
 			(*jsonNode).Children = append((*jsonNode).Children, *child)
@@ -99,29 +107,34 @@ func jsonAddChild(node entity.Node, jsonNode *entity.JsonNode) {
 
 func MtoJ(node entity.Node) entity.JsonNode {
 	jsonNode := entity.JsonNode{
-		Path: node.Path,
+		Path:   node.Path,
+		Params: getParams(node),
 	}
 	jsonAddChild(node, &jsonNode)
 	return jsonNode
 }
 
-func PrintMap(node entity.Node, indent int) {
+func printMap(node entity.Node, indent int) {
 	for i := 0; i < indent; i++ {
 		fmt.Printf("\t")
 	}
 	fmt.Println(node.Path)
+	/*
+		for i := 1; i < len(node.Messages); i++ {
+			fmt.Printf("%v, ", node.Messages[i].URL.Query().Encode())
+		}
+	*/
 
-	for i := 1; i < len(node.Messages); i++ {
-		fmt.Printf("%v, ", node.Messages[i].URL.Query().Encode())
-	}
-
-	fmt.Println()
 	if node.Children != nil {
 		indent++
 		for _, v := range *node.Children {
-			PrintMap(v, indent)
+			printMap(v, indent)
 		}
 	}
+}
+
+func PrintMap() {
+	printMap(entity.Nodes, 0)
 }
 
 func removeSpace(parsedPath []string) []string {

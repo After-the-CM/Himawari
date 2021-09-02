@@ -17,17 +17,11 @@ func ReadSitemap(c *gin.Context) {
 func Crawl(c *gin.Context) {
 	/*
 		url, _ := url.Parse(c.PostForm("url"))
-		request, _ := http.NewRequest("GET", url.String(), nil)
-		entity.Nodes.Messages = append(entity.Nodes.Messages, *request)
-		req := entity.RequestStruct{
-			Referer: url.String(),
-			Path:    url.Path,
-			Param:   url.Query(),
-		}
-		sitemap.PrintMap(entity.Nodes, 0)
-		crawler.GetRequest(req)
-		sitemap.PrintMap(entity.Nodes, 0)
-	*/
 
+		// urlのバリデーション
+
+		 crawler.Crawl(url)
+	*/
+	sitemap.PrintMap()
 	c.String(http.StatusOK, "OK")
 }

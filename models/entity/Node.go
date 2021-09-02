@@ -11,6 +11,7 @@ type Node struct {
 
 type JsonNode struct {
 	Path     string     `json:"path"`
+	Params   []string   `json:"params"`
 	Children []JsonNode `json:"children"`
 }
 
