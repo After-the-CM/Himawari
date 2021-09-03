@@ -2,9 +2,12 @@ package crawler
 
 import (
 	"fmt"
-	"strings"
+	"io"
+	"os"
 	"net/http"
 	"net/url"
+	"bytes"
+	"strings"
 
 	"Himawari/models/entity"
 )
@@ -18,28 +21,31 @@ func PostRequest(r entity.RequestStruct) {
 
 	// ここでnameの場所に値を入れる。
 	postData := r.Param
-	
+
 	req, err := http.NewRequest("POST", abs, strings.NewReader(postData.Encode()))
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 	}
-	
+
 	// Request Header 設定
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("User-Agent", "Himawari")
-	
+	req.Header.Set("Referer", r.Referer)
+
 	// Requestを投げてResponseを得る。
 	client := new(http.Client)
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println("Unable to reach the server.")
-	} 
-	resp.Body.Close()
+		fmt.Fprintf(os.Stderr, "Unable to reach the server.")
+	}
 	
-	// bodyをfunc2に投げる。
-	// func2(Response)
-
 	// fmt.Println("StatusCode =", resp.StatusCode)
+
+	body, _ := io.ReadAll(resp.Body)
+	resp.Body.Close()
+
+	// bodyをfunc2に投げる。
+	// func2(bytes.NewBuffer(body), base)
 	
 	return
 }
