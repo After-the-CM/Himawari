@@ -29,8 +29,8 @@
 <body>
     <ul id="demo">
         <p>
-            Add Path: <input type="text" v-model="path" placeholder="/users/y0d3n/" v-on:keyup.enter="doAddPath">
-            <button v-on:click="doAddPath()" >add</button>
+            Crawl: <input type="text" v-model="url" placeholder="http://localhost:8081" v-on:keyup.enter="doCrawl">
+            <button v-on:click="doCrawl()" >add</button>
         </p>
         <tree-item class="item" :item="treeData" ></tree-item>
     </ul>

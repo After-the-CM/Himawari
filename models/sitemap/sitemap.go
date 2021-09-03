@@ -2,12 +2,13 @@ package sitemap
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
 
 	"Himawari/models/entity"
 )
 
-func addChild(node *entity.Node, parsedPath []string) {
+func addChild(node *entity.Node, parsedPath []string, request http.Request) {
 	if len(parsedPath) > 0 {
 		childIdx := getChildIdx(node, parsedPath[0])
 		child := &entity.Node{
@@ -25,16 +26,22 @@ func addChild(node *entity.Node, parsedPath []string) {
 			*node.Children = append(*node.Children, *child)
 			childIdx = 0
 		}
-		if len(parsedPath) > 1 {
-			addChild(&(*node.Children)[childIdx], parsedPath[1:])
+		addChild(&(*node.Children)[childIdx], parsedPath[1:], request)
+	} else {
+		for _, v := range (*node).Messages {
+			if v.URL.RawQuery == request.URL.RawQuery {
+				return
+			}
 		}
+		(*node).Messages = append((*node).Messages, request)
 	}
+
 }
 
-func AddPath(node *entity.Node, fullPath string) {
-	parsedPath := strings.Split(fullPath, "/")
+func Add(request http.Request) {
+	parsedPath := strings.Split(request.URL.Path, "/")
 	parsedPath = removeSpace(parsedPath)
-	addChild(node, parsedPath)
+	addChild(&entity.Nodes, parsedPath, request)
 }
 
 func getChildIdx(node *entity.Node, path string) int {
@@ -49,23 +56,36 @@ func getChildIdx(node *entity.Node, path string) int {
 	return -2
 }
 
-func IsExist(fullPath string) bool {
-	parsedPath := strings.Split(fullPath, "/")
-	parsedPath = removeSpace(parsedPath)
-	return isExist(&entity.Nodes, parsedPath)
+func getParams(node entity.Node) []string {
+	params := make([]string, len(node.Messages))
+	for i, message := range node.Messages {
+		params[i] = message.URL.Query().Encode()
+	}
+	return params
 }
 
-func isExist(node *entity.Node, parsedPath []string) bool {
+func IsExist(request http.Request) bool {
+	parsedPath := strings.Split(request.URL.Path, "/")
+	parsedPath = removeSpace(parsedPath)
+	return isExist(&entity.Nodes, parsedPath, request)
+}
+
+func isExist(node *entity.Node, parsedPath []string, request http.Request) bool {
 	if len(parsedPath) > 0 {
 		childIdx := getChildIdx(node, parsedPath[0])
 
 		if childIdx >= 0 {
-			return isExist(&(*node.Children)[childIdx], parsedPath[1:])
+			return isExist(&(*node.Children)[childIdx], parsedPath[1:], request)
 		} else {
 			return false
 		}
 	} else {
-		return true
+		for _, v := range node.Messages {
+			if v.URL.Query().Encode() == request.URL.Query().Encode() {
+				return true
+			}
+		}
+		return false
 	}
 }
 
@@ -73,7 +93,8 @@ func jsonAddChild(node entity.Node, jsonNode *entity.JsonNode) {
 	if node.Children != nil {
 		for i, v := range *node.Children {
 			child := &entity.JsonNode{
-				Path: v.Path,
+				Path:   v.Path,
+				Params: getParams(v),
 			}
 
 			(*jsonNode).Children = append((*jsonNode).Children, *child)
@@ -86,23 +107,34 @@ func jsonAddChild(node entity.Node, jsonNode *entity.JsonNode) {
 
 func MtoJ(node entity.Node) entity.JsonNode {
 	jsonNode := entity.JsonNode{
-		Path: node.Path,
+		Path:   node.Path,
+		Params: getParams(node),
 	}
 	jsonAddChild(node, &jsonNode)
 	return jsonNode
 }
 
-func PrintMap(node entity.Node, indent int) {
+func printMap(node entity.Node, indent int) {
 	for i := 0; i < indent; i++ {
 		fmt.Printf("\t")
 	}
 	fmt.Println(node.Path)
+	/*
+		for i := 1; i < len(node.Messages); i++ {
+			fmt.Printf("%v, ", node.Messages[i].URL.Query().Encode())
+		}
+	*/
+
 	if node.Children != nil {
 		indent++
 		for _, v := range *node.Children {
-			PrintMap(v, indent)
+			printMap(v, indent)
 		}
 	}
+}
+
+func PrintMap() {
+	printMap(entity.Nodes, 0)
 }
 
 func removeSpace(parsedPath []string) []string {

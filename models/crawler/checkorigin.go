@@ -1,7 +1,6 @@
 package crawler
 
 import (
-	"fmt"
 	"net/url"
 )
 
@@ -30,8 +29,8 @@ func main() {
 func CheckUrlOrigin(t *TestStruct) bool {
 	base, _ := url.Parse(t.referer)
 	add, _ := url.Parse(t.path)
-	fmt.Println(base.Port())
-	fmt.Println(add.Port())
+	//	fmt.Println(base.Port())
+	//	fmt.Println(add.Port())
 
 	switch {
 	//2つのポート番号が空の場合→ホスト(ポート番号を除く)と、スキームを比較する

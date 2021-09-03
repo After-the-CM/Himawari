@@ -1,9 +1,11 @@
 package entity
 
-import ("net/url")
+import (
+	"net/url"
+)
 
 type RequestStruct struct {
 	Referer string
-	Path   string
-	Param url.Values
+	Path    string
+	Param   url.Values
 }

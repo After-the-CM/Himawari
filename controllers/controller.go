@@ -14,10 +14,14 @@ func ReadSitemap(c *gin.Context) {
 	c.JSON(http.StatusOK, j)
 }
 
-func AddPath(c *gin.Context) {
-	path := c.PostForm("path")
+func Crawl(c *gin.Context) {
+	/*
+		url, _ := url.Parse(c.PostForm("url"))
 
-	sitemap.AddPath(&entity.Nodes, path)
+		// urlのバリデーション
 
+		 crawler.Crawl(url)
+	*/
+	sitemap.PrintMap()
 	c.String(http.StatusOK, "OK")
 }
