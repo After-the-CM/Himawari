@@ -12,9 +12,9 @@ import (
 func PostRequest(r entity.RequestStruct) {
 	// inputのurlはrequestに必要な要素を構造体or引数として渡す。
 	// 関数の中で組み合わせてurlを生成する(?)。
-    base, _ := url.Parse(r.Referer)
-    rel, _ := url.Parse(r.Path)
-    abs := base.ResolveReference(rel).String()
+	base, _ := url.Parse(r.Referer)
+	rel, _ := url.Parse(r.Path)
+	abs := base.ResolveReference(rel).String()
 
 	// ここでnameの場所に値を入れる。
 	postData := r.Param
