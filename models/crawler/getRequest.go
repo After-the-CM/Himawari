@@ -2,8 +2,10 @@ package crawler
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
+	"os"
 
 	"Himawari/models/entity"
 )
@@ -16,7 +18,7 @@ func GetRequest(r entity.RequestStruct) {
 
 	Request, err := http.NewRequest("GET", abs, nil)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 	}
 
 	Request.URL.RawQuery = r.Param.Encode()
@@ -24,10 +26,12 @@ func GetRequest(r entity.RequestStruct) {
 
 	client := new(http.Client)
 	Response, err := client.Do(Request)
+
+	body, _ := io.ReadAll(Response.Body)
 	Response.Body.Close()
 
 	if err != nil {
-		fmt.Println("Unable to reach the server.")
+		fmt.Fprintln(os.Stderr, "Unable to reach the server.")
 	} else {
 		// bodyをfunc2に投げる。
 		// func2(Response)
