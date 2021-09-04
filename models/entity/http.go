@@ -8,4 +8,5 @@ type RequestStruct struct {
 	Referer string
 	Path    string
 	Param   url.Values
+	Method  string
 }

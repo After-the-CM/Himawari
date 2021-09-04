@@ -5,12 +5,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"Himawari/models/entity"
 	"Himawari/models/sitemap"
 )
 
 func ReadSitemap(c *gin.Context) {
-	j := sitemap.MtoJ(entity.Nodes)
+	j := sitemap.Json()
 	c.JSON(http.StatusOK, j)
 }
 
