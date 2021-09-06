@@ -23,19 +23,18 @@ func GetRequest(r entity.RequestStruct) {
 
 	Request.URL.RawQuery = r.Param.Encode()
 	Request.Header.Set("User-Agent", "Himawari")
+	Request.Header.Set("Referer", r.Referer)
 
 	client := new(http.Client)
 	Response, err := client.Do(Request)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Unable to reach the server.")
+	}
 
 	body, _ := io.ReadAll(Response.Body)
 	Response.Body.Close()
-
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Unable to reach the server.")
-	} else {
-		// bodyをfunc2に投げる。
-		// func2(Response)
-	}
+	// bodyをfunc2に投げる。
+	// func2(bytes.NewBuffer(body), base)
 
 	return
 }
