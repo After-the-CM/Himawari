@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"bytes"
 	"strings"
@@ -34,16 +35,16 @@ func PostRequest(r entity.RequestStruct) {
 		sitemap.Add(*req)
 
 		client := new(http.Client)
-		Response, err := client.Do(req)
+		resp, err := client.Do(req)
 
 		if err != nil {
-			dump, _ := http.httputil.DumpRequestOut(Request, true)
+			dump, _ := httputil.DumpRequestOut(req, true)
 			fmt.Printf("%s", dump)
 			fmt.Println("Unable to reach the server.", err)
 		} else {
 			body, _ := io.ReadAll(resp.Body)
 			resp.Body.Close()
-			func2(bytes.NewBuffer(body), base)
+			CollectLinks(bytes.NewBuffer(body), base)
 		}
 	}
 	return
