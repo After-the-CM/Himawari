@@ -9,7 +9,7 @@ type RequestStruct struct {
 	Path	string
 	Param	url.Values
 	Form	HtmlForm
-
+}
 
 type HtmlForm struct {
 	Action string

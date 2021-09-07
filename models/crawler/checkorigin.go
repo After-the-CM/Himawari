@@ -1,6 +1,7 @@
 package crawler
 
 import (
+	"fmt"
 	"net/url"
 
 	"Himawari/models/entity"
@@ -77,6 +78,6 @@ func JudgeMethod(r entity.RequestStruct) {
 		PostRequest(r)
 	} else {
 		fmt.Println("Other Methods.")
-		return 
+		return
 	}
 }
