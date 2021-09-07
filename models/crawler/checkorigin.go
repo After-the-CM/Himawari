@@ -23,10 +23,10 @@ func main() {
 */
 
 func CheckUrlOrigin(t *entity.TestStruct) bool {
-	base, _ := url.Parse(t.Referer)
-	add, _ := url.Parse(t.Path)
-	fmt.Println(base.Port())
-	fmt.Println(add.Port())
+	base, _ := url.Parse(t.Origin)
+	add, _ := url.Parse(t.Validation)
+	//fmt.Println(base.Port())
+	//fmt.Println(add.Port())
 
 	switch {
 	//2つのポート番号が空の場合→ホスト(ポート番号を除く)と、スキームを比較する

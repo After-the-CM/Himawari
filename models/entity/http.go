@@ -14,3 +14,10 @@ type HtmlForm struct {
 	Method string
 	Values url.Values
 }
+
+type TestStruct struct {
+	//リンクが存在したページのURL
+	Origin string
+	//formの場合はaction
+	Validation string
+}
