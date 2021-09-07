@@ -1,7 +1,10 @@
 package crawler
 
 import (
+	"fmt"
 	"net/url"
+
+	"Himawari/models/entity"
 )
 
 const (
@@ -12,13 +15,6 @@ const (
 	httpsSch  = "https"
 )
 
-type TestStruct struct {
-	//リンクが存在したページのURL
-	referer string
-	//formの場合はaction
-	path string
-}
-
 /*
 func main() {
 	test := testStruct{"http://amazon/", "http://amazon:80/index.php"}
@@ -26,11 +22,11 @@ func main() {
 }
 */
 
-func CheckUrlOrigin(t *TestStruct) bool {
-	base, _ := url.Parse(t.referer)
-	add, _ := url.Parse(t.path)
-	//	fmt.Println(base.Port())
-	//	fmt.Println(add.Port())
+func CheckUrlOrigin(t *entity.TestStruct) bool {
+	base, _ := url.Parse(t.Origin)
+	add, _ := url.Parse(t.Validation)
+	//fmt.Println(base.Port())
+	//fmt.Println(add.Port())
 
 	switch {
 	//2つのポート番号が空の場合→ホスト(ポート番号を除く)と、スキームを比較する
@@ -73,4 +69,15 @@ func getSchemaPort(s string) string {
 		httpsSch: httpsPort,
 	}
 	return ports[s]
+}
+
+func JudgeMethod(r entity.RequestStruct) {
+	if r.Form.Method == "GET" {
+		GetRequest(r)
+	} else if r.Form.Method == "POST" {
+		PostRequest(r)
+	} else {
+		fmt.Println("Other Methods.")
+		return
+	}
 }
