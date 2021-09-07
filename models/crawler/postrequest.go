@@ -15,9 +15,22 @@ import (
 )
 
 func PostRequest(r entity.RequestStruct) {
+	fmt.Println("Start POST Request")
 	base, _ := url.Parse(r.Referer)
 	rel, _ := url.Parse(r.Path)
 	abs := base.ResolveReference(rel).String()
+
+	t := entity.TestStruct {
+		// Originをhard codingしちゃってる。
+		Origin: "http://localhost:8081/",
+		Validation: abs,
+	}
+	if !CheckUrlOrigin(&t) {
+		fmt.Println(abs, "is out of Origin.")
+		return 
+	} else {
+		fmt.Println(abs)
+	}
 
 	postData := r.Param
 
@@ -43,6 +56,11 @@ func PostRequest(r entity.RequestStruct) {
 			fmt.Println("Unable to reach the server.", err)
 		} else {
 			body, _ := io.ReadAll(resp.Body)
+			if resp.StatusCode == 200 {
+				fmt.Println("Found: ", abs)
+			} else {
+				fmt.Println(resp.StatusCode, ": ", abs)
+			}
 			resp.Body.Close()
 			CollectLinks(bytes.NewBuffer(body), base)
 		}
