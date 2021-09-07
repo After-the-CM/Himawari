@@ -1,7 +1,6 @@
 package crawler
 
 import (
-	"fmt"
 	"net/url"
 
 	"Himawari/models/entity"

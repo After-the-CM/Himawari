@@ -1,6 +1,6 @@
 // demo data
 var treeData = {
-    path: "",
+    url: "",
     children: []
 };
 
@@ -52,11 +52,11 @@ var demo = new Vue({
                     }
                 })
         },
-        doAddPath() {
+        doCrawl() {
             const params = new URLSearchParams();
-            params.append('path', this.path);
+            params.append('url', this.url);
 
-            axios.post('/api/addPath', params)
+            axios.post('/api/crawl', params)
                 .then(response => {
                     if (response.status != 200) {
                         throw new Error('something error');
