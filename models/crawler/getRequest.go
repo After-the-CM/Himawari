@@ -1,13 +1,13 @@
 package crawler
 
 import (
+	"bytes"
 	"fmt"
 	"io"
-	"os"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"bytes"
+	"os"
 
 	"Himawari/models/entity"
 	"Himawari/models/sitemap"
@@ -15,34 +15,57 @@ import (
 
 func GetRequest(r entity.RequestStruct) (forms []entity.HtmlForm) {
 	fmt.Println("Start GET Request")
-	base, _ := url.Parse(r.Referer)
-	rel, _ := url.Parse(r.Path)
-	abs := base.ResolveReference(rel).String()
-	
-	t := entity.TestStruct {
+	//Refererは*url.Urlに変更
+	//base, _ := url.Parse(r.Referer)
+	//Pathは*stringに変更
+	rel, _ := url.Parse(*r.Path)
+	//abs := base.ResolveReference(rel).String()
+	abs := r.Referer.ResolveReference(rel)
+
+	//Pathにabsを入れる必要がないかもしれないと思いコメントアウト化
+	//r.Path = abs
+
+	t := entity.TestStruct{
 		// Originをhard codingしちゃってる。
-		Origin: "http://localhost:8081/",
-		Validation: abs,
+		//一度、構造体の型を変更せずに実装してみてる
+		Origin:     r.Referer.String(), //"http://localhost:8081/",
+		Validation: abs.String(),
 	}
-	if !CheckUrlOrigin(&t) {
+	//CheckUrlOrigi→IsSameOrigin(引数も変更)に変更
+	if !IsSameOrigin(&r, abs) {
 		fmt.Println(abs, "is out of Origin.")
-		return 
+		entity.Item.AppendItem(t.Origin, t.Validation)
+		return
 	} else {
 		fmt.Println(abs)
 	}
 
-	req, err := http.NewRequest("GET", abs, nil)
+	/*
+		if !CheckUrlOrigin(&t) {
+			fmt.Println(abs, "is out of Origin.")
+			entity.Item.AppendItem(t.Origin, t.Validation)
+			return
+		} else {
+			fmt.Println(abs)
+		}
+	*/
+
+	//構造体の変更に伴いString()メソッドの利用に変更
+	req, err := http.NewRequest("GET", abs.String(), nil)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		//return
 	}
 	req.URL.RawQuery = r.Param.Encode()
 	req.Header.Set("User-Agent", "Himawari")
-	req.Header.Set("Referer", r.Referer)
+	//構造体変更に伴いString()メソッドの利用に変更
+	req.Header.Set("Referer", r.Referer.String())
 
 	if !sitemap.IsExist(*req) {
 		// fmt.Println("GetRequest:", req)
 		sitemap.Add(*req)
+		fmt.Println("httpreq-------------------------")
+		fmt.Println(*req)
 
 		client := new(http.Client)
 		resp, err := client.Do(req)
@@ -60,7 +83,7 @@ func GetRequest(r entity.RequestStruct) (forms []entity.HtmlForm) {
 				fmt.Println(resp.StatusCode, ": ", abs)
 			}
 			resp.Body.Close()
-			CollectLinks(bytes.NewBuffer(body), base)
+			CollectLinks(bytes.NewBuffer(body), abs)
 		}
 	}
 	fmt.Println(abs, " is Exist.")

@@ -64,6 +64,18 @@ var demo = new Vue({
                         this.doFetchSitemap();
                     }
                 })
+        },
+        doFound() {
+            axios.get('/api/found')
+                .then(response => {
+                    if (response.status != 200) {
+                        throw new Error('something error');
+                    } else {
+                        var founditem = response.data;
+                        console.log(founditem)
+
+                    }
+                })
         }
     }
 });
