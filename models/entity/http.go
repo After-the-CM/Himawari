@@ -17,8 +17,8 @@ type RequestStruct struct {
 	//リンクが存在したページのURL
 	Referer *url.URL
 	//formの場合はaction
-	//Path *url.URL
-	Path *string
+	Path *url.URL
+	//Path *string
 
 	Param url.Values
 

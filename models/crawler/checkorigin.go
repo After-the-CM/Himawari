@@ -50,12 +50,6 @@ func IsSameOrigin(t *entity.RequestStruct, n *url.URL) bool {
 		fallthrough
 		//どちらか片方がポートが空の場合
 	case n.Port() == empty:
-		/*
-			if (t.Referer.Port()) == (getSchemaPort(&(n.Scheme))) {
-				fmt.Println("true : n.Port() == empty:")
-				return true
-			}
-		*/
 		if getSchemaPort(&(n.Scheme), t.Referer.Port()) {
 			//fmt.Println("true : t.Referer.Port() == empty:")
 			return true

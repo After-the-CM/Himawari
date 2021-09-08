@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"net/http/httputil"
-	"net/url"
 	"os"
 
 	"Himawari/models/entity"
@@ -17,10 +16,10 @@ func GetRequest(r entity.RequestStruct) (forms []entity.HtmlForm) {
 	fmt.Println("Start GET Request")
 	//Refererは*url.Urlに変更
 	//base, _ := url.Parse(r.Referer)
-	//Pathは*stringに変更
-	rel, _ := url.Parse(*r.Path)
+	//Pathは*url.URLに変更
+	//rel, _ := url.Parse(*r.Path)
 	//abs := base.ResolveReference(rel).String()
-	abs := r.Referer.ResolveReference(rel)
+	abs := r.Referer.ResolveReference(r.Path)
 
 	//Pathにabsを入れる必要がないかもしれないと思いコメントアウト化
 	//r.Path = abs
@@ -64,8 +63,6 @@ func GetRequest(r entity.RequestStruct) (forms []entity.HtmlForm) {
 	if !sitemap.IsExist(*req) {
 		// fmt.Println("GetRequest:", req)
 		sitemap.Add(*req)
-		fmt.Println("httpreq-------------------------")
-		fmt.Println(*req)
 
 		client := new(http.Client)
 		resp, err := client.Do(req)

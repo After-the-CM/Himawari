@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"net/http/httputil"
-	"net/url"
 	"os"
 	"strings"
 
@@ -18,10 +17,10 @@ func PostRequest(r entity.RequestStruct) {
 	fmt.Println("Start POST Request")
 	//GetRequestと同じように変更
 	//base, _ := url.Parse(r.Referer)
-	rel, _ := url.Parse(*r.Path)
+	//rel, _ := url.Parse(*r.Path)
 	//abs := base.ResolveReference(rel).String()
 	//abs := r.Referer.ResolveReference(rel).String()
-	abs := r.Referer.ResolveReference(rel)
+	abs := r.Referer.ResolveReference(r.Path)
 
 	//構造体の変更に伴いString()メソッドの利用に変更
 	t := entity.TestStruct{
