@@ -52,7 +52,7 @@ func SetValues(form entity.HtmlForm, r entity.RequestStruct) {
 					if v != "NaN" {
 						values.Set("type", attrs[i][j])
 						if attrs[i]["Value"] == "NaN" {
-							values.Set("value", attrs[i][testData[attrs[i][j]]])
+							values.Set("value", testData[attrs[i][j]])
 						}
 					}
 				case "Name":
