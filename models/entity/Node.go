@@ -6,7 +6,7 @@ type Node struct {
 	Parent   *Node
 	Path     string
 	Children *[]Node
-	Messages []*http.Request
+	Messages []http.Request
 }
 
 type JsonNode struct {

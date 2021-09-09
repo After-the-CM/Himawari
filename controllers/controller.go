@@ -2,9 +2,11 @@ package controllers
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/gin-gonic/gin"
 
+	"Himawari/models/crawler"
 	"Himawari/models/sitemap"
 )
 
@@ -14,13 +16,11 @@ func ReadSitemap(c *gin.Context) {
 }
 
 func Crawl(c *gin.Context) {
-	/*
-		url, _ := url.Parse(c.PostForm("url"))
+	url, _ := url.Parse(c.PostForm("url"))
 
-		// urlのバリデーション
+	// urlのバリデーション
 
-		 crawler.Crawl(url)
-	*/
+	crawler.Crawl(url)
 	sitemap.PrintMap()
 	c.String(http.StatusOK, "OK")
 }

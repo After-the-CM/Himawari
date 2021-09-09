@@ -8,7 +8,7 @@ import (
 	"Himawari/models/entity"
 )
 
-func addChild(node *entity.Node, parsedPath []string, request *http.Request) {
+func addChild(node *entity.Node, parsedPath []string, request http.Request) {
 	if len(parsedPath) > 0 {
 		childIdx := getChildIdx(node, parsedPath[0])
 		child := &entity.Node{
@@ -35,7 +35,7 @@ func addChild(node *entity.Node, parsedPath []string, request *http.Request) {
 
 }
 
-func Add(request *http.Request) {
+func Add(request http.Request) {
 	parsedPath := strings.Split(request.URL.Path, "/")
 	parsedPath = removeSpace(parsedPath)
 	addChild(&entity.Nodes, parsedPath, request)
@@ -53,13 +53,13 @@ func getChildIdx(node *entity.Node, path string) int {
 	return -2
 }
 
-func IsExist(request *http.Request) bool {
+func IsExist(request http.Request) bool {
 	parsedPath := strings.Split(request.URL.Path, "/")
 	parsedPath = removeSpace(parsedPath)
 	return isExist(&entity.Nodes, parsedPath, request)
 }
 
-func isExist(node *entity.Node, parsedPath []string, request *http.Request) bool {
+func isExist(node *entity.Node, parsedPath []string, request http.Request) bool {
 	if len(parsedPath) > 0 {
 		childIdx := getChildIdx(node, parsedPath[0])
 
