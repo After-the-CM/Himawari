@@ -7,19 +7,18 @@ import (
 	"Himawari/models/entity"
 )
 
-// memo: Goは配列をconstとして宣言できない。
 // patternがあったとしても***Extreme***修正で対応できそう(?)
-func PrepareData() map[string][]string {
+func PrepareData() map[string]string {
 	// https://developer.mozilla.org/ja/docs/Web/HTML/Element/input
-	testData := map[string][]string{
-		"email":    {"Himawari@example.com"},
-		"url":      {"http://example.com"},
-		"tel":      {"00012345678", "000-1234-5678", "+81-00-1234-5678"},
-		"date":     {"2020-12-16"},
-		"text":     {"Himawari"},
-		"textarea": {"Himawari"},
+	// 実装が重くなったので、テストケースは1種類で実装。
+	testData := map[string]string{
+		"email":    "Himawari@example.com",
+		"url":      "http://example.com",
+		"tel":      "00012345678",
+		"date":     "2020-12-16",
+		"text":     "Himawari",
+		"textarea": "Himawari",
 		//"datetime-local"
-
 	}
 	return testData
 }
@@ -28,41 +27,56 @@ func PrepareData() map[string][]string {
 func SetValues(form entity.HtmlForm, r entity.RequestStruct) {
 	fmt.Println("Start func3")
 	testData := PrepareData()
-
-	for i := 0; i < len(form.Values)-7; i++ {
-		name := form.Values["Name"][i]
-		typ := form.Values["Type"][i]
-		tag := form.Values["Tag"][i]
-		value := form.Values["Value"][i]
-
-		if value == "NaN" {
-			// test dataからtagに対応する値を持ってくる。動かないかもしれない。
-			value = testData[typ][0]
+	
+	r.Form.Action = form.Action
+	r.Form.Method = form.Method
+	attrs := make(map[int](map[string]string), len(form.Values["Name"]))
+	
+	for i := 0; i < len(form.Values["Name"]); i++ {
+		attr := make(map[string]string, len(form.Values))
+		for j, v := range(form.Values) {
+			attr[j] = v[i]
 		}
+		attrs[i] = attr
+	}
 
-		placeholder := form.Values["Placeholder"][0]
-		if placeholder != "NaN" {
-			value = placeholder
-		}
-		// requireに対応する処理は未実装
-		require := form.Values["Require"][0]
-		if require != "NaN" {
-			// requireFlag := true
-		}
-		// patternに対応する処理は未実装
-		pattern := form.Values["Pattern"][0]
-		if pattern != "NaN" {
-			// patternFlag := true
-		}
-
+	for i := 0; i < len(form.Values["Name"]); i++ {
 		values := url.Values{}
-		values.Set("tag", tag)
-		values.Set("type", typ)
-		values.Set("name", name)
-		values.Set("value", value)
+		for j, v := range(attrs[i]) {
+			switch j {
+				case "Tag":
+					if v != "NaN" {
+						values.Set("tag", attrs[i][j])
+					}
+				case "Type":
+					if v != "NaN" {
+						values.Set("type", attrs[i][j])
+						if attrs[i]["Value"] == "NaN" {
+							values.Set("value", attrs[i][testData[attrs[i][j]]])
+						}
+					}
+				case "Name":
+					if v != "NaN" {
+						values.Set("name", attrs[i][j])
+					}
+				case "Value":
+					if v == "NaN" {
+						values.Set("value", testData[attrs[i]["Type"]])
+					} else {
+						values.Set("value", attrs[i][j])
+					}
+				case "Placeholder":
+					if v != "NaN" {
+						attrs[i]["Value"] = v
+						values.Set("value", attrs[i]["Values"])
+					}
+				// patternに対応する処理は未実装
+				case "Pattern":
+					fmt.Println("DETECTED!! HTML attribute: Pattern!!")
+				// requireに対応する処理は未実装だが、ValueにはNaN以外の値を入れて送信してるからいいかな
+			}
+		}
 		r.Param = values
-
-		// func1へ
 		PostRequest(r)
 	}
 }
