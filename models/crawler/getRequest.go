@@ -55,7 +55,14 @@ func GetRequest(r entity.RequestStruct) (forms []entity.HtmlForm) {
 		fmt.Fprintln(os.Stderr, err)
 		//return
 	}
-	req.URL.RawQuery = r.Param.Encode()
+
+	if len(r.Param) != 0 {
+		req.URL.RawQuery = r.Param.Encode()
+	} else {
+		req.URL.RawQuery = abs.RawQuery
+
+	}
+
 	req.Header.Set("User-Agent", "Himawari")
 	//構造体変更に伴いString()メソッドの利用に変更
 	req.Header.Set("Referer", r.Referer.String())
