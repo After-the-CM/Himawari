@@ -44,10 +44,10 @@ func PostRequest(r entity.RequestStruct) {
 		}
 	*/
 
-	postData := r.Param
+	//postData := r.Param
 
 	//構造体の変更に伴いString()メソッドの利用に変更
-	req, err := http.NewRequest("POST", abs.String(), strings.NewReader(postData.Encode()))
+	req, err := http.NewRequest("POST", abs.String(), strings.NewReader(r.Param.Encode()))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 	}
@@ -56,12 +56,16 @@ func PostRequest(r entity.RequestStruct) {
 	req.Header.Set("User-Agent", "Himawari")
 	req.Header.Set("Referer", r.Referer.String())
 	req.PostForm = r.Param
+	fmt.Println("hererrrrrrrrrr", req.PostForm)
+	fmt.Println(req.URL.RawQuery)
+	fmt.Println(req)
 	if !sitemap.IsExist(*req) {
 		// fmt.Println("GetRequest:", req)
 		sitemap.Add(*req)
 
 		client := new(http.Client)
 		resp, err := client.Do(req)
+		fmt.Println("respppppppppppppppppp", resp)
 
 		if err != nil {
 			dump, _ := httputil.DumpRequestOut(req, true)

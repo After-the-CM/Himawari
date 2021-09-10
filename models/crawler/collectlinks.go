@@ -199,6 +199,86 @@ func parseHtml(doc *goquery.Document, r entity.RequestStruct) {
 	})
 }
 
+func parseForms(doc *goquery.Document, r entity.RequestStruct) {
+	doc.Find("form").Each(func(_ int, s *goquery.Selection) {
+		form := entity.HtmlForm{}
+		form.Action, _ = s.Attr("action")
+		form.Method, _ = s.Attr("method")
+		var inputs []entity.HtmlForm
+
+		s.Find("input").Each(func(_ int, s *goquery.Selection) {
+			//tag := "input"
+
+			nameAttr, _ := s.Attr("name")
+			form.Name = nameAttr
+
+			typ, _ := s.Attr("type")
+			typ = strings.ToLower(typ)
+			form.Type = typ
+
+			_, checked := s.Attr("checked")
+			if (typ == "radio" || typ == "checkbox") && !checked {
+				//return
+			}
+
+			//form.Values.Add("Tag", tag)
+
+			value, ok := s.Attr("value")
+			if ok {
+				form.Value = value
+			}
+
+			placeholder, placeholderB := s.Attr("placeholder")
+			if placeholderB {
+				form.Placeholder = placeholder
+			} else {
+				form.Placeholder = "NaN"
+			}
+
+			/*
+				pattern, patternB := s.Attr("pattern")
+				if patternB {
+					form.Values.Add("Pattern", pattern)
+				} else {
+					// fmt.Fprintln(os.Stderr, "'value' Not Found...")
+					form.Values.Add("Pattern", "NaN")
+				}
+
+				require, requireB := s.Attr("require")
+				if requireB {
+					form.Values.Add("Require", require)
+				} else {
+					form.Values.Add("Require", "Nan")
+				}
+			*/
+			inputs = append(inputs, form)
+		})
+
+		//SetValues(form, r)
+		SetValues(inputs, r)
+
+		/*
+			s.Find("textarea").Each(func(_ int, s *goquery.Selection) {
+				name, _ := s.Attr("name")
+				if name == "" {
+					//return
+				}
+
+				value := s.Text()
+				form.Values.Add(name, value)
+			})
+		*/
+
+		// formタグがある限り収集したParameterとその値はformsにて保持できている。
+		// fmt.Println(fomrs)
+		//forms = append(forms, form)
+
+	})
+
+	return
+}
+
+/*
 func parseForms(doc *goquery.Document, r entity.RequestStruct) (forms []entity.HtmlForm) {
 	doc.Find("form").Each(func(_ int, s *goquery.Selection) {
 		form := entity.HtmlForm{Values: url.Values{}}
@@ -275,7 +355,6 @@ func parseForms(doc *goquery.Document, r entity.RequestStruct) (forms []entity.H
 				value := s.Text()
 				form.Values.Add(name, value)
 			})
-		*/
 
 		// formタグがある限り収集したParameterとその値はformsにて保持できている。
 		// fmt.Println(fomrs)
@@ -285,3 +364,5 @@ func parseForms(doc *goquery.Document, r entity.RequestStruct) (forms []entity.H
 
 	return forms
 }
+
+*/

@@ -13,8 +13,8 @@ func main() {
 	fmt.Println("Start Crawl: ", url)
 	crawler.Crawl(url)
 }
-*/
 
+*/
 func main() {
 	router := gin.Default()
 	router.Static("/views", "./views")

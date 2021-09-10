@@ -12,7 +12,8 @@ import (
 )
 
 func ReadSitemap(c *gin.Context) {
-	j := sitemap.MtoJ(entity.Nodes)
+	//j := sitemap.MtoJ(entity.Nodes)
+	j := sitemap.Json()
 	c.JSON(http.StatusOK, j)
 }
 

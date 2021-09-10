@@ -23,15 +23,20 @@ type RequestStruct struct {
 	Param url.Values
 
 	//Method string
+	//Form []HtmlForm
 	Form HtmlForm
 }
 
 type HtmlForm struct {
-	Action string
-	Method string
-	Values url.Values
+	Action      string
+	Method      string
+	Type        string
+	Name        string
+	Value       string
+	Placeholder string
+	IsOption    bool
+	//Values      url.Values
 }
-
 type TestStruct struct {
 	//リンクが存在したページのURL
 	Origin string
