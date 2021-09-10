@@ -7,7 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"Himawari/models/crawler"
-	"Himawari/models/sitemap"
+
+	"Himawari/models/entity"
 )
 
 func ReadSitemap(c *gin.Context) {
@@ -21,6 +22,12 @@ func Crawl(c *gin.Context) {
 	// urlのバリデーション
 
 	crawler.Crawl(url)
+
 	sitemap.PrintMap()
 	c.String(http.StatusOK, "OK")
+}
+
+func FoundItem(c *gin.Context) {
+	f := entity.Item.Items
+	c.JSON(http.StatusOK, f)
 }

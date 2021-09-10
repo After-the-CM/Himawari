@@ -3,6 +3,7 @@ package crawler
 import (
 	"fmt"
 	"net/url"
+	"os"
 
 	"Himawari/models/entity"
 )
@@ -15,13 +16,73 @@ const (
 	httpsSch  = "https"
 )
 
-/*
-func main() {
-	test := testStruct{"http://amazon/", "http://amazon:80/index.php"}
-	fmt.Println(checkUrlOrigin(&test))
-}
-*/
+func IsSameOrigin(t *entity.RequestStruct, n *url.URL) bool {
+	fmt.Println(&n.Scheme)
+	fmt.Printf("%p\n", &t.Referer)
 
+	switch {
+	//2つのポート番号が空の場合→ホスト(ポート番号を除く)と、スキームを比較する
+	case (t.Referer.Port() == empty) && (n.Port() == empty):
+		if (t.Referer.Hostname() == n.Hostname()) && (t.Referer.Scheme == n.Scheme) {
+			//fmt.Println("true : 2つのポート番号が空の場合→ホスト(ポート番号を除く)と、スキームを比較する")
+			return true
+		} else {
+			//fmt.Println("false : 2つのポート番号が空の場合→ホスト(ポート番号を除く)と、スキームを比較する")
+			return false
+		}
+		//ホスト(ポート番号を含む)とスキームを比較する。
+	case t.Referer.Host == n.Host:
+		if t.Referer.Scheme == n.Scheme {
+			//fmt.Println("true : ホスト(ポート番号を含む)とスキームを比較する。")
+			return true
+		} else {
+			//fmt.Println(t.Referer)
+			//fmt.Println(t.Path)
+			//fmt.Println("false : ホスト(ポート番号を含む)とスキームを比較する。")
+			return false
+		}
+		//どちらか片方がポートが空の場合
+	case t.Referer.Port() == empty:
+		if getSchemaPort(&(t.Referer.Scheme), n.Port()) {
+			//fmt.Println("true : t.Referer.Port() == empty:")
+			return true
+		}
+		fallthrough
+		//どちらか片方がポートが空の場合
+	case n.Port() == empty:
+		if getSchemaPort(&(n.Scheme), t.Referer.Port()) {
+			//fmt.Println("true : t.Referer.Port() == empty:")
+			return true
+		}
+		//fmt.Println("false : リンクを見つけたページと、リンクのスキームとポートが自動解決できません。")
+		return false
+
+	default:
+		//fmt.Println(t.Referer)
+		//fmt.Println(t.Path)
+		//fmt.Println("false : default")
+		return false
+
+	}
+}
+
+//mapで`http`,`https`を受け取ったらポート番号を返す
+func getSchemaPort(s *string, p string) bool {
+
+	switch *s {
+	case httpSch:
+		return httpPort == p
+	case httpsSch:
+		return httpsPort == p
+	default:
+		fmt.Fprintln(os.Stderr, "http,httpsのスキーム以外のポートは自動解決されません。")
+		//ありえないポート番号をリターンさせる
+		return false
+	}
+
+}
+
+/*
 func CheckUrlOrigin(t *entity.TestStruct) bool {
 	base, _ := url.Parse(t.Origin)
 	add, _ := url.Parse(t.Validation)
@@ -70,6 +131,8 @@ func getSchemaPort(s string) string {
 	}
 	return ports[s]
 }
+
+*/
 
 func JudgeMethod(r entity.RequestStruct) {
 	if r.Form.Method == "GET" {
