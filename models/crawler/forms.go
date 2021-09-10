@@ -29,6 +29,8 @@ func SetValues(form entity.HtmlForm, r entity.RequestStruct) {
 	testData := PrepareData()
 	
 	r.Form.Action = form.Action
+	path, _ := url.Parse(form.Action)
+	r.Path = path
 	r.Form.Method = form.Method
 	attrs := make(map[int](map[string]string), len(form.Values["Name"]))
 	
