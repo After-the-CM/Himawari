@@ -1,19 +1,12 @@
 package main
 
 import (
-	"Himawari/controllers"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-)
 
-/*
-func main() {
-	url, _ := url.Parse("http://localhost:8081/")
-	fmt.Println("Start Crawl: ", url)
-	crawler.Crawl(url)
-}
-*/
+	"Himawari/controllers"
+)
 
 func main() {
 	router := gin.Default()
@@ -25,9 +18,8 @@ func main() {
 	{
 		api.GET("/sitemap", controllers.ReadSitemap)
 		api.POST("/crawl", controllers.Crawl)
-		api.GET("/found", controllers.FoundItem)
 	}
-	//router.POST("/api/deletePath", controller.DeletePath)
+	//	router.POST("/api/deletePath", controller.DeletePath)
 
 	router.GET("/", func(c *gin.Context) {
 		c.Redirect(301, "/Himawari")

@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httputil"
+	"net/url"
 	"os"
 	"strings"
 
@@ -15,46 +16,32 @@ import (
 
 func PostRequest(r entity.RequestStruct) {
 	fmt.Println("Start POST Request")
-	//GetRequestと同じように変更
-	//base, _ := url.Parse(r.Referer)
-	//rel, _ := url.Parse(*r.Path)
-	//abs := base.ResolveReference(rel).String()
-	//abs := r.Referer.ResolveReference(rel).String()
-	abs := r.Referer.ResolveReference(r.Path)
+	base, _ := url.Parse(r.Referer)
+	rel, _ := url.Parse(r.Path)
+	abs := base.ResolveReference(rel).String()
 
-	//構造体の変更に伴いString()メソッドの利用に変更
 	t := entity.TestStruct{
 		// Originをhard codingしちゃってる。
-		Origin:     r.Referer.String(), //"http://localhost:8081/",
-		Validation: abs.String(),
+		Origin:     "http://localhost:8081/",
+		Validation: abs,
 	}
-	if !IsSameOrigin(&r, abs) {
+	if !CheckUrlOrigin(&t) {
 		fmt.Println(abs, "is out of Origin.")
-		entity.Item.AppendItem(t.Origin, t.Validation)
 		return
 	} else {
 		fmt.Println(abs)
 	}
-	/*
-		if !CheckUrlOrigin(&t) {
-			fmt.Println(abs, "is out of Origin.")
-			return
-		} else {
-			fmt.Println(abs)
-		}
-	*/
 
 	postData := r.Param
 
-	//構造体の変更に伴いString()メソッドの利用に変更
-	req, err := http.NewRequest("POST", abs.String(), strings.NewReader(postData.Encode()))
+	req, err := http.NewRequest("POST", abs, strings.NewReader(postData.Encode()))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 	}
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("User-Agent", "Himawari")
-	req.Header.Set("Referer", r.Referer.String())
+	req.Header.Set("Referer", r.Referer)
 	req.PostForm = r.Param
 	if !sitemap.IsExist(*req) {
 		// fmt.Println("GetRequest:", req)
@@ -75,10 +62,8 @@ func PostRequest(r entity.RequestStruct) {
 				fmt.Println(resp.StatusCode, ": ", abs)
 			}
 			resp.Body.Close()
-			//Refererではなく、新たなアクセス先だと思うのでabsに変更
-			//CollectLinks(bytes.NewBuffer(body), base)
-			CollectLinks(bytes.NewBuffer(body), abs)
+			CollectLinks(bytes.NewBuffer(body), base)
 		}
 	}
-	//return
+	return
 }
