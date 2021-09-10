@@ -28,12 +28,9 @@ func addChild(node *entity.Node, parsedPath []string, request http.Request) {
 		}
 		addChild(&(*node.Children)[childIdx], parsedPath[1:], request)
 	} else {
-		for _, v := range (*node).Messages {
-			if v.URL.RawQuery == request.URL.RawQuery {
-				return
-			}
+		if !isExist(node, []string{}, request) {
+			(*node).Messages = append((*node).Messages, request)
 		}
-		(*node).Messages = append((*node).Messages, request)
 	}
 
 }
@@ -56,14 +53,6 @@ func getChildIdx(node *entity.Node, path string) int {
 	return -2
 }
 
-func getParams(node entity.Node) []string {
-	params := make([]string, len(node.Messages))
-	for i, message := range node.Messages {
-		params[i] = message.URL.Query().Encode()
-	}
-	return params
-}
-
 func IsExist(request http.Request) bool {
 	parsedPath := strings.Split(request.URL.Path, "/")
 	parsedPath = removeSpace(parsedPath)
@@ -80,8 +69,8 @@ func isExist(node *entity.Node, parsedPath []string, request http.Request) bool 
 			return false
 		}
 	} else {
-		for _, v := range node.Messages {
-			if v.URL.Query().Encode() == request.URL.Query().Encode() {
+		for _, msg := range node.Messages {
+			if msg.URL.RawQuery == request.URL.RawQuery && msg.PostForm.Encode() == request.PostForm.Encode() {
 				return true
 			}
 		}
@@ -89,41 +78,16 @@ func isExist(node *entity.Node, parsedPath []string, request http.Request) bool 
 	}
 }
 
-func jsonAddChild(node entity.Node, jsonNode *entity.JsonNode) {
-	if node.Children != nil {
-		for i, v := range *node.Children {
-			child := &entity.JsonNode{
-				Path:   v.Path,
-				Params: getParams(v),
-			}
-
-			(*jsonNode).Children = append((*jsonNode).Children, *child)
-			if v.Children != nil && *v.Children != nil {
-				jsonAddChild(v, &jsonNode.Children[i])
-			}
-		}
-	}
-}
-
-func MtoJ(node entity.Node) entity.JsonNode {
-	jsonNode := entity.JsonNode{
-		Path:   node.Path,
-		Params: getParams(node),
-	}
-	jsonAddChild(node, &jsonNode)
-	return jsonNode
-}
-
 func printMap(node entity.Node, indent int) {
 	for i := 0; i < indent; i++ {
 		fmt.Printf("\t")
 	}
 	fmt.Println(node.Path)
-	/*
-		for i := 1; i < len(node.Messages); i++ {
-			fmt.Printf("%v, ", node.Messages[i].URL.Query().Encode())
-		}
-	*/
+
+	for i := 0; i < len(node.Messages); i++ {
+		fmt.Printf("%v, ", node.Messages[i])
+		fmt.Println()
+	}
 
 	if node.Children != nil {
 		indent++
