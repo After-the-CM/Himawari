@@ -59,7 +59,7 @@ func parseHtml(doc *goquery.Document, r entity.RequestStruct) {
 		"th":      {"background"},
 	}
 
-	for i, v := range TagUrlAttr {
+	for i, v := range tagUrlAttr {
 		for _, w := range v {
 			doc.Find(i).Each(func(_ int, s *goquery.Selection) {
 				attr, b := s.Attr(w)
