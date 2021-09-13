@@ -1,12 +1,13 @@
 package crawler
 
 import (
-	"bytes"
 	"fmt"
 	"io"
+	"os"
 	"net/http"
 	"net/http/httputil"
-	"os"
+	"net/url"
+	"bytes"
 
 	"Himawari/models/entity"
 	"Himawari/models/sitemap"
@@ -14,51 +15,30 @@ import (
 
 func GetRequest(r entity.RequestStruct) (forms []entity.HtmlForm) {
 	fmt.Println("Start GET Request")
-	//Refererは*url.Urlに変更
-	//base, _ := url.Parse(r.Referer)
-	//Pathは*url.URLに変更
-	//rel, _ := url.Parse(*r.Path)
-	//abs := base.ResolveReference(rel).String()
-	abs := r.Referer.ResolveReference(r.Path)
-
-	//Pathにabsを入れる必要がないかもしれないと思いコメントアウト化
-	//r.Path = abs
-
-	t := entity.TestStruct{
+	base, _ := url.Parse(r.Referer)
+	rel, _ := url.Parse(r.Path)
+	abs := base.ResolveReference(rel).String()
+	
+	t := entity.TestStruct {
 		// Originをhard codingしちゃってる。
-		//一度、構造体の型を変更せずに実装してみてる
-		Origin:     r.Referer.String(), //"http://localhost:8081/",
-		Validation: abs.String(),
+		Origin: "http://localhost:8081/",
+		Validation: abs,
 	}
-	//CheckUrlOrigi→IsSameOrigin(引数も変更)に変更
-	if !IsSameOrigin(&r, abs) {
+	if !CheckUrlOrigin(&t) {
 		fmt.Println(abs, "is out of Origin.")
-		entity.Item.AppendItem(t.Origin, t.Validation)
-		return
+		return 
 	} else {
 		fmt.Println(abs)
 	}
 
-	/*
-		if !CheckUrlOrigin(&t) {
-			fmt.Println(abs, "is out of Origin.")
-			entity.Item.AppendItem(t.Origin, t.Validation)
-			return
-		} else {
-			fmt.Println(abs)
-		}
-	*/
-
-	//構造体の変更に伴いString()メソッドの利用に変更
-	req, err := http.NewRequest("GET", abs.String(), nil)
+	req, err := http.NewRequest("GET", abs, nil)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		//return
 	}
 	req.URL.RawQuery = r.Param.Encode()
 	req.Header.Set("User-Agent", "Himawari")
-	//構造体変更に伴いString()メソッドの利用に変更
-	req.Header.Set("Referer", r.Referer.String())
+	req.Header.Set("Referer", r.Referer)
 
 	if !sitemap.IsExist(*req) {
 		// fmt.Println("GetRequest:", req)
@@ -80,7 +60,7 @@ func GetRequest(r entity.RequestStruct) (forms []entity.HtmlForm) {
 				fmt.Println(resp.StatusCode, ": ", abs)
 			}
 			resp.Body.Close()
-			CollectLinks(bytes.NewBuffer(body), abs)
+			CollectLinks(bytes.NewBuffer(body), base)
 		}
 	}
 	fmt.Println(abs, " is Exist.")

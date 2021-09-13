@@ -12,12 +12,12 @@ import (
 func PrepareData() map[string][]string {
 	// https://developer.mozilla.org/ja/docs/Web/HTML/Element/input
 	testData := map[string][]string{
-		"email":    {"Himawari@example.com"},
-		"url":      {"http://example.com"},
-		"tel":      {"00012345678", "000-1234-5678", "+81-00-1234-5678"},
-		"date":     {"2020-12-16"},
-		"text":     {"Himawari"},
-		"textarea": {"Himawari"},
+		"email":    []string{"Himawari@example.com"},
+		"url":      []string{"http://example.com"},
+		"tel":      []string{"00012345678", "000-1234-5678", "+81-00-1234-5678"},
+		"date":     []string{"2020-12-16"},
+		"text":     []string{"Himawari"},
+		"textarea": []string{"Himawari"},
 		//"datetime-local"
 
 	}

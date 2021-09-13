@@ -3,13 +3,12 @@ package crawler
 import (
 	"fmt"
 	"io"
-	"net/url"
 	"os"
+	"net/url"
 	"strings"
 
-	"Himawari/models/entity"
-
 	"github.com/PuerkitoBio/goquery"
+	"Himawari/models/entity"
 )
 
 //func2
@@ -30,7 +29,7 @@ func CollectLinks(body io.Reader, referer *url.URL) {
 	// (ちゃんと戻ってこれる？心配。)
 	parseHtml(doc, nextStruct)
 	// ParseForms中でfunc3を呼ぶ
-	parseForms(doc, nextStruct)
+	parseForms(doc, nextStruct)	
 }
 
 // paramerを必要としないタグからリンクを収集 → func1に投げる
@@ -81,7 +80,7 @@ func parseForms(doc *goquery.Document, r entity.RequestStruct) (forms []entity.H
 		form := entity.HtmlForm{Values: url.Values{}}
 		form.Action, _ = s.Attr("action")
 		form.Method, _ = s.Attr("method")
-
+		
 		s.Find("input").Each(func(_ int, s *goquery.Selection) {
 			tag := "input"
 
@@ -99,39 +98,39 @@ func parseForms(doc *goquery.Document, r entity.RequestStruct) (forms []entity.H
 				form.Values.Add("Type", typ)
 			} else {
 				// fmt.Fprintln(os.Stderr, "'type' Not Found...")
-				form.Values.Add("Type", "NaN")
+				form.Values.Add("Type", "NaN")					
 			}
-
+			
 			_, checked := s.Attr("checked")
 			if (typ == "radio" || typ == "checkbox") && !checked {
 				//return
 			}
 
 			form.Values.Add("Tag", tag)
-
+			
 			value, valueB := s.Attr("value")
 			if valueB {
 				form.Values.Add("Value", value)
 			} else {
 				// fmt.Fprintln(os.Stderr, "'value' Not Found...")
-				form.Values.Add("Value", "NaN")
+				form.Values.Add("Value", "NaN")	
 			}
-
+			
 			placeholder, placeholderB := s.Attr("placeholder")
 			if placeholderB {
 				form.Values.Add("Placeholder", placeholder)
 			} else {
 				form.Values.Add("Placeholder", "NaN")
 			}
-
+			
 			pattern, patternB := s.Attr("pattern")
 			if patternB {
 				form.Values.Add("Pattern", pattern)
 			} else {
 				// fmt.Fprintln(os.Stderr, "'value' Not Found...")
-				form.Values.Add("Pattern", "NaN")
+				form.Values.Add("Pattern", "NaN")	
 			}
-
+			
 			require, requireB := s.Attr("require")
 			if requireB {
 				form.Values.Add("Require", require)
@@ -141,23 +140,23 @@ func parseForms(doc *goquery.Document, r entity.RequestStruct) (forms []entity.H
 		})
 
 		SetValues(form, r)
-
+		
 		/*
-			s.Find("textarea").Each(func(_ int, s *goquery.Selection) {
-				name, _ := s.Attr("name")
-				if name == "" {
-					//return
-				}
+		s.Find("textarea").Each(func(_ int, s *goquery.Selection) {
+			name, _ := s.Attr("name")
+			if name == "" {
+				//return
+			}
 
-				value := s.Text()
-				form.Values.Add(name, value)
-			})
+			value := s.Text()
+			form.Values.Add(name, value)
+		})
 		*/
 
 		// formタグがある限り収集したParameterとその値はformsにて保持できている。
 		// fmt.Println(fomrs)
 		forms = append(forms, form)
-
+		
 	})
 
 	return forms
