@@ -2,20 +2,39 @@ package main
 
 import (
 	"Himawari/controllers"
+	"fmt"
 	"net/http"
+	"net/url"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
 
 /*
 func main() {
+	proxyUrl, err := url.Parse("http://172.16.82.190:8001")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+	}
+	http.DefaultTransport = &http.Transport{
+		Proxy: http.ProxyURL(proxyUrl),
+	}
+
 	url, _ := url.Parse("http://localhost:8081/")
 	fmt.Println("Start Crawl: ", url)
 	crawler.Crawl(url)
+
 }
 */
 
 func main() {
+	proxyUrl, err := url.Parse("http://172.16.82.190:8001")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+	}
+	http.DefaultTransport = &http.Transport{
+		Proxy: http.ProxyURL(proxyUrl),
+	}
 	router := gin.Default()
 	router.Static("/views", "./views")
 

@@ -33,6 +33,7 @@ func SetValues(form []entity.HtmlForm, r entity.RequestStruct) {
 	path, _ := url.Parse(form[0].Action)
 	r.Path = path
 	r.Form.Method = form[0].Method
+	fmt.Println("form name & form method ::", r.Form.Method, form[0].Method)
 	//attrs := make(map[int](map[string]string), len(form.Values["Name"]))
 
 	/*
@@ -68,10 +69,10 @@ func SetValues(form []entity.HtmlForm, r entity.RequestStruct) {
 		}
 		fmt.Println("r.parammmmmm", r.Param)
 	}
-
-	if r.Form.Method == "GET" {
+	fmt.Println(r)
+	if r.Form.Method == "GET" || r.Form.Method == "get" {
 		GetRequest(r)
-	} else if r.Form.Method == "POST" {
+	} else if r.Form.Method == "POST" || r.Form.Method == "post" {
 		fmt.Println("りくえすとおおおお", r)
 		PostRequest(r)
 	} else {

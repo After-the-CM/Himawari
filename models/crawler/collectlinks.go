@@ -203,18 +203,23 @@ func parseForms(doc *goquery.Document, r entity.RequestStruct) {
 	doc.Find("form").Each(func(_ int, s *goquery.Selection) {
 		form := entity.HtmlForm{}
 		form.Action, _ = s.Attr("action")
+
 		form.Method, _ = s.Attr("method")
 		var inputs []entity.HtmlForm
 
 		s.Find("input").Each(func(_ int, s *goquery.Selection) {
 			//tag := "input"
 
-			nameAttr, _ := s.Attr("name")
-			form.Name = nameAttr
+			nameAttr, ok := s.Attr("name")
+			if ok {
+				form.Name = nameAttr
+			}
 
-			typ, _ := s.Attr("type")
-			typ = strings.ToLower(typ)
-			form.Type = typ
+			typ, ok := s.Attr("type")
+			if ok {
+				typ = strings.ToLower(typ)
+				form.Type = typ
+			}
 
 			_, checked := s.Attr("checked")
 			if (typ == "radio" || typ == "checkbox") && !checked {
