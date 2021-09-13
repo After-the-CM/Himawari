@@ -24,7 +24,7 @@ func CollectLinks(body io.Reader, referer *url.URL) {
 	fmt.Println("ページタイトル：" + title)
 
 	nextStruct := entity.RequestStruct{}
-	nextStruct.Referer = referer.String()
+	nextStruct.Referer = referer
 
 	// (ちゃんと戻ってこれる？心配。)
 	parseHtml(doc, nextStruct)
@@ -36,142 +36,44 @@ func CollectLinks(body io.Reader, referer *url.URL) {
 // ※ この実装では絶対うまく行かない。nextStructの初期化タイミング、Returnされるタイミングを丁寧に考える必要がある。
 // ValidateOrigin(checkorigin)とIsExistをfunc2に戻さないと実装はきつそう(?)。自分がアルゴリズム弱太郎なだけであってほしい。
 func parseHtml(doc *goquery.Document, r entity.RequestStruct) {
-	// https://github.com/jay/wget/blob/099d8ee3da3a6eea5635581ae517035165f400a5/src/html-url.c
-	doc.Find("a").Each(func(_ int, s *goquery.Selection) {
-		href, _ := s.Attr("href")
-		r.Path = href
-		
-		// url.Parseはgetrequest.go, postrequest.goで実装されている
-		GetRequest(r)
-	})
-	doc.Find("applet").Each(func(_ int, s *goquery.Selection) {
-		code, _ := s.Attr("code")
-		r.Path = code
 
-		GetRequest(r)
-	})
-	doc.Find("area").Each(func(_ int, s *goquery.Selection) {
-		href, _ := s.Attr("href")
-		r.Path = href
+	tagUrlAttr := map[string][]string{
+		"a":       {"href"},
+		"applet":  {"code"},
+		"area":    {"href"},
+		"bgsound": {"src"},
+		"body":    {"background"},
+		"embed":   []string{"href", "src"},
+		"fig":     {"src"},
+		"frame":   {"src"},
+		"iframe":  {"src"},
+		"img":     []string{"href", "src", "lowsrc"},
+		"input":   {"src"},
+		"layer":   {"src"},
+		"object":  {"data"},
+		"overlay": {"src"},
+		"script":  {"src"},
+		"table":   {"background"},
+		"tb":      {"background"},
+		"th":      {"background"},
+	}
 
-		GetRequest(r)
-	})
-	doc.Find("bgsound").Each(func(_ int, s *goquery.Selection) {
-		src, _ := s.Attr("src")
-		r.Path = src
+	for i, v := range tagUrlAttr {
+		for _, w := range v {
+			doc.Find(i).Each(func(_ int, s *goquery.Selection) {
+				attr, b := s.Attr(w)
+				if b {
+					r.Path, _ = url.Parse(attr)
+					GetRequest(r)
+				}
+			})
+		}
+	}
 
-		GetRequest(r)
-	})
-	doc.Find("body").Each(func(_ int, s *goquery.Selection) {
-		background, _ := s.Attr("background")
-		r.Path = background
-
-		GetRequest(r)
-	})
-	doc.Find("embed").Each(func(_ int, s *goquery.Selection) {
-		href, _ := s.Attr("href")
-		r.Path = href
-
-		GetRequest(r)
-	})
-	doc.Find("embed").Each(func(_ int, s *goquery.Selection) {
-		src, _ := s.Attr("src")
-		r.Path = src
-
-		GetRequest(r)
-	})
-	doc.Find("fig").Each(func(_ int, s *goquery.Selection) {
-		src, _ := s.Attr("src")
-		r.Path = src
-
-		// url.Parseはgetrequest.go, postrequest.goで実装されている
-		GetRequest(r)
-	})
-	doc.Find("frame").Each(func(_ int, s *goquery.Selection) {
-		src, _ := s.Attr("src")
-		r.Path = src
-
-		GetRequest(r)
-	})
-	doc.Find("iframe").Each(func(_ int, s *goquery.Selection) {
-		src, _ := s.Attr("src")
-		r.Path = src
-
-		GetRequest(r)
-	})
-	doc.Find("img").Each(func(_ int, s *goquery.Selection) {
-		href, _ := s.Attr("href")
-		r.Path = href
-
-		GetRequest(r)
-	})
-	doc.Find("img").Each(func(_ int, s *goquery.Selection) {
-		src, _ := s.Attr("src")
-		r.Path = src
-
-		GetRequest(r)
-	})
-	doc.Find("img").Each(func(_ int, s *goquery.Selection) {
-		lowsrc, _ := s.Attr("lowsrc")
-		r.Path = lowsrc
-
-		GetRequest(r)
-	})
-	doc.Find("input").Each(func(_ int, s *goquery.Selection) {
-		src, _ := s.Attr("src")
-		r.Path = src
-
-		GetRequest(r)
-	})
-	doc.Find("input").Each(func(_ int, s *goquery.Selection) {
-		src, _ := s.Attr("src")
-		r.Path = src
-
-		GetRequest(r)
-	})
-	doc.Find("layer").Each(func(_ int, s *goquery.Selection) {
-		src, _ := s.Attr("src")
-		r.Path = src
-
-		GetRequest(r)
-	})
-	doc.Find("object").Each(func(_ int, s *goquery.Selection) {
-		data, _ := s.Attr("data")
-		r.Path = data
-
-		GetRequest(r)
-	})
-	doc.Find("overlay").Each(func(_ int, s *goquery.Selection) {
-		src, _ := s.Attr("src")
-		r.Path = src
-
-		GetRequest(r)
-	})
-	doc.Find("script").Each(func(_ int, s *goquery.Selection) {
-		src, _ := s.Attr("src")
-		r.Path = src
-
-		GetRequest(r)
-	})
-	doc.Find("table").Each(func(_ int, s *goquery.Selection) {
-		background, _ := s.Attr("background")
-		r.Path = background
-
-		GetRequest(r)
-	})
-	doc.Find("td").Each(func(_ int, s *goquery.Selection) {
-		background, _ := s.Attr("background")
-		r.Path = background
-
-		GetRequest(r)
-	})
-	doc.Find("th").Each(func(_ int, s *goquery.Selection) {
-		background, _ := s.Attr("background")
-		r.Path = background
-
-		GetRequest(r)
-	})
 }
+
+//github.com/jay/wget/blob/099d8ee3da3a6eea5635581ae517035165f400a5/src/html-url.c
+// url.Parseはgetrequest.go, postrequest.goで実装されている
 
 func parseForms(doc *goquery.Document, r entity.RequestStruct) (forms []entity.HtmlForm) {
 	doc.Find("form").Each(func(_ int, s *goquery.Selection) {
