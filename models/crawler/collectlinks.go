@@ -38,7 +38,7 @@ func CollectLinks(body io.Reader, referer *url.URL) {
 // ValidateOrigin(checkorigin)とIsExistをfunc2に戻さないと実装はきつそう(?)。自分がアルゴリズム弱太郎なだけであってほしい。
 func parseHtml(doc *goquery.Document, r entity.RequestStruct) {
 
-	TagUrlAttr := map[string][]string{
+	tagUrlAttr := map[string][]string{
 		"a":       {"href"},
 		"applet":  {"code"},
 		"area":    {"href"},
