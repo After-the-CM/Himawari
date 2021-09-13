@@ -210,9 +210,19 @@ func parseForms(doc *goquery.Document, r entity.RequestStruct) {
 		s.Find("input").Each(func(_ int, s *goquery.Selection) {
 			//tag := "input"
 
+			//onclickがあるinputはreturnしている。
+			/*
+				_, ok := s.Attr("onclick")
+				if ok {
+					return
+				}
+			*/
+
 			nameAttr, ok := s.Attr("name")
 			if ok {
-				form.Name = nameAttr
+				form.Name = &nameAttr
+			} else {
+				form.Name = nil
 			}
 
 			typ, ok := s.Attr("type")
@@ -233,11 +243,9 @@ func parseForms(doc *goquery.Document, r entity.RequestStruct) {
 				form.Value = value
 			}
 
-			placeholder, placeholderB := s.Attr("placeholder")
-			if placeholderB {
-				form.Placeholder = placeholder
-			} else {
-				form.Placeholder = "NaN"
+			placeholder, ok := s.Attr("placeholder")
+			if ok {
+				form.Placeholder = &placeholder
 			}
 
 			/*
@@ -256,6 +264,23 @@ func parseForms(doc *goquery.Document, r entity.RequestStruct) {
 					form.Values.Add("Require", "Nan")
 				}
 			*/
+			inputs = append(inputs, form)
+		})
+		s.Find("select").Each(func(_ int, s *goquery.Selection) {
+			form.IsOption = true
+			nameAttr, ok := s.Attr("name")
+			if ok {
+				form.Name = &nameAttr
+			} else {
+				form.Name = nil
+			}
+			s.Find("option").Each(func(_ int, s *goquery.Selection) {
+				value, ok := s.Attr("value")
+				if ok {
+					form.Options = append(form.Options, value)
+				}
+			})
+
 			inputs = append(inputs, form)
 		})
 
@@ -280,7 +305,6 @@ func parseForms(doc *goquery.Document, r entity.RequestStruct) {
 
 	})
 
-	return
 }
 
 /*

@@ -18,6 +18,7 @@ var TestData = map[string]string{
 	"date":     "2020-12-16",
 	"text":     "Himawari",
 	"textarea": "Himawari",
+	"input":    "I am Himawari",
 	//"datetime-local"
 }
 
@@ -48,22 +49,35 @@ func SetValues(form []entity.HtmlForm, r entity.RequestStruct) {
 
 	//var inputs []url.Values
 	fmt.Println("!!!", form)
+
+	values := url.Values{}
 	for _, v := range form {
-		values := url.Values{}
 		switch {
-		case v.Type != "submit":
-			if v.Value == "" {
-				values.Add(v.Name, TestData[v.Name])
-				fmt.Println(v.Name)
-				fmt.Println(TestData[v.Name])
-			} else {
-				values.Add(v.Name, v.Value)
-				fmt.Println("v.name&v.value", v.Name, v.Value, values)
+		//selectの場合(ほかのものより先に実行しないとうまくいかなかった)
+		case v.IsOption:
+			if v.Name != nil {
+				values.Set(*v.Name, v.Options[1])
 			}
-			fmt.Println("NAME     ", v.Name, "VALUEEE   ", values)
+
+		//submitではないもの
+		case v.Type != "submit":
+			//inputのnameが空っぽではないもの
+			if v.Name != nil {
+				//placeholderがあるのならば
+				if v.Placeholder != nil {
+					values.Set(*v.Name, *v.Placeholder)
+				} else if v.Value == "" { //valueが空っぽな場合はテストデータを取得
+					values.Set(*v.Name, TestData[*v.Name])
+					fmt.Println(v.Name)
+					//fmt.Println(TestData[v.Name])
+				} else {
+					values.Set(*v.Name, v.Value)
+					fmt.Println("v.name&v.value", v.Name, v.Value, values)
+				}
+				fmt.Println("NAME     ", v.Name, "VALUEEE   ", values)
+			}
 
 		}
-		//inputs = append(inputs, values)
 		if len(values) != 0 {
 			r.Param = values
 		}

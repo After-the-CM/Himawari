@@ -31,10 +31,11 @@ type HtmlForm struct {
 	Action      string
 	Method      string
 	Type        string
-	Name        string
+	Name        *string
 	Value       string
-	Placeholder string
+	Placeholder *string
 	IsOption    bool
+	Options     []string
 	//Values      url.Values
 }
 type TestStruct struct {
