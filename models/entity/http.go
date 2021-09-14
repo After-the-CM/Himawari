@@ -4,27 +4,13 @@ import (
 	"net/url"
 )
 
-/*
-type RequestStruct struct {
-	Referer string
-	Path    string
-	Param   url.Values
-	Form    HtmlForm
-}
-*/
-
 type RequestStruct struct {
 	//リンクが存在したページのURL
 	Referer *url.URL
 	//formの場合はaction
-	Path *url.URL
-	//Path *string
-
+	Path  *url.URL
 	Param url.Values
-
-	//Method string
-	//Form []HtmlForm
-	Form HtmlForm
+	Form  HtmlForm
 }
 
 type HtmlForm struct {
@@ -46,8 +32,6 @@ type TestStruct struct {
 	Validation string
 }
 type FoundItemList struct {
-	//Place string
-	//Item string
 	Items map[string][]string
 }
 
@@ -55,6 +39,7 @@ var Item = FoundItemList{
 	make(map[string][]string),
 }
 
+//オリジン外のlinkを収集 存在したページ:link
 func (itemList *FoundItemList) AppendItem(place string, u string) {
 	//Itemが[string][]stringのため、appendできる。
 	itemList.Items[place] = append(itemList.Items[place], u)

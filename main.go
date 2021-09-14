@@ -35,6 +35,7 @@ func main() {
 	http.DefaultTransport = &http.Transport{
 		Proxy: http.ProxyURL(proxyUrl),
 	}
+
 	router := gin.Default()
 	router.Static("/views", "./views")
 
@@ -46,7 +47,6 @@ func main() {
 		api.POST("/crawl", controllers.Crawl)
 		api.GET("/found", controllers.FoundItem)
 	}
-	//router.POST("/api/deletePath", controller.DeletePath)
 
 	router.GET("/", func(c *gin.Context) {
 		c.Redirect(301, "/Himawari")

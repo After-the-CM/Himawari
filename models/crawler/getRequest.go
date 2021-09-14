@@ -12,63 +12,34 @@ import (
 	"Himawari/models/sitemap"
 )
 
-func GetRequest(r entity.RequestStruct) (forms []entity.HtmlForm) {
+//見つけたpathと、refererをくっつけて新しいURLを作る
+func GetRequest(r *entity.RequestStruct) {
 	fmt.Println("Start GET Request")
-	//Refererは*url.Urlに変更
-	//base, _ := url.Parse(r.Referer)
-	//Pathは*url.URLに変更
-	//rel, _ := url.Parse(*r.Path)
-	//abs := base.ResolveReference(rel).String()
 	abs := r.Referer.ResolveReference(r.Path)
 
-	//Pathにabsを入れる必要がないかもしれないと思いコメントアウト化
-	//r.Path = abs
-
-	t := entity.TestStruct{
-		// Originをhard codingしちゃってる。
-		//一度、構造体の型を変更せずに実装してみてる
-		Origin:     r.Referer.String(), //"http://localhost:8081/",
-		Validation: abs.String(),
-	}
-	//CheckUrlOrigi→IsSameOrigin(引数も変更)に変更
-	if !IsSameOrigin(&r, abs) {
+	//オリジンのチェックを行う
+	if !IsSameOrigin(r, abs) {
 		fmt.Println(abs, "is out of Origin.")
-		entity.Item.AppendItem(t.Origin, t.Validation)
+		entity.Item.AppendItem(r.Referer.String(), abs.String())
 		return
-	} else {
-		fmt.Println(abs)
 	}
 
-	/*
-		if !CheckUrlOrigin(&t) {
-			fmt.Println(abs, "is out of Origin.")
-			entity.Item.AppendItem(t.Origin, t.Validation)
-			return
-		} else {
-			fmt.Println(abs)
-		}
-	*/
-
-	//構造体の変更に伴いString()メソッドの利用に変更
 	req, err := http.NewRequest("GET", abs.String(), nil)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		//return
 	}
 
 	if len(r.Param) != 0 {
 		req.URL.RawQuery = r.Param.Encode()
 	} else {
 		req.URL.RawQuery = abs.RawQuery
-
 	}
 
+	//ヘッダーのセット
 	req.Header.Set("User-Agent", "Himawari")
-	//構造体変更に伴いString()メソッドの利用に変更
 	req.Header.Set("Referer", r.Referer.String())
 
 	if !sitemap.IsExist(*req) {
-		// fmt.Println("GetRequest:", req)
 		sitemap.Add(*req)
 
 		client := new(http.Client)
@@ -76,7 +47,6 @@ func GetRequest(r entity.RequestStruct) (forms []entity.HtmlForm) {
 
 		if err != nil {
 			dump, _ := httputil.DumpRequestOut(req, true)
-			fmt.Println(resp.StatusCode)
 			fmt.Printf("%s", dump)
 			fmt.Fprintln(os.Stderr, "Unable to reach the server.")
 		} else {
@@ -86,10 +56,10 @@ func GetRequest(r entity.RequestStruct) (forms []entity.HtmlForm) {
 			} else {
 				fmt.Println(resp.StatusCode, ": ", abs)
 			}
+			//必ずクローズする
 			resp.Body.Close()
 			CollectLinks(bytes.NewBuffer(body), abs)
 		}
 	}
 	fmt.Println(abs, " is Exist.")
-	return
 }
