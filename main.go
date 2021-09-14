@@ -27,6 +27,7 @@ func main() {
 	{
 		api.GET("/sitemap", controllers.ReadSitemap)
 		api.POST("/crawl", controllers.Crawl)
+		api.GET("/found", controllers.FoundItem)
 	}
 	//	router.POST("/api/deletePath", controller.DeletePath)
 
