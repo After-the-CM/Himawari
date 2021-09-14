@@ -32,12 +32,13 @@ type HtmlForm struct {
 	Method      string
 	Type        string
 	Name        *string
-	Value       string
+	Value       *string
 	Placeholder *string
 	IsOption    bool
 	Options     []string
 	//Values      url.Values
 }
+
 type TestStruct struct {
 	//リンクが存在したページのURL
 	Origin string

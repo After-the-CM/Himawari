@@ -52,32 +52,43 @@ func SetValues(form []entity.HtmlForm, r entity.RequestStruct) {
 
 	values := url.Values{}
 	for _, v := range form {
-		switch {
-		//selectの場合(ほかのものより先に実行しないとうまくいかなかった)
-		case v.IsOption:
-			if v.Name != nil {
-				values.Set(*v.Name, v.Options[1])
-			}
+		if v.Name != nil {
+			switch {
+			//selectの場合(ほかのものより先に実行しないとうまくいかなかった)
+			case v.IsOption:
+				//if v.Name != nil {
+				if len(v.Options) == 0 {
+					values.Set(*v.Name, v.Options[0])
+				} else {
+					values.Set(*v.Name, v.Options[1])
+				}
+				fmt.Println("v.name&v.value", *v.Name, v.Options)
+				//}
 
-		//submitではないもの
-		case v.Type != "submit":
-			//inputのnameが空っぽではないもの
-			if v.Name != nil {
+			//submitではないもの
+			case v.Type != "submit":
+				//inputのnameが空っぽではないもの
+				//if v.Name != nil {
 				//placeholderがあるのならば
 				if v.Placeholder != nil {
 					values.Set(*v.Name, *v.Placeholder)
-				} else if v.Value == "" { //valueが空っぽな場合はテストデータを取得
+					fmt.Println("v.name&v.value", *v.Name, *v.Placeholder)
+				} else if v.Value == nil { //valueが空っぽな場合はテストデータを取得
 					values.Set(*v.Name, TestData[*v.Name])
+					fmt.Println("v.name&v.value", *v.Name, TestData[*v.Name])
 					fmt.Println(v.Name)
 					//fmt.Println(TestData[v.Name])
 				} else {
-					values.Set(*v.Name, v.Value)
-					fmt.Println("v.name&v.value", v.Name, v.Value, values)
+					values.Set(*v.Name, *v.Value)
+					fmt.Println("v.name&v.value", *v.Name, *v.Value)
 				}
-				fmt.Println("NAME     ", v.Name, "VALUEEE   ", values)
+				//fmt.Println("NAME     ", *v.Name, "VALUEEE   ", *v.Value)
+				//}
+
 			}
 
 		}
+
 		if len(values) != 0 {
 			r.Param = values
 		}

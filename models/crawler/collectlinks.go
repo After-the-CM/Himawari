@@ -208,6 +208,7 @@ func parseForms(doc *goquery.Document, r entity.RequestStruct) {
 		var inputs []entity.HtmlForm
 
 		s.Find("input").Each(func(_ int, s *goquery.Selection) {
+			f := form
 			//tag := "input"
 
 			//onclickがあるinputはreturnしている。
@@ -218,34 +219,40 @@ func parseForms(doc *goquery.Document, r entity.RequestStruct) {
 				}
 			*/
 
-			nameAttr, ok := s.Attr("name")
-			if ok {
-				form.Name = &nameAttr
-			} else {
-				form.Name = nil
-			}
-
 			typ, ok := s.Attr("type")
 			if ok {
 				typ = strings.ToLower(typ)
-				form.Type = typ
+				f.Type = typ
 			}
 
-			_, checked := s.Attr("checked")
-			if (typ == "radio" || typ == "checkbox") && !checked {
-				//return
+			nameAttr, ok := s.Attr("name")
+			if ok {
+				f.Name = &nameAttr
+			} else {
+				f.Name = nil
 			}
+
+			/*
+				_, checked := s.Attr("checked")
+				if (typ == "radio" || typ == "checkbox") && !checked {
+					//return
+				}
+			*/
 
 			//form.Values.Add("Tag", tag)
 
 			value, ok := s.Attr("value")
 			if ok {
-				form.Value = value
+				f.Value = &value
+			} else {
+				f.Value = nil
 			}
 
 			placeholder, ok := s.Attr("placeholder")
 			if ok {
-				form.Placeholder = &placeholder
+				f.Placeholder = &placeholder
+			} else {
+				f.Placeholder = nil
 			}
 
 			/*
@@ -264,24 +271,52 @@ func parseForms(doc *goquery.Document, r entity.RequestStruct) {
 					form.Values.Add("Require", "Nan")
 				}
 			*/
-			inputs = append(inputs, form)
+			inputs = append(inputs, f)
 		})
+
 		s.Find("select").Each(func(_ int, s *goquery.Selection) {
-			form.IsOption = true
+			f := form
+			f.IsOption = true
+			f.Type = "select"
 			nameAttr, ok := s.Attr("name")
 			if ok {
-				form.Name = &nameAttr
+				f.Name = &nameAttr
 			} else {
-				form.Name = nil
+				f.Name = nil
 			}
 			s.Find("option").Each(func(_ int, s *goquery.Selection) {
 				value, ok := s.Attr("value")
 				if ok {
-					form.Options = append(form.Options, value)
+					f.Options = append(f.Options, value)
 				}
 			})
+			inputs = append(inputs, f)
+		})
 
-			inputs = append(inputs, form)
+		s.Find("textarea").Each(func(_ int, s *goquery.Selection) {
+			f := form
+			f.Type = "textarea"
+			//textareaタグにはvalue属性がないため
+			f.Value = nil
+			nameAttr, ok := s.Attr("name")
+			if ok {
+				f.Name = &nameAttr
+			} else {
+				f.Name = nil
+			}
+			placeholder, ok := s.Attr("placeholder")
+			if ok {
+				f.Placeholder = &placeholder
+			} else {
+				f.Placeholder = nil
+			}
+			//			if s.Text() != "" {
+			if s.Text() != "" {
+				//placeholderの優先度はTestDataよりも高いためplaceholderに入れておく
+				text := s.Text()
+				f.Placeholder = &text
+			}
+			inputs = append(inputs, f)
 		})
 
 		//SetValues(form, r)
