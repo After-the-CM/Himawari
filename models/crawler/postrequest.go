@@ -3,6 +3,7 @@ package crawler
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"io"
 	"net/http"
 	"net/http/httputil"
@@ -40,7 +41,9 @@ func PostRequest(r *entity.RequestStruct) {
 		sitemap.Add(*req)
 
 		client := new(http.Client)
+		log.Println(req)
 		resp, err := client.Do(req)
+		log.Println(resp)
 
 		if err != nil {
 			dump, _ := httputil.DumpRequestOut(req, true)
