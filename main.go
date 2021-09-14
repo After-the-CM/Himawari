@@ -10,24 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-/*
 func main() {
-	proxyUrl, err := url.Parse("http://172.16.82.190:8001")
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
-	http.DefaultTransport = &http.Transport{
-		Proxy: http.ProxyURL(proxyUrl),
-	}
 
-	url, _ := url.Parse("http://localhost:8081/")
-	fmt.Println("Start Crawl: ", url)
-	crawler.Crawl(url)
-
-}
-*/
-
-func main() {
 	proxyUrl, err := url.Parse("http://172.16.82.190:8001")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -45,8 +29,8 @@ func main() {
 	{
 		api.GET("/sitemap", controllers.ReadSitemap)
 		api.POST("/crawl", controllers.Crawl)
-		api.GET("/found", controllers.FoundItem)
 	}
+	//	router.POST("/api/deletePath", controller.DeletePath)
 
 	router.GET("/", func(c *gin.Context) {
 		c.Redirect(301, "/Himawari")

@@ -7,6 +7,7 @@ import (
 	"Himawari/models/entity"
 )
 
+// memo: Goは配列をconstとして宣言できない。
 // patternがあったとしても***Extreme***修正で対応できそう(?)
 // 実装が重くなったので、テストケースは1種類で実装。
 var TestData = map[string]string{
