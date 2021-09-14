@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"io"
+	"net/url"
 	"net/http"
 	"net/http/httputil"
 	"os"
@@ -43,7 +44,11 @@ func GetRequest(r *entity.RequestStruct) {
 	if !sitemap.IsExist(*req) {
 		sitemap.Add(*req)
 
-		client := new(http.Client)
+		client := &http.Client{
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
+		}
 		log.Println(req)
 		resp, err := client.Do(req)
 		log.Println(resp)
@@ -52,17 +57,36 @@ func GetRequest(r *entity.RequestStruct) {
 			dump, _ := httputil.DumpRequestOut(req, true)
 			fmt.Printf("%s", dump)
 			fmt.Fprintln(os.Stderr, "Unable to reach the server.")
-		} else {
-			body, _ := io.ReadAll(resp.Body)
-			if resp.StatusCode == 200 {
-				fmt.Println("Found: ", abs)
+		} 
+
+		location := resp.Header.Get("Location")
+		if location != "" {
+			l, _ := url.Parse(location)
+			redirect := r.Referer.ResolveReference(l)
+			if !IsSameOrigin(r, redirect) {
+				fmt.Println(redirect, "is out of Origin.")
+				entity.Item.AppendItem(r.Referer.String(), redirect.String())
+				return
 			} else {
-				fmt.Println(resp.StatusCode, ": ", abs)
+				nextStruct := entity.RequestStruct{}
+				nextStruct.Referer = r.Referer
+				nextStruct.Path = l
+				if resp.StatusCode == 307 {
+					nextStruct.Param = r.Param
+				} 
+				GetRequest(&nextStruct)
 			}
-			//必ずクローズする
-			resp.Body.Close()
-			CollectLinks(bytes.NewBuffer(body), abs)
 		}
-	}
+
+		body, _ := io.ReadAll(resp.Body)
+		if resp.StatusCode == 200 {
+			fmt.Println("Found: ", abs)
+		} else {
+			fmt.Println(resp.StatusCode, ": ", abs)
+		}
+		//必ずクローズする
+		resp.Body.Close()
+		CollectLinks(bytes.NewBuffer(body), abs)
+	}	
 	fmt.Println(abs, " is Exist.")
 }
