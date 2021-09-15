@@ -8,8 +8,8 @@ func messages(node *entity.Node) []entity.JsonMessage {
 	msg := make([]entity.JsonMessage, len(node.Messages))
 	for i, m := range node.Messages {
 		msg[i].Times = m.Time
-		msg[i].GetParams = m.Request.URL.Query().Encode()
-		msg[i].PostParams = m.Request.PostForm.Encode()
+		msg[i].GetParams = m.Request.URL.Query()
+		msg[i].PostParams = m.Request.PostForm
 	}
 	return msg
 }

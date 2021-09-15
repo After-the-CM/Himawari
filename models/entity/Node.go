@@ -1,6 +1,9 @@
 package entity
 
-import "net/http"
+import (
+	"net/http"
+	"net/url"
+)
 
 type Node struct {
 	Parent   *Node
@@ -21,9 +24,9 @@ type JsonNode struct {
 }
 
 type JsonMessage struct {
-	Times      float64 `json:"times"`
-	GetParams  string  `json:"getParams"`
-	PostParams string  `json:"postParams"`
+	Times      float64    `json:"times"`
+	GetParams  url.Values `json:"getParams"`
+	PostParams url.Values `json:"postParams"`
 }
 
 var Nodes = Node{
