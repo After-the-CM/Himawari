@@ -6,14 +6,24 @@ type Node struct {
 	Parent   *Node
 	Path     string
 	Children *[]Node
-	Messages []http.Request
+	Messages []Message
+}
+
+type Message struct {
+	Request http.Request
+	Time    float64
 }
 
 type JsonNode struct {
-	Path       string     `json:"path"`
-	GetParams  []string   `json:"getParams"`
-	PostParams []string   `json:"postParams"`
-	Children   []JsonNode `json:"children"`
+	Path     string        `json:"path"`
+	Messages []JsonMessage `json:"messages"`
+	Children []JsonNode    `json:"children"`
+}
+
+type JsonMessage struct {
+	Times      float64 `json:"times"`
+	GetParams  string  `json:"getParams"`
+	PostParams string  `json:"postParams"`
 }
 
 var Nodes = Node{

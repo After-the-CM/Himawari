@@ -8,7 +8,7 @@ import (
 	"Himawari/models/entity"
 )
 
-func addChild(node *entity.Node, parsedPath []string, request http.Request) {
+func addChild(node *entity.Node, parsedPath []string, request http.Request, time float64) {
 	if len(parsedPath) > 0 {
 		childIdx := getChildIdx(node, parsedPath[0])
 		child := &entity.Node{
@@ -25,19 +25,22 @@ func addChild(node *entity.Node, parsedPath []string, request http.Request) {
 			*node.Children = append(*node.Children, *child)
 			childIdx = 0
 		}
-		addChild(&(*node.Children)[childIdx], parsedPath[1:], request)
+		addChild(&(*node.Children)[childIdx], parsedPath[1:], request, time)
 	} else {
 		if !isExist(node, []string{}, request) {
-			(*node).Messages = append((*node).Messages, request)
+			(*node).Messages = append((*node).Messages, entity.Message{
+				Request: request,
+				Time:    time,
+			})
 		}
 	}
 
 }
 
-func Add(request http.Request) {
+func Add(request http.Request, time float64) {
 	parsedPath := strings.Split(request.URL.Path, "/")
 	parsedPath = removeSpace(parsedPath)
-	addChild(&entity.Nodes, parsedPath, request)
+	addChild(&entity.Nodes, parsedPath, request, time)
 }
 
 func getChildIdx(node *entity.Node, path string) int {
@@ -69,7 +72,7 @@ func isExist(node *entity.Node, parsedPath []string, request http.Request) bool 
 		}
 	} else {
 		for _, msg := range node.Messages {
-			if msg.URL.RawQuery == request.URL.RawQuery && msg.PostForm.Encode() == request.PostForm.Encode() {
+			if msg.Request.URL.RawQuery == request.URL.RawQuery && msg.Request.PostForm.Encode() == request.PostForm.Encode() {
 				return true
 			}
 		}

@@ -8,6 +8,7 @@ import (
 	"net/http/httputil"
 	"os"
 	"strings"
+	"time"
 
 	"Himawari/models/entity"
 	"Himawari/models/sitemap"
@@ -37,16 +38,18 @@ func PostRequest(r *entity.RequestStruct) {
 	req.PostForm = r.Param
 
 	if !sitemap.IsExist(*req) {
-		sitemap.Add(*req)
 
+		start := time.Now()
 		client := new(http.Client)
 		resp, err := client.Do(req)
+		end := time.Now()
 
 		if err != nil {
 			dump, _ := httputil.DumpRequestOut(req, true)
 			fmt.Printf("%s", dump)
 			fmt.Println("Unable to reach the server.", err)
 		} else {
+			sitemap.Add(*req, (end.Sub(start)).Seconds())
 			body, _ := io.ReadAll(resp.Body)
 			if resp.StatusCode == 200 {
 				fmt.Println("Found: ", abs)
