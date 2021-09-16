@@ -19,12 +19,14 @@ type Message struct {
 
 type JsonNode struct {
 	Path     string        `json:"path"`
+	URL      string        `json:"URL"`
 	Messages []JsonMessage `json:"messages"`
 	Children []JsonNode    `json:"children"`
 }
 
 type JsonMessage struct {
-	Times      float64    `json:"times"`
+	Time       float64    `json:"time"`
+	Referer    string     `json:"referer"`
 	GetParams  url.Values `json:"getParams"`
 	PostParams url.Values `json:"postParams"`
 }

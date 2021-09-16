@@ -8,9 +8,12 @@ import (
 func messages(node *entity.Node) []entity.JsonMessage {
 	msg := make([]entity.JsonMessage, len(node.Messages))
 	for i, m := range node.Messages {
-		msg[i].Times = m.Time
-		msg[i].GetParams = m.Request.URL.Query()
-		msg[i].PostParams = m.Request.PostForm
+		msg[i] = entity.JsonMessage{
+			Time:       m.Time,
+			Referer:    m.Request.Referer(),
+			GetParams:  m.Request.URL.Query(),
+			PostParams: m.Request.PostForm,
+		}
 	}
 	return msg
 }
@@ -20,6 +23,7 @@ func jsonAddChild(node *entity.Node, jsonNode *entity.JsonNode) {
 		for i, n := range *node.Children {
 			child := &entity.JsonNode{
 				Path:     n.Path,
+				URL:      jsonNode.URL + "/" + n.Path,
 				Messages: messages(&n),
 			}
 
@@ -31,9 +35,10 @@ func jsonAddChild(node *entity.Node, jsonNode *entity.JsonNode) {
 	}
 }
 
-func Merge() {
+func Merge(url string) {
 	entity.JsonNodes = entity.JsonNode{
 		Path:     entity.Nodes.Path,
+		URL:      url,
 		Messages: messages(&entity.Nodes),
 	}
 	jsonAddChild(&entity.Nodes, &entity.JsonNodes)

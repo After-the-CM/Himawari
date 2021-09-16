@@ -47,8 +47,10 @@ func Crawl(c *gin.Context) {
 
 	// urlのバリデーション
 
+	// HTMLが崩れてる場合にpanicで終わってしまってもマージさせたいのでdefer。
+	defer sitemap.Merge(url.String())
+
 	crawler.Crawl(url)
-	sitemap.Merge()
 	//sitemap.PrintMap()
 	c.String(http.StatusOK, "OK")
 }
@@ -59,6 +61,6 @@ func FoundItem(c *gin.Context) {
 }
 
 func Sort(c *gin.Context) {
-	sitemap.SortNode()
+	sitemap.SortJson()
 	c.String(http.StatusOK, "OK")
 }
