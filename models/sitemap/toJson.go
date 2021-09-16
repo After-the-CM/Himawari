@@ -30,11 +30,10 @@ func jsonAddChild(node *entity.Node, jsonNode *entity.JsonNode) {
 	}
 }
 
-func Json() entity.JsonNode {
-	jsonNode := entity.JsonNode{
+func Merge() {
+	entity.JsonNodes = entity.JsonNode{
 		Path:     entity.Nodes.Path,
 		Messages: messages(&entity.Nodes),
 	}
-	jsonAddChild(&entity.Nodes, &jsonNode)
-	return jsonNode
+	jsonAddChild(&entity.Nodes, &entity.JsonNodes)
 }

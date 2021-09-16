@@ -30,6 +30,8 @@ func main() {
 		api.GET("/found", controllers.FoundItem)
 	}
 	//	router.POST("/api/deletePath", controller.DeletePath)
+	router.GET("/download", controllers.DownloadSitemap)
+	router.POST("/upload", controllers.UploadSitemap)
 
 	router.GET("/", func(c *gin.Context) {
 		c.Redirect(301, "/Himawari")

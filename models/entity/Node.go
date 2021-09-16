@@ -32,3 +32,5 @@ type JsonMessage struct {
 var Nodes = Node{
 	Path: "/",
 }
+
+var JsonNodes = JsonNode{}
