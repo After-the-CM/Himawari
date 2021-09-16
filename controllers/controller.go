@@ -57,3 +57,8 @@ func FoundItem(c *gin.Context) {
 	f := entity.Item.Items
 	c.JSON(http.StatusOK, f)
 }
+
+func Sort(c *gin.Context) {
+	sitemap.SortNode()
+	c.String(http.StatusOK, "OK")
+}

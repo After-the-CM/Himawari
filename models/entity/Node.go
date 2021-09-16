@@ -34,3 +34,7 @@ var Nodes = Node{
 }
 
 var JsonNodes = JsonNode{}
+
+func (a JsonNode) Len() int           { return len(a.Children) }
+func (a JsonNode) Swap(i, j int)      { a.Children[i], a.Children[j] = a.Children[j], a.Children[i] }
+func (a JsonNode) Less(i, j int) bool { return a.Children[i].Path < a.Children[j].Path }

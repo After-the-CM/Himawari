@@ -2,6 +2,7 @@ package sitemap
 
 import (
 	"Himawari/models/entity"
+	"sort"
 )
 
 func messages(node *entity.Node) []entity.JsonMessage {
@@ -36,4 +37,17 @@ func Merge() {
 		Messages: messages(&entity.Nodes),
 	}
 	jsonAddChild(&entity.Nodes, &entity.JsonNodes)
+}
+
+func SortJson() {
+	sortChild(entity.JsonNodes)
+}
+
+func sortChild(node entity.JsonNode) {
+	if node.Children != nil {
+		sort.Sort(node)
+		for _, child := range node.Children {
+			sortChild(child)
+		}
+	}
 }

@@ -83,6 +83,16 @@ var tree = new Vue({
         },
         onUpload: function (event) {
             this.file = event.target.files[0]
+        },
+        doSort() {
+            axios.get('/api/sort')
+            .then(response => {
+                if (response.status != 200) {
+                    throw new Error('something error');
+                } else {
+                    this.doFetchSitemap();
+                }
+            })
         }
     }
 });
