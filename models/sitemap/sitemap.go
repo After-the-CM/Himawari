@@ -3,6 +3,7 @@ package sitemap
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"Himawari/models/entity"
@@ -27,6 +28,7 @@ func addChild(node *entity.Node, parsedPath []string, request http.Request, time
 		}
 		addChild(&(*node.Children)[childIdx], parsedPath[1:], request, time)
 	} else {
+		fmt.Println(request)
 		if !isExist(node, []string{}, request) {
 			(*node).Messages = append((*node).Messages, entity.Message{
 				Request: request,
@@ -40,6 +42,11 @@ func addChild(node *entity.Node, parsedPath []string, request http.Request, time
 func Add(request http.Request, time float64) {
 	parsedPath := strings.Split(request.URL.Path, "/")
 	parsedPath = removeSpace(parsedPath)
+
+	// paramに `;` があるとクエリのパースでバグるため、`;` だけURLエンコード
+	request.URL.RawQuery = strings.Replace(request.URL.RawQuery, ";", "%3B", -1)
+	request.PostForm, _ = url.ParseQuery(strings.Replace(request.PostForm.Encode(), ";", "%3B", -1))
+
 	addChild(&entity.Nodes, parsedPath, request, time)
 }
 
@@ -58,6 +65,10 @@ func getChildIdx(node *entity.Node, path string) int {
 func IsExist(request http.Request) bool {
 	parsedPath := strings.Split(request.URL.Path, "/")
 	parsedPath = removeSpace(parsedPath)
+
+	request.URL.RawQuery = strings.Replace(request.URL.RawQuery, ";", "%3B", -1)
+	request.PostForm, _ = url.ParseQuery(strings.Replace(request.PostForm.Encode(), ";", "%3B", -1))
+
 	return isExist(&entity.Nodes, parsedPath, request)
 }
 
@@ -71,6 +82,7 @@ func isExist(node *entity.Node, parsedPath []string, request http.Request) bool 
 			return false
 		}
 	} else {
+
 		for _, msg := range node.Messages {
 			if msg.Request.URL.RawQuery == request.URL.RawQuery && msg.Request.PostForm.Encode() == request.PostForm.Encode() {
 				return true
