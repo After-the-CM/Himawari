@@ -1,10 +1,3 @@
-// demo data
-var treeData = {
-    url: "",
-    children: []
-};
-
-// define the tree-item component
 Vue.component("tree-item", {
     template: "#item-template",
     props: {
@@ -29,12 +22,11 @@ Vue.component("tree-item", {
     }
 });
 
-// boot up the demo
-var demo = new Vue({
-    el: "#demo",
+var tree = new Vue({
+    el: "#tree",
     data: {
-        treeData: treeData,
-        path: ""
+        treeData: {},
+        url: ""
     },
     created: function () {
         this.doFetchSitemap();
@@ -76,6 +68,31 @@ var demo = new Vue({
 
                     }
                 })
+        },
+        doUpload() {
+            let data = new FormData;
+            data.append('sitemap', this.file)
+            axios.post('/upload', data)
+                .then(response => {
+                    if (response.status != 200) {
+                        throw new Error('something error');
+                    } else {
+                        this.doFetchSitemap();
+                    }
+                })
+        },
+        onUpload: function (event) {
+            this.file = event.target.files[0]
+        },
+        doSort() {
+            axios.get('/api/sort')
+            .then(response => {
+                if (response.status != 200) {
+                    throw new Error('something error');
+                } else {
+                    this.doFetchSitemap();
+                }
+            })
         }
     }
 });

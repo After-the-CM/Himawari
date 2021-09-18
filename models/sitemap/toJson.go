@@ -2,37 +2,36 @@ package sitemap
 
 import (
 	"Himawari/models/entity"
-	"fmt"
-	"os"
+	"sort"
+	"strings"
 )
 
-func getParams(node *entity.Node) []string {
-	params := make([]string, len((*node).Messages))
-	for i, message := range (*node).Messages {
-		params[i] = message.URL.Query().Encode()
-	}
-	return params
-}
-
-func postParams(node *entity.Node) []string {
-	params := make([]string, len((*node).Messages))
-	for i, message := range (*node).Messages {
-		err := message.ParseForm()
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+func messages(node *entity.Node) []entity.JsonMessage {
+	msg := make([]entity.JsonMessage, len(node.Messages))
+	for i, m := range node.Messages {
+		msg[i] = entity.JsonMessage{
+			Time:       m.Time,
+			Referer:    m.Request.Referer(),
+			GetParams:  m.Request.URL.Query(),
+			PostParams: m.Request.PostForm,
 		}
-		params[i] = message.PostForm.Encode()
 	}
-	return params
+	return msg
 }
 
 func jsonAddChild(node *entity.Node, jsonNode *entity.JsonNode) {
 	if node.Children != nil {
-		for i, v := range *node.Children {
+		for i, n := range *node.Children {
 			child := &entity.JsonNode{
-				Path:       v.Path,
-				GetParams:  getParams(&(*node.Children)[i]),
-				PostParams: postParams(&(*node.Children)[i]),
+				Path:     n.Path,
+				URL:      jsonNode.URL,
+				Messages: messages(&n),
+			}
+
+			if strings.HasSuffix((*child).URL, "/") {
+				child.URL += n.Path
+			} else {
+				child.URL += "/" + n.Path
 			}
 
 			(*jsonNode).Children = append((*jsonNode).Children, *child)
@@ -43,12 +42,24 @@ func jsonAddChild(node *entity.Node, jsonNode *entity.JsonNode) {
 	}
 }
 
-func Json() entity.JsonNode {
-	jsonNode := entity.JsonNode{
-		Path:       entity.Nodes.Path,
-		GetParams:  getParams(&entity.Nodes),
-		PostParams: postParams(&entity.Nodes),
+func Merge(url string) {
+	entity.JsonNodes = entity.JsonNode{
+		Path:     entity.Nodes.Path,
+		URL:      url,
+		Messages: messages(&entity.Nodes),
 	}
-	jsonAddChild(&entity.Nodes, &jsonNode)
-	return jsonNode
+	jsonAddChild(&entity.Nodes, &entity.JsonNodes)
+}
+
+func SortJson() {
+	sortChild(entity.JsonNodes)
+}
+
+func sortChild(node entity.JsonNode) {
+	if node.Children != nil {
+		sort.Sort(node)
+		for _, child := range node.Children {
+			sortChild(child)
+		}
+	}
 }

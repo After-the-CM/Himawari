@@ -27,18 +27,23 @@
 </head>
 
 <body>
-    <ul id="demo">
-        <p>
-            Crawl: <input type="text" v-model="url" placeholder="http://localhost:8081" v-on:keyup.enter="doCrawl">
-            <button v-on:click="doCrawl()" >add</button>
+    <ul id="tree">
+        <p>Crawl: <input type="text" v-model="url" placeholder="http://localhost:8081" v-on:keyup.enter="doCrawl">
+            <button v-on:click="doCrawl()">add</button><br>
         </p>
-        <tree-item class="item" :item="treeData" ></tree-item>
+
+        <input type="file" v-on:change="onUpload">
+        <button v-on:click="doUpload()">upload</button><br>
+        <button v-on:click="doSort()">sort</button>
+        <tree-item class="item" :item="treeData"></tree-item>
         <p>
-        <button v-on:click="doFound()" >found</button>
-    </p>
+            <button v-on:click="doFound()">found</button>
+        </p>
+        <a href="/download">download</a>
     </ul>
-    
+
     <script src="/views/js/script.js"></script>
-    
+
 </body>
+
 </html>
