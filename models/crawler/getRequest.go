@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"os"
+	"time"
 
 	"Himawari/models/entity"
 	"Himawari/models/sitemap"
@@ -42,8 +43,8 @@ func GetRequest(r *entity.RequestStruct) {
 	req.Header.Set("Referer", r.Referer.String())
 
 	if !sitemap.IsExist(*req) {
-		sitemap.Add(*req)
-
+		
+    start := time.Now()
 		client := &http.Client{
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
 				return http.ErrUseLastResponse
@@ -52,6 +53,7 @@ func GetRequest(r *entity.RequestStruct) {
 		log.Println(req)
 		resp, err := client.Do(req)
 		log.Println(resp)
+		end := time.Now()
 
 		if err != nil {
 			dump, _ := httputil.DumpRequestOut(req, true)
@@ -76,8 +78,9 @@ func GetRequest(r *entity.RequestStruct) {
 				} 
 				GetRequest(&nextStruct)
 			}
-		}
-
+    }
+    
+		sitemap.Add(*req, (end.Sub(start)).Seconds())
 		body, _ := io.ReadAll(resp.Body)
 		if resp.StatusCode == 200 {
 			fmt.Println("Found: ", abs)
