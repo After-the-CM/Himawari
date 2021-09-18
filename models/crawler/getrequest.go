@@ -17,10 +17,11 @@ import (
 
 func GetRequest(r *entity.RequestStruct) {
 	abs := r.Referer.ResolveReference(r.Path)
-
 	if !IsSameOrigin(r, abs) {
-		entity.Item.AppendItem(r.Referer.String(), abs.String())
-		return
+		if abs.Scheme == "http" || abs.Scheme == "https" {
+			entity.Item.AppendItem(r.Referer.String(), abs.String())
+			return
+		}
 	}
 
 	req, err := http.NewRequest("GET", abs.String(), nil)

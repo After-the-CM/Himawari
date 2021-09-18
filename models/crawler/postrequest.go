@@ -18,13 +18,13 @@ import (
 
 func PostRequest(r *entity.RequestStruct) {
 	abs := r.Referer.ResolveReference(r.Path)
-
 	if !IsSameOrigin(r, abs) {
-		entity.Item.AppendItem(r.Referer.String(), abs.String())
-		return
-	} else {
-		fmt.Println(abs)
+		if abs.Scheme == "http" || abs.Scheme == "https" {
+			entity.Item.AppendItem(r.Referer.String(), abs.String())
+			return
+		}
 	}
+
 	req, err := http.NewRequest("POST", abs.String(), strings.NewReader(r.Param.Encode()))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
