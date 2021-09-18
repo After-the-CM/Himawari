@@ -40,10 +40,9 @@ func PostRequest(r *entity.RequestStruct) {
 	req.PostForm = r.Param
 
 	if !sitemap.IsExist(*req) {
-
 		start := time.Now()
-    client := &http.Client{
-			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+		client := &http.Client{
+				CheckRedirect: func(req *http.Request, via []*http.Request) error {
 				return http.ErrUseLastResponse
 			},
 		}

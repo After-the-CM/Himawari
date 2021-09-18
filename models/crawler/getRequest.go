@@ -43,8 +43,7 @@ func GetRequest(r *entity.RequestStruct) {
 	req.Header.Set("Referer", r.Referer.String())
 
 	if !sitemap.IsExist(*req) {
-		
-    start := time.Now()
+		start := time.Now()
 		client := &http.Client{
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
 				return http.ErrUseLastResponse
@@ -78,7 +77,7 @@ func GetRequest(r *entity.RequestStruct) {
 				} 
 				GetRequest(&nextStruct)
 			}
-    }
+    	}
     
 		sitemap.Add(*req, (end.Sub(start)).Seconds())
 		body, _ := io.ReadAll(resp.Body)
