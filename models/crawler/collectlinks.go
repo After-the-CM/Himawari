@@ -12,6 +12,27 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+var tagUrlAttr = map[string][]string{
+	"a":       {"href"},
+	"applet":  {"code"},
+	"area":    {"href"},
+	"bgsound": {"src"},
+	"body":    {"background"},
+	"embed":   {"href", "src"},
+	"fig":     {"src"},
+	"frame":   {"src"},
+	"iframe":  {"src"},
+	"img":     {"href", "src", "lowsrc"},
+	"input":   {"src"},
+	"layer":   {"src"},
+	"object":  {"data"},
+	"overlay": {"src"},
+	"script":  {"src"},
+	"table":   {"background"},
+	"tb":      {"background"},
+	"th":      {"background"},
+}
+
 func CollectLinks(body io.Reader, referer *url.URL) {
 	doc, err := goquery.NewDocumentFromReader(body)
 	if err != nil {
@@ -27,27 +48,6 @@ func CollectLinks(body io.Reader, referer *url.URL) {
 }
 
 func parseHtml(doc *goquery.Document, r *entity.RequestStruct) {
-	tagUrlAttr := map[string][]string{
-		"a":       {"href"},
-		"applet":  {"code"},
-		"area":    {"href"},
-		"bgsound": {"src"},
-		"body":    {"background"},
-		"embed":   {"href", "src"},
-		"fig":     {"src"},
-		"frame":   {"src"},
-		"iframe":  {"src"},
-		"img":     {"href", "src", "lowsrc"},
-		"input":   {"src"},
-		"layer":   {"src"},
-		"object":  {"data"},
-		"overlay": {"src"},
-		"script":  {"src"},
-		"table":   {"background"},
-		"tb":      {"background"},
-		"th":      {"background"},
-	}
-
 	for i, v := range tagUrlAttr {
 		for _, w := range v {
 			doc.Find(i).Each(func(_ int, s *goquery.Selection) {

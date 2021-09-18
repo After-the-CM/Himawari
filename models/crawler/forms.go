@@ -6,7 +6,7 @@ import (
 	"Himawari/models/entity"
 )
 
-var TestData = map[string]string{
+var testData = map[string]string{
 	"email":    "Himawari@example.com",
 	"url":      "http://example.com",
 	"tel":      "00012345678",
@@ -36,7 +36,7 @@ func SetValues(form []entity.HtmlForm, r *entity.RequestStruct) {
 				if v.Placeholder != nil {
 					values.Set(*v.Name, *v.Placeholder)
 				} else if v.Value == nil {
-					values.Set(*v.Name, TestData[*v.Name])
+					values.Set(*v.Name, testData[*v.Name])
 				} else {
 					values.Set(*v.Name, *v.Value)
 				}
