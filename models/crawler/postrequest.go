@@ -17,11 +17,9 @@ import (
 )
 
 func PostRequest(r *entity.RequestStruct) {
-	fmt.Println("Start POST Request")
 	abs := r.Referer.ResolveReference(r.Path)
 
 	if !IsSameOrigin(r, abs) {
-		fmt.Println(abs, "is out of Origin.")
 		entity.Item.AppendItem(r.Referer.String(), abs.String())
 		return
 	} else {
@@ -61,7 +59,6 @@ func PostRequest(r *entity.RequestStruct) {
 			l, _ := url.Parse(location)
 			redirect := r.Referer.ResolveReference(l)
 			if !IsSameOrigin(r, redirect) {
-				fmt.Println(redirect, "is out of Origin.")
 				entity.Item.AppendItem(r.Referer.String(), redirect.String())
 				return
 			} else {
@@ -76,14 +73,8 @@ func PostRequest(r *entity.RequestStruct) {
 				} 
 			}
 		}
-
 		sitemap.Add(*req, (end.Sub(start)).Seconds())
 		body, _ := io.ReadAll(resp.Body)
-		if resp.StatusCode == 200 {
-			fmt.Println("Found: ", abs)
-		} else {
-			fmt.Println(resp.StatusCode, ": ", abs)
-		}
 		resp.Body.Close()
 		CollectLinks(bytes.NewBuffer(body), abs)
 	}

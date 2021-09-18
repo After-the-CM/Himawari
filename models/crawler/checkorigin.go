@@ -17,7 +17,6 @@ const (
 )
 
 func IsSameOrigin(r *entity.RequestStruct, n *url.URL) bool {
-
 	switch {
 	case (r.Referer.Port() == empty) && (n.Port() == empty):
 		if (r.Referer.Hostname() == n.Hostname()) && (r.Referer.Scheme == n.Scheme) {
@@ -41,25 +40,21 @@ func IsSameOrigin(r *entity.RequestStruct, n *url.URL) bool {
 			return true
 		}
 		return false
-
 	default:
 		return false
-
 	}
 }
 
 func getSchemaPort(s *string, p string) bool {
-
 	switch *s {
 	case httpSch:
 		return httpPort == p
 	case httpsSch:
 		return httpsPort == p
 	default:
-		fmt.Fprintln(os.Stderr, "http,httpsのスキーム以外のポートは自動解決されません。")
+		fmt.Fprintln(os.Stderr, "http, httpsのスキーム以外のポートは自動解決されません。")
 		return false
 	}
-
 }
 
 func JudgeMethod(r *entity.RequestStruct) {

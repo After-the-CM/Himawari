@@ -1,7 +1,6 @@
 package crawler
 
 import (
-	"fmt"
 	"net/url"
 
 	"Himawari/models/entity"
@@ -18,8 +17,6 @@ var TestData = map[string]string{
 }
 
 func SetValues(form []entity.HtmlForm, r *entity.RequestStruct) {
-	fmt.Println("Start func3")
-
 	r.Form.Action = form[0].Action
 	path, _ := url.Parse(form[0].Action)
 	r.Path = path
@@ -44,9 +41,7 @@ func SetValues(form []entity.HtmlForm, r *entity.RequestStruct) {
 					values.Set(*v.Name, *v.Value)
 				}
 			}
-
 		}
-
 		if len(values) != 0 {
 			r.Param = values
 		}

@@ -13,15 +13,11 @@ import (
 )
 
 func CollectLinks(body io.Reader, referer *url.URL) {
-	fmt.Println("Start func2")
 	doc, err := goquery.NewDocumentFromReader(body)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return
 	}
-
-	title := doc.Find("title").Text()
-	fmt.Println("ページタイトル：" + title)
 
 	nextStruct := entity.RequestStruct{}
 	nextStruct.Referer = referer
@@ -31,7 +27,6 @@ func CollectLinks(body io.Reader, referer *url.URL) {
 }
 
 func parseHtml(doc *goquery.Document, r *entity.RequestStruct) {
-
 	tagUrlAttr := map[string][]string{
 		"a":       {"href"},
 		"applet":  {"code"},
@@ -71,7 +66,6 @@ func parseForms(doc *goquery.Document, r *entity.RequestStruct) {
 	doc.Find("form").Each(func(_ int, s *goquery.Selection) {
 		form := entity.HtmlForm{}
 		form.Action, _ = s.Attr("action")
-
 		form.Method, _ = s.Attr("method")
 		form.Method = strings.ToUpper(form.Method)
 		var inputs []entity.HtmlForm
@@ -150,9 +144,6 @@ func parseForms(doc *goquery.Document, r *entity.RequestStruct) {
 			}
 			inputs = append(inputs, f)
 		})
-
 		SetValues(inputs, r)
-
 	})
-
 }
