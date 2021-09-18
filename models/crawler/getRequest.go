@@ -15,12 +15,10 @@ import (
 	"Himawari/models/sitemap"
 )
 
-//見つけたpathと、refererをくっつけて新しいURLを作る
 func GetRequest(r *entity.RequestStruct) {
 	fmt.Println("Start GET Request")
 	abs := r.Referer.ResolveReference(r.Path)
 
-	//オリジンのチェックを行う
 	if !IsSameOrigin(r, abs) {
 		fmt.Println(abs, "is out of Origin.")
 		entity.Item.AppendItem(r.Referer.String(), abs.String())
@@ -38,7 +36,6 @@ func GetRequest(r *entity.RequestStruct) {
 		req.URL.RawQuery = abs.RawQuery
 	}
 
-	//ヘッダーのセット
 	req.Header.Set("User-Agent", "Himawari")
 	req.Header.Set("Referer", r.Referer.String())
 
@@ -86,7 +83,6 @@ func GetRequest(r *entity.RequestStruct) {
 		} else {
 			fmt.Println(resp.StatusCode, ": ", abs)
 		}
-		//必ずクローズする
 		resp.Body.Close()
 		CollectLinks(bytes.NewBuffer(body), abs)
 	}	

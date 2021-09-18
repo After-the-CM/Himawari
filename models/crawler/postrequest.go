@@ -32,7 +32,6 @@ func PostRequest(r *entity.RequestStruct) {
 		fmt.Fprintln(os.Stderr, err)
 	}
 
-	//ヘッダーのセット
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("User-Agent", "Himawari")
 	req.Header.Set("Referer", r.Referer.String())
@@ -85,9 +84,7 @@ func PostRequest(r *entity.RequestStruct) {
 		} else {
 			fmt.Println(resp.StatusCode, ": ", abs)
 		}
-		//必ずクローズする
 		resp.Body.Close()
-		//次のlinkを探す
 		CollectLinks(bytes.NewBuffer(body), abs)
 	}
 }

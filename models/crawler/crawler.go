@@ -28,7 +28,6 @@ func loggingSetting() {
 	}
 	t := time.Now()
 	fileName := "log/" + t.Format(layout) + ".log"
-	// OS_TRUNC(ファイルが存在していた場合上書き)よりも、OS_APPEND(追加書き込み)の方が実用的？
 	logFile, _ := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	log.SetFlags(log.Ldate | log.Ltime)
 	log.SetOutput(io.MultiWriter(os.Stdout, logFile))

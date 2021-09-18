@@ -19,27 +19,23 @@ const (
 func IsSameOrigin(r *entity.RequestStruct, n *url.URL) bool {
 
 	switch {
-	//2つのポート番号が空の場合→ホスト(ポート番号を除く)と、スキームを比較する
 	case (r.Referer.Port() == empty) && (n.Port() == empty):
 		if (r.Referer.Hostname() == n.Hostname()) && (r.Referer.Scheme == n.Scheme) {
 			return true
 		} else {
 			return false
 		}
-		//ホスト(ポート番号を含む)とスキームを比較する。
 	case r.Referer.Host == n.Host:
 		if r.Referer.Scheme == n.Scheme {
 			return true
 		} else {
 			return false
 		}
-		//どちらか片方がポートが空の場合
 	case r.Referer.Port() == empty:
 		if getSchemaPort(&(r.Referer.Scheme), n.Port()) {
 			return true
 		}
 		fallthrough
-		//どちらか片方がポートが空の場合
 	case n.Port() == empty:
 		if getSchemaPort(&(n.Scheme), r.Referer.Port()) {
 			return true
@@ -52,7 +48,6 @@ func IsSameOrigin(r *entity.RequestStruct, n *url.URL) bool {
 	}
 }
 
-//mapで`http`,`https`を受け取ったらポート番号を返す
 func getSchemaPort(s *string, p string) bool {
 
 	switch *s {
@@ -62,7 +57,6 @@ func getSchemaPort(s *string, p string) bool {
 		return httpsPort == p
 	default:
 		fmt.Fprintln(os.Stderr, "http,httpsのスキーム以外のポートは自動解決されません。")
-		//ありえないポート番号をリターンさせる
 		return false
 	}
 

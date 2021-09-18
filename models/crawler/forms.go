@@ -7,9 +7,6 @@ import (
 	"Himawari/models/entity"
 )
 
-// memo: Goは配列をconstとして宣言できない。
-// patternがあったとしても***Extreme***修正で対応できそう(?)
-// 実装が重くなったので、テストケースは1種類で実装。
 var TestData = map[string]string{
 	"email":    "Himawari@example.com",
 	"url":      "http://example.com",
@@ -20,7 +17,6 @@ var TestData = map[string]string{
 	"input":    "I am Himawari",
 }
 
-// func3
 func SetValues(form []entity.HtmlForm, r *entity.RequestStruct) {
 	fmt.Println("Start func3")
 
@@ -33,20 +29,16 @@ func SetValues(form []entity.HtmlForm, r *entity.RequestStruct) {
 	for _, v := range form {
 		if v.Name != nil {
 			switch {
-			//selectの場合(ほかのものより先に実行しないとうまくいかなかった)
 			case v.IsOption:
 				if len(v.Options) == 0 {
 					values.Set(*v.Name, v.Options[0])
 				} else {
 					values.Set(*v.Name, v.Options[1])
 				}
-
-			//submitではないもの
 			case v.Type != "submit":
-				//placeholderがあるのならば
 				if v.Placeholder != nil {
 					values.Set(*v.Name, *v.Placeholder)
-				} else if v.Value == nil { //valueが空っぽな場合はテストデータを取得
+				} else if v.Value == nil {
 					values.Set(*v.Name, TestData[*v.Name])
 				} else {
 					values.Set(*v.Name, *v.Value)
@@ -59,6 +51,5 @@ func SetValues(form []entity.HtmlForm, r *entity.RequestStruct) {
 			r.Param = values
 		}
 	}
-	//リクエストの送信
 	JudgeMethod(r)
 }
