@@ -3,12 +3,13 @@ package crawler
 import (
 	"fmt"
 	"io"
-	"os"
 	"net/url"
+	"os"
 	"strings"
 
-	"github.com/PuerkitoBio/goquery"
 	"Himawari/models/entity"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 //func2
@@ -27,15 +28,15 @@ func CollectLinks(body io.Reader, referer *url.URL) {
 	nextStruct.Referer = referer
 
 	// (ちゃんと戻ってこれる？心配。)
-	parseHtml(doc, nextStruct)
+	parseHtml(doc, &nextStruct)
 	// ParseForms中でfunc3を呼ぶ
-	parseForms(doc, nextStruct)	
+	parseForms(doc, &nextStruct)
 }
 
 // paramerを必要としないタグからリンクを収集 → func1に投げる
 // ※ この実装では絶対うまく行かない。nextStructの初期化タイミング、Returnされるタイミングを丁寧に考える必要がある。
 // ValidateOrigin(checkorigin)とIsExistをfunc2に戻さないと実装はきつそう(?)。自分がアルゴリズム弱太郎なだけであってほしい。
-func parseHtml(doc *goquery.Document, r entity.RequestStruct) {
+func parseHtml(doc *goquery.Document, r *entity.RequestStruct) {
 
 	tagUrlAttr := map[string][]string{
 		"a":       {"href"},
@@ -43,11 +44,11 @@ func parseHtml(doc *goquery.Document, r entity.RequestStruct) {
 		"area":    {"href"},
 		"bgsound": {"src"},
 		"body":    {"background"},
-		"embed":   []string{"href", "src"},
+		"embed":   {"href", "src"},
 		"fig":     {"src"},
 		"frame":   {"src"},
 		"iframe":  {"src"},
-		"img":     []string{"href", "src", "lowsrc"},
+		"img":     {"href", "src", "lowsrc"},
 		"input":   {"src"},
 		"layer":   {"src"},
 		"object":  {"data"},
@@ -72,92 +73,101 @@ func parseHtml(doc *goquery.Document, r entity.RequestStruct) {
 
 }
 
-//github.com/jay/wget/blob/099d8ee3da3a6eea5635581ae517035165f400a5/src/html-url.c
-// url.Parseはgetrequest.go, postrequest.goで実装されている
-
-func parseForms(doc *goquery.Document, r entity.RequestStruct) (forms []entity.HtmlForm) {
+func parseForms(doc *goquery.Document, r *entity.RequestStruct) {
 	doc.Find("form").Each(func(_ int, s *goquery.Selection) {
-		form := entity.HtmlForm{Values: url.Values{}}
+		form := entity.HtmlForm{}
 		form.Action, _ = s.Attr("action")
+
 		form.Method, _ = s.Attr("method")
-		
+		form.Method = strings.ToUpper(form.Method)
+		var inputs []entity.HtmlForm
+
 		s.Find("input").Each(func(_ int, s *goquery.Selection) {
-			tag := "input"
+			f := form
+			//onclickがあるinputはreturnしている。
+			/*
+				_, ok := s.Attr("onclick")
+				if ok {
+					return
+				}
+			*/
 
-			name, nameB := s.Attr("name")
-			if nameB {
-				form.Values.Add("Name", name)
-			} else {
-				// fmt.Fprintln(os.Stderr, "'name' Not Found...")
-				form.Values.Add("Name", "NaN")
-			}
-
-			typ, typB := s.Attr("type")
-			typ = strings.ToLower(typ)
-			if typB {
-				form.Values.Add("Type", typ)
-			} else {
-				// fmt.Fprintln(os.Stderr, "'type' Not Found...")
-				form.Values.Add("Type", "NaN")					
-			}
-			
-			_, checked := s.Attr("checked")
-			if (typ == "radio" || typ == "checkbox") && !checked {
-				//return
+			typ, ok := s.Attr("type")
+			if ok {
+				typ = strings.ToLower(typ)
+				f.Type = typ
 			}
 
-			form.Values.Add("Tag", tag)
-			
-			value, valueB := s.Attr("value")
-			if valueB {
-				form.Values.Add("Value", value)
+			nameAttr, ok := s.Attr("name")
+			if ok {
+				f.Name = &nameAttr
 			} else {
-				// fmt.Fprintln(os.Stderr, "'value' Not Found...")
-				form.Values.Add("Value", "NaN")	
+				f.Name = nil
 			}
-			
-			placeholder, placeholderB := s.Attr("placeholder")
-			if placeholderB {
-				form.Values.Add("Placeholder", placeholder)
+
+			value, ok := s.Attr("value")
+			if ok {
+				f.Value = &value
 			} else {
-				form.Values.Add("Placeholder", "NaN")
+				f.Value = nil
 			}
-			
-			pattern, patternB := s.Attr("pattern")
-			if patternB {
-				form.Values.Add("Pattern", pattern)
+
+			placeholder, ok := s.Attr("placeholder")
+			if ok {
+				f.Placeholder = &placeholder
 			} else {
-				// fmt.Fprintln(os.Stderr, "'value' Not Found...")
-				form.Values.Add("Pattern", "NaN")	
+				f.Placeholder = nil
 			}
-			
-			require, requireB := s.Attr("require")
-			if requireB {
-				form.Values.Add("Require", require)
-			} else {
-				form.Values.Add("Require", "Nan")
-			}
+
+			inputs = append(inputs, f)
 		})
 
-		SetValues(form, r)
-		
-		/*
+		s.Find("select").Each(func(_ int, s *goquery.Selection) {
+			f := form
+			f.IsOption = true
+			f.Type = "select"
+			nameAttr, ok := s.Attr("name")
+			if ok {
+				f.Name = &nameAttr
+			} else {
+				f.Name = nil
+			}
+			s.Find("option").Each(func(_ int, s *goquery.Selection) {
+				value, ok := s.Attr("value")
+				if ok {
+					f.Options = append(f.Options, value)
+				}
+			})
+			inputs = append(inputs, f)
+		})
+
 		s.Find("textarea").Each(func(_ int, s *goquery.Selection) {
-			name, _ := s.Attr("name")
-			if name == "" {
-				//return
+			f := form
+			f.Type = "textarea"
+			//textareaタグにはvalue属性がないため
+			f.Value = nil
+			nameAttr, ok := s.Attr("name")
+			if ok {
+				f.Name = &nameAttr
+			} else {
+				f.Name = nil
 			}
-
-			value := s.Text()
-			form.Values.Add(name, value)
+			placeholder, ok := s.Attr("placeholder")
+			if ok {
+				f.Placeholder = &placeholder
+			} else {
+				f.Placeholder = nil
+			}
+			if s.Text() != "" {
+				//placeholderの優先度はTestDataよりも高いためplaceholderに入れておく
+				text := s.Text()
+				f.Placeholder = &text
+			}
+			inputs = append(inputs, f)
 		})
-		*/
 
-		// formタグがある限り収集したParameterとその値はformsにて保持できている。
-		// fmt.Println(fomrs)
-		forms = append(forms, form)
-		
+		SetValues(inputs, r)
+
 	})
 
-	return forms
 }

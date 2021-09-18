@@ -9,60 +9,56 @@ import (
 
 // memo: Goは配列をconstとして宣言できない。
 // patternがあったとしても***Extreme***修正で対応できそう(?)
-func PrepareData() map[string][]string {
-	// https://developer.mozilla.org/ja/docs/Web/HTML/Element/input
-	testData := map[string][]string{
-		"email":    []string{"Himawari@example.com"},
-		"url":      []string{"http://example.com"},
-		"tel":      []string{"00012345678", "000-1234-5678", "+81-00-1234-5678"},
-		"date":     []string{"2020-12-16"},
-		"text":     []string{"Himawari"},
-		"textarea": []string{"Himawari"},
-		//"datetime-local"
-
-	}
-	return testData
+// 実装が重くなったので、テストケースは1種類で実装。
+var TestData = map[string]string{
+	"email":    "Himawari@example.com",
+	"url":      "http://example.com",
+	"tel":      "00012345678",
+	"date":     "2020-12-16",
+	"text":     "Himawari",
+	"textarea": "Himawari",
+	"input":    "I am Himawari",
 }
 
 // func3
-func SetValues(form entity.HtmlForm, r entity.RequestStruct) {
+func SetValues(form []entity.HtmlForm, r *entity.RequestStruct) {
 	fmt.Println("Start func3")
-	testData := PrepareData()
 
-	for i := 0; i < len(form.Values)-7; i++ {
-		name := form.Values["Name"][i]
-		typ := form.Values["Type"][i]
-		tag := form.Values["Tag"][i]
-		value := form.Values["Value"][i]
+	r.Form.Action = form[0].Action
+	path, _ := url.Parse(form[0].Action)
+	r.Path = path
+	r.Form.Method = form[0].Method
 
-		if value == "NaN" {
-			// test dataからtagに対応する値を持ってくる。動かないかもしれない。
-			value = testData[typ][0]
+	values := url.Values{}
+	for _, v := range form {
+		if v.Name != nil {
+			switch {
+			//selectの場合(ほかのものより先に実行しないとうまくいかなかった)
+			case v.IsOption:
+				if len(v.Options) == 0 {
+					values.Set(*v.Name, v.Options[0])
+				} else {
+					values.Set(*v.Name, v.Options[1])
+				}
+
+			//submitではないもの
+			case v.Type != "submit":
+				//placeholderがあるのならば
+				if v.Placeholder != nil {
+					values.Set(*v.Name, *v.Placeholder)
+				} else if v.Value == nil { //valueが空っぽな場合はテストデータを取得
+					values.Set(*v.Name, TestData[*v.Name])
+				} else {
+					values.Set(*v.Name, *v.Value)
+				}
+			}
+
 		}
 
-		placeholder := form.Values["Placeholder"][0]
-		if placeholder != "NaN" {
-			value = placeholder
+		if len(values) != 0 {
+			r.Param = values
 		}
-		// requireに対応する処理は未実装
-		require := form.Values["Require"][0]
-		if require != "NaN" {
-			// requireFlag := true
-		}
-		// patternに対応する処理は未実装
-		pattern := form.Values["Pattern"][0]
-		if pattern != "NaN" {
-			// patternFlag := true
-		}
-
-		values := url.Values{}
-		values.Set("tag", tag)
-		values.Set("type", typ)
-		values.Set("name", name)
-		values.Set("value", value)
-		r.Param = values
-
-		// func1へ
-		PostRequest(r)
 	}
+	//リクエストの送信
+	JudgeMethod(r)
 }

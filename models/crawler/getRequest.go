@@ -1,68 +1,94 @@
 package crawler
 
 import (
+	"bytes"
 	"fmt"
+	"log"
 	"io"
-	"os"
+	"net/url"
 	"net/http"
 	"net/http/httputil"
-	"net/url"
-	"bytes"
+	"os"
+	"time"
 
 	"Himawari/models/entity"
 	"Himawari/models/sitemap"
 )
 
-func GetRequest(r entity.RequestStruct) (forms []entity.HtmlForm) {
+//見つけたpathと、refererをくっつけて新しいURLを作る
+func GetRequest(r *entity.RequestStruct) {
 	fmt.Println("Start GET Request")
-	base, _ := url.Parse(r.Referer)
-	rel, _ := url.Parse(r.Path)
-	abs := base.ResolveReference(rel).String()
-	
-	t := entity.TestStruct {
-		// Originをhard codingしちゃってる。
-		Origin: "http://localhost:8081/",
-		Validation: abs,
-	}
-	if !CheckUrlOrigin(&t) {
+	abs := r.Referer.ResolveReference(r.Path)
+
+	//オリジンのチェックを行う
+	if !IsSameOrigin(r, abs) {
 		fmt.Println(abs, "is out of Origin.")
-		return 
-	} else {
-		fmt.Println(abs)
+		entity.Item.AppendItem(r.Referer.String(), abs.String())
+		return
 	}
 
-	req, err := http.NewRequest("GET", abs, nil)
+	req, err := http.NewRequest("GET", abs.String(), nil)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		//return
 	}
-	req.URL.RawQuery = r.Param.Encode()
+
+	if len(r.Param) != 0 {
+		req.URL.RawQuery = r.Param.Encode()
+	} else {
+		req.URL.RawQuery = abs.RawQuery
+	}
+
+	//ヘッダーのセット
 	req.Header.Set("User-Agent", "Himawari")
-	req.Header.Set("Referer", r.Referer)
+	req.Header.Set("Referer", r.Referer.String())
 
 	if !sitemap.IsExist(*req) {
-		// fmt.Println("GetRequest:", req)
-		sitemap.Add(*req)
-
-		client := new(http.Client)
+		start := time.Now()
+		client := &http.Client{
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
+		}
+		log.Println(req)
 		resp, err := client.Do(req)
+		log.Println(resp)
+		end := time.Now()
 
 		if err != nil {
 			dump, _ := httputil.DumpRequestOut(req, true)
-			fmt.Println(resp.StatusCode)
 			fmt.Printf("%s", dump)
 			fmt.Fprintln(os.Stderr, "Unable to reach the server.")
-		} else {
-			body, _ := io.ReadAll(resp.Body)
-			if resp.StatusCode == 200 {
-				fmt.Println("Found: ", abs)
+		} 
+
+		location := resp.Header.Get("Location")
+		if location != "" {
+			l, _ := url.Parse(location)
+			redirect := r.Referer.ResolveReference(l)
+			if !IsSameOrigin(r, redirect) {
+				fmt.Println(redirect, "is out of Origin.")
+				entity.Item.AppendItem(r.Referer.String(), redirect.String())
+				return
 			} else {
-				fmt.Println(resp.StatusCode, ": ", abs)
+				nextStruct := entity.RequestStruct{}
+				nextStruct.Referer = r.Referer
+				nextStruct.Path = l
+				if resp.StatusCode == 307 {
+					nextStruct.Param = r.Param
+				} 
+				GetRequest(&nextStruct)
 			}
-			resp.Body.Close()
-			CollectLinks(bytes.NewBuffer(body), base)
+    	}
+    
+		sitemap.Add(*req, (end.Sub(start)).Seconds())
+		body, _ := io.ReadAll(resp.Body)
+		if resp.StatusCode == 200 {
+			fmt.Println("Found: ", abs)
+		} else {
+			fmt.Println(resp.StatusCode, ": ", abs)
 		}
-	}
+		//必ずクローズする
+		resp.Body.Close()
+		CollectLinks(bytes.NewBuffer(body), abs)
+	}	
 	fmt.Println(abs, " is Exist.")
-	return
 }
