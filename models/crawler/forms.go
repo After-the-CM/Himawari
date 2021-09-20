@@ -32,7 +32,7 @@ func SetValues(form []entity.HtmlForm, r *entity.RequestStruct) {
 				} else {
 					values.Set(*v.Name, v.Options[1])
 				}
-			case v.Type != "submit":
+			case v.Type != "":
 				if v.Placeholder != nil {
 					values.Set(*v.Name, *v.Placeholder)
 				} else if v.Value == nil {
