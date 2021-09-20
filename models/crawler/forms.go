@@ -6,7 +6,7 @@ import (
 	"Himawari/models/entity"
 )
 
-var testData = map[string]string{
+var testData = map[string]string {
 	"email":    "Himawari@example.com",
 	"url":      "http://example.com",
 	"tel":      "00012345678",

@@ -7,12 +7,11 @@ import (
 	"os"
 	"strings"
 
-	"Himawari/models/entity"
-
 	"github.com/PuerkitoBio/goquery"
+	"Himawari/models/entity"
 )
 
-var tagUrlAttr = map[string][]string{
+var tagUrlAttr = map[string][]string {
 	"a":       {"href"},
 	"applet":  {"code"},
 	"area":    {"href"},
@@ -59,7 +58,6 @@ func parseHtml(doc *goquery.Document, r *entity.RequestStruct) {
 			})
 		}
 	}
-
 }
 
 func parseForms(doc *goquery.Document, r *entity.RequestStruct) {
