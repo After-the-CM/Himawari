@@ -58,7 +58,7 @@ func getSchemaPort(s *string, p string) bool {
 }
 
 func JudgeMethod(r *entity.RequestStruct) {
-	if r.Form.Method == "GET" {
+	if r.Form.Method == "GET" || r.Form.Method == "" {
 		GetRequest(r)
 	} else if r.Form.Method == "POST" {
 		PostRequest(r)
