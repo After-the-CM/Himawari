@@ -3,11 +3,11 @@ package crawler
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"io"
-	"net/url"
+	"log"
 	"net/http"
 	"net/http/httputil"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -38,20 +38,71 @@ func PostRequest(r *entity.RequestStruct) {
 
 	if !sitemap.IsExist(*req) {
 		start := time.Now()
-		client := &http.Client {
-				CheckRedirect: func(req *http.Request, via []*http.Request) error {
+		client := &http.Client{
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
 				return http.ErrUseLastResponse
 			},
 		}
-		log.Println(req)
+
+		//log.Println(req)
+		dumpedReq, err := httputil.DumpRequestOut(req, true)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			//fmt.Fprintln(os.Stderr, "Unable to reach the server.")
+		}
+		log.SetFlags(log.Flags() &^ log.LstdFlags)
+		log.Println("======================================================")
+		log.SetFlags(log.Ltime)
+		log.Println(string(abs.Scheme) + "://" + string(abs.Host))
+		log.SetFlags(log.Flags() &^ log.LstdFlags)
+		log.Println("======================================================")
+		log.SetFlags(log.Flags() &^ log.LstdFlags)
+		log.Println(string(dumpedReq))
+		log.SetFlags(log.Flags() &^ log.LstdFlags)
+		log.Println("======================================================")
+		log.SetFlags(log.Flags() &^ log.LstdFlags)
+		log.Println()
+		log.SetFlags(log.Flags() &^ log.LstdFlags)
+		log.Println()
+		log.SetFlags(log.Flags() &^ log.LstdFlags)
+		log.Println()
+
 		resp, err := client.Do(req)
-		log.Println(resp)
+
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			//fmt.Fprintln(os.Stderr, "Unable to reach the server.")
+		}
+
+		//log.Println(resp)
+		dumpedResp, err := httputil.DumpResponse(resp, true)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+		}
+		log.SetFlags(log.Flags() &^ log.LstdFlags)
+		log.Println("======================================================")
+		log.SetFlags(log.Ltime)
+		log.Println(string(abs.Scheme) + "://" + string(abs.Host))
+		log.SetFlags(log.Flags() &^ log.LstdFlags)
+		log.Println("======================================================")
+		log.SetFlags(log.Flags() &^ log.LstdFlags)
+		log.Println(string(dumpedResp))
+		log.SetFlags(log.Flags() &^ log.LstdFlags)
+		log.Println("======================================================")
+		log.SetFlags(log.Flags() &^ log.LstdFlags)
+		log.Println()
+		log.SetFlags(log.Flags() &^ log.LstdFlags)
+		log.Println()
+		log.SetFlags(log.Flags() &^ log.LstdFlags)
+		log.Println()
+		
+		
 		end := time.Now()
 
 		if err != nil {
 			dump, _ := httputil.DumpRequestOut(req, true)
 			fmt.Printf("%s", dump)
-			fmt.Println("Unable to reach the server.", err)
+			fmt.Fprintln(os.Stderr, err)
 		}
 
 		location := resp.Header.Get("Location")
@@ -70,7 +121,7 @@ func PostRequest(r *entity.RequestStruct) {
 					PostRequest(&nextStruct)
 				} else {
 					GetRequest(&nextStruct)
-				} 
+				}
 			}
 		}
 		sitemap.Add(*req, (end.Sub(start)).Seconds())
