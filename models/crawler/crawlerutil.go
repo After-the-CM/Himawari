@@ -4,21 +4,15 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"strings"
 
 	"Himawari/models/entity"
 )
 
-const (
-	empty     = ""
-	httpPort  = "80"
-	httpsPort = "443"
-	httpSch   = "http"
-	httpsSch  = "https"
-)
 
 func IsSameOrigin(r *entity.RequestStruct, n *url.URL) bool {
 	switch {
-	case (r.Referer.Port() == empty) && (n.Port() == empty):
+	case (r.Referer.Port() == "") && (n.Port() == ""):
 		if (r.Referer.Hostname() == n.Hostname()) && (r.Referer.Scheme == n.Scheme) {
 			return true
 		} else {
@@ -30,12 +24,12 @@ func IsSameOrigin(r *entity.RequestStruct, n *url.URL) bool {
 		} else {
 			return false
 		}
-	case r.Referer.Port() == empty:
+	case r.Referer.Port() == "":
 		if getSchemaPort(&(r.Referer.Scheme), n.Port()) {
 			return true
 		}
 		fallthrough
-	case n.Port() == empty:
+	case n.Port() == "":
 		if getSchemaPort(&(n.Scheme), r.Referer.Port()) {
 			return true
 		}
@@ -47,10 +41,10 @@ func IsSameOrigin(r *entity.RequestStruct, n *url.URL) bool {
 
 func getSchemaPort(s *string, p string) bool {
 	switch *s {
-	case httpSch:
-		return httpPort == p
-	case httpsSch:
-		return httpsPort == p
+	case "http":
+		return (p == "80")
+	case "https":
+		return (p == "443")
 	default:
 		fmt.Fprintln(os.Stderr, "http, httpsのスキーム以外のポートは自動解決されません。")
 		return false
@@ -58,6 +52,7 @@ func getSchemaPort(s *string, p string) bool {
 }
 
 func JudgeMethod(r *entity.RequestStruct) {
+	r.Form.Method = strings.ToUpper(r.Form.Method)
 	if r.Form.Method == "GET" || r.Form.Method == "" {
 		GetRequest(r)
 	} else if r.Form.Method == "POST" {

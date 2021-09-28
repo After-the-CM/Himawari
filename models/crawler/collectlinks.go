@@ -7,8 +7,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/PuerkitoBio/goquery"
 	"Himawari/models/entity"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 var tagUrlAttr = map[string][]string {
@@ -65,7 +66,6 @@ func parseForms(doc *goquery.Document, r *entity.RequestStruct) {
 		form := entity.HtmlForm{}
 		form.Action, _ = s.Attr("action")
 		form.Method, _ = s.Attr("method")
-		form.Method = strings.ToUpper(form.Method)
 		var inputs []entity.HtmlForm
 
 		s.Find("input").Each(func(_ int, s *goquery.Selection) {
