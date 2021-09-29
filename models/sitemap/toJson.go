@@ -1,9 +1,10 @@
 package sitemap
 
 import (
-	"Himawari/models/entity"
 	"sort"
 	"strings"
+
+	"Himawari/models/entity"
 )
 
 func messages(node *entity.Node) []entity.JsonMessage {
