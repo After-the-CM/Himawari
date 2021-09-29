@@ -50,21 +50,15 @@ func PostRequest(r *entity.RequestStruct) {
 			fmt.Fprintln(os.Stderr, err)
 			//fmt.Fprintln(os.Stderr, "Unable to reach the server.")
 		}
-		log.SetFlags(log.Flags() &^ log.LstdFlags)
 		log.Println("======================================================")
 		log.SetFlags(log.Ltime)
 		log.Println(string(abs.Scheme) + "://" + string(abs.Host))
 		log.SetFlags(log.Flags() &^ log.LstdFlags)
 		log.Println("======================================================")
-		log.SetFlags(log.Flags() &^ log.LstdFlags)
 		log.Println(string(dumpedReq))
-		log.SetFlags(log.Flags() &^ log.LstdFlags)
 		log.Println("======================================================")
-		log.SetFlags(log.Flags() &^ log.LstdFlags)
 		log.Println()
-		log.SetFlags(log.Flags() &^ log.LstdFlags)
 		log.Println()
-		log.SetFlags(log.Flags() &^ log.LstdFlags)
 		log.Println()
 
 		resp, err := client.Do(req)
@@ -79,21 +73,15 @@ func PostRequest(r *entity.RequestStruct) {
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 		}
-		log.SetFlags(log.Flags() &^ log.LstdFlags)
 		log.Println("======================================================")
 		log.SetFlags(log.Ltime)
 		log.Println(string(abs.Scheme) + "://" + string(abs.Host))
 		log.SetFlags(log.Flags() &^ log.LstdFlags)
 		log.Println("======================================================")
-		log.SetFlags(log.Flags() &^ log.LstdFlags)
 		log.Println(string(dumpedResp))
-		log.SetFlags(log.Flags() &^ log.LstdFlags)
 		log.Println("======================================================")
-		log.SetFlags(log.Flags() &^ log.LstdFlags)
 		log.Println()
-		log.SetFlags(log.Flags() &^ log.LstdFlags)
 		log.Println()
-		log.SetFlags(log.Flags() &^ log.LstdFlags)
 		log.Println()
 		
 		
