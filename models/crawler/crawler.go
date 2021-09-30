@@ -8,11 +8,8 @@ import (
 )
 
 func Crawl(url *url.URL) {
-	log.Println("======================================================")
 	log.Println("===============     START CRAWLING     ===============")
-	log.Println("======================================================")
-	log.Println()
-	log.Println()
+	log.Printf("\n")
 	req := entity.RequestStruct{
 		Referer: url,
 		Path:    url,

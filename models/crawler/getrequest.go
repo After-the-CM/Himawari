@@ -49,16 +49,11 @@ func GetRequest(r *entity.RequestStruct) {
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 		}
-		log.Println("======================================================")
 		log.SetFlags(log.Ltime)
 		log.Println(string(abs.Scheme) + "://" + string(abs.Host))
 		log.SetFlags(log.Flags() &^ log.LstdFlags)
-		log.Println("======================================================")
 		log.Println(string(dumpedReq))
-		log.Println("======================================================")
-		log.Println()
-		log.Println()
-		log.Println()
+		log.Printf("\n\n\n")
 
 		start := time.Now()
 		resp, err := client.Do(req)
@@ -72,16 +67,11 @@ func GetRequest(r *entity.RequestStruct) {
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 		}
-		log.Println("======================================================")
 		log.SetFlags(log.Ltime)
 		log.Println(string(abs.Scheme) + "://" + string(abs.Host))
 		log.SetFlags(log.Flags() &^ log.LstdFlags)
-		log.Println("======================================================")
 		log.Println(string(dumpedResp))
-		log.Println("======================================================")
-		log.Println()
-		log.Println()
-		log.Println()
+		log.Printf("\n\n\n")
 
 		location := resp.Header.Get("Location")
 		if location != "" {
