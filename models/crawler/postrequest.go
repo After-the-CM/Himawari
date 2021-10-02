@@ -3,11 +3,11 @@ package crawler
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"io"
-	"net/url"
+	"log"
 	"net/http"
 	"net/http/httputil"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -17,22 +17,19 @@ import (
 )
 
 func PostRequest(r *entity.RequestStruct) {
-	fmt.Println("Start POST Request")
 	abs := r.Referer.ResolveReference(r.Path)
-
 	if !IsSameOrigin(r, abs) {
-		fmt.Println(abs, "is out of Origin.")
-		entity.Item.AppendItem(r.Referer.String(), abs.String())
-		return
-	} else {
-		fmt.Println(abs)
+		if abs.Scheme == "http" || abs.Scheme == "https" {
+			entity.Item.AppendItem(r.Referer.String(), abs.String())
+			return
+		}
 	}
+
 	req, err := http.NewRequest("POST", abs.String(), strings.NewReader(r.Param.Encode()))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 	}
 
-	//ヘッダーのセット
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("User-Agent", "Himawari")
 	req.Header.Set("Referer", r.Referer.String())
@@ -40,21 +37,44 @@ func PostRequest(r *entity.RequestStruct) {
 	req.PostForm = r.Param
 
 	if !sitemap.IsExist(*req) {
-		start := time.Now()
 		client := &http.Client{
-				CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
 				return http.ErrUseLastResponse
 			},
 		}
-		log.Println(req)
+
+		dumpedReq, err := httputil.DumpRequestOut(req, true)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+		}
+		log.SetFlags(log.Ltime)
+		log.Println(string(abs.Scheme) + "://" + string(abs.Host))
+		log.SetFlags(log.Flags() &^ log.LstdFlags)
+		log.Println(string(dumpedReq))
+		log.Printf("\n\n\n")
+
+		start := time.Now()
 		resp, err := client.Do(req)
-		log.Println(resp)
 		end := time.Now()
+
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+		}
+
+		dumpedResp, err := httputil.DumpResponse(resp, true)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+		}
+		log.SetFlags(log.Ltime)
+		log.Println(string(abs.Scheme) + "://" + string(abs.Host))
+		log.SetFlags(log.Flags() &^ log.LstdFlags)
+		log.Println(string(dumpedResp))
+		log.Printf("\n\n\n")
 
 		if err != nil {
 			dump, _ := httputil.DumpRequestOut(req, true)
 			fmt.Printf("%s", dump)
-			fmt.Println("Unable to reach the server.", err)
+			fmt.Fprintln(os.Stderr, err)
 		}
 
 		location := resp.Header.Get("Location")
@@ -62,7 +82,6 @@ func PostRequest(r *entity.RequestStruct) {
 			l, _ := url.Parse(location)
 			redirect := r.Referer.ResolveReference(l)
 			if !IsSameOrigin(r, redirect) {
-				fmt.Println(redirect, "is out of Origin.")
 				entity.Item.AppendItem(r.Referer.String(), redirect.String())
 				return
 			} else {
@@ -74,20 +93,12 @@ func PostRequest(r *entity.RequestStruct) {
 					PostRequest(&nextStruct)
 				} else {
 					GetRequest(&nextStruct)
-				} 
+				}
 			}
 		}
-
 		sitemap.Add(*req, (end.Sub(start)).Seconds())
 		body, _ := io.ReadAll(resp.Body)
-		if resp.StatusCode == 200 {
-			fmt.Println("Found: ", abs)
-		} else {
-			fmt.Println(resp.StatusCode, ": ", abs)
-		}
-		//必ずクローズする
 		resp.Body.Close()
-		//次のlinkを探す
 		CollectLinks(bytes.NewBuffer(body), abs)
 	}
 }

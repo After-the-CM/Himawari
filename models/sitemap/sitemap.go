@@ -9,7 +9,7 @@ import (
 	"Himawari/models/entity"
 )
 
-func addChild(node *entity.Node, parsedPath []string, request http.Request, time float64) {
+func addChild(node *entity.Node, parsedPath []string, req http.Request, time float64) {
 	if len(parsedPath) > 0 {
 		childIdx := getChildIdx(node, parsedPath[0])
 		child := &entity.Node{
@@ -26,12 +26,11 @@ func addChild(node *entity.Node, parsedPath []string, request http.Request, time
 			*node.Children = append(*node.Children, *child)
 			childIdx = 0
 		}
-		addChild(&(*node.Children)[childIdx], parsedPath[1:], request, time)
+		addChild(&(*node.Children)[childIdx], parsedPath[1:], req, time)
 	} else {
-		fmt.Println(request)
-		if !isExist(node, []string{}, request) {
+		if !isExist(node, []string{}, req) {
 			(*node).Messages = append((*node).Messages, entity.Message{
-				Request: request,
+				Request: req,
 				Time:    time,
 			})
 		}
@@ -39,15 +38,15 @@ func addChild(node *entity.Node, parsedPath []string, request http.Request, time
 
 }
 
-func Add(request http.Request, time float64) {
-	parsedPath := strings.Split(request.URL.Path, "/")
+func Add(req http.Request, time float64) {
+	parsedPath := strings.Split(req.URL.Path, "/")
 	parsedPath = removeSpace(parsedPath)
 
 	// paramに `;` があるとクエリのパースでバグるため、`;` だけURLエンコード
-	request.URL.RawQuery = strings.Replace(request.URL.RawQuery, ";", "%3B", -1)
-	request.PostForm, _ = url.ParseQuery(strings.Replace(request.PostForm.Encode(), ";", "%3B", -1))
+	req.URL.RawQuery = strings.Replace(req.URL.RawQuery, ";", "%3B", -1)
+	req.PostForm, _ = url.ParseQuery(strings.Replace(req.PostForm.Encode(), ";", "%3B", -1))
 
-	addChild(&entity.Nodes, parsedPath, request, time)
+	addChild(&entity.Nodes, parsedPath, req, time)
 }
 
 func getChildIdx(node *entity.Node, path string) int {
@@ -62,29 +61,29 @@ func getChildIdx(node *entity.Node, path string) int {
 	return -2
 }
 
-func IsExist(request http.Request) bool {
-	parsedPath := strings.Split(request.URL.Path, "/")
+func IsExist(req http.Request) bool {
+	parsedPath := strings.Split(req.URL.Path, "/")
 	parsedPath = removeSpace(parsedPath)
 
-	request.URL.RawQuery = strings.Replace(request.URL.RawQuery, ";", "%3B", -1)
-	request.PostForm, _ = url.ParseQuery(strings.Replace(request.PostForm.Encode(), ";", "%3B", -1))
+	req.URL.RawQuery = strings.Replace(req.URL.RawQuery, ";", "%3B", -1)
+	req.PostForm, _ = url.ParseQuery(strings.Replace(req.PostForm.Encode(), ";", "%3B", -1))
 
-	return isExist(&entity.Nodes, parsedPath, request)
+	return isExist(&entity.Nodes, parsedPath, req)
 }
 
-func isExist(node *entity.Node, parsedPath []string, request http.Request) bool {
+func isExist(node *entity.Node, parsedPath []string, req http.Request) bool {
 	if len(parsedPath) > 0 {
 		childIdx := getChildIdx(node, parsedPath[0])
 
 		if childIdx >= 0 {
-			return isExist(&(*node.Children)[childIdx], parsedPath[1:], request)
+			return isExist(&(*node.Children)[childIdx], parsedPath[1:], req)
 		} else {
 			return false
 		}
 	} else {
 
 		for _, msg := range node.Messages {
-			if msg.Request.URL.RawQuery == request.URL.RawQuery && msg.Request.PostForm.Encode() == request.PostForm.Encode() {
+			if msg.Request.URL.RawQuery == req.URL.RawQuery && msg.Request.PostForm.Encode() == req.PostForm.Encode() {
 				return true
 			}
 		}
