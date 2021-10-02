@@ -2,13 +2,26 @@ package crawler
 
 import (
 	"fmt"
+	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"os"
 	"strings"
 
 	"Himawari/models/entity"
+	"Himawari/models/logger"
 )
 
+var jar, _ = cookiejar.New(nil)
+var client = &http.Client{
+	Jar: jar,
+	CheckRedirect: func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
+	},
+	Transport: logger.LoggingRoundTripper{
+		Proxied: http.DefaultTransport,
+	},
+}
 
 func IsSameOrigin(r *entity.RequestStruct, n *url.URL) bool {
 	switch {

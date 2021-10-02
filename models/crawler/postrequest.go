@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -37,21 +36,6 @@ func PostRequest(r *entity.RequestStruct) {
 	req.PostForm = r.Param
 
 	if !sitemap.IsExist(*req) {
-		client := &http.Client{
-			CheckRedirect: func(req *http.Request, via []*http.Request) error {
-				return http.ErrUseLastResponse
-			},
-		}
-
-		dumpedReq, err := httputil.DumpRequestOut(req, true)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
-		log.SetFlags(log.Ltime)
-		log.Println(string(abs.Scheme) + "://" + string(abs.Host))
-		log.SetFlags(log.Flags() &^ log.LstdFlags)
-		log.Println(string(dumpedReq))
-		log.Printf("\n\n\n")
 
 		start := time.Now()
 		resp, err := client.Do(req)
@@ -60,16 +44,6 @@ func PostRequest(r *entity.RequestStruct) {
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 		}
-
-		dumpedResp, err := httputil.DumpResponse(resp, true)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
-		log.SetFlags(log.Ltime)
-		log.Println(string(abs.Scheme) + "://" + string(abs.Host))
-		log.SetFlags(log.Flags() &^ log.LstdFlags)
-		log.Println(string(dumpedResp))
-		log.Printf("\n\n\n")
 
 		if err != nil {
 			dump, _ := httputil.DumpRequestOut(req, true)
