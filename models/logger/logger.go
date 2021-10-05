@@ -43,7 +43,7 @@ func (lrt LoggingRoundTripper) RoundTrip(req *http.Request) (res *http.Response,
 	res, e = lrt.Proxied.RoundTrip(req)
 
 	if e != nil {
-		log.Printf("Error: %v", e)
+		fmt.Fprintln(os.Stderr, e)
 	} else {
 		dumpedResp, err := httputil.DumpResponse(res, true)
 		if err != nil {
