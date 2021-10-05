@@ -2,31 +2,14 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"os"
 
-	"log"
 	"net/http"
-	"time"
 
 	"Himawari/controllers"
+	"Himawari/models/logger"
 
 	"github.com/gin-gonic/gin"
 )
-
-func loggingSetting() {
-	layout := "2006-01-02_15:04:05"
-	dirName := "log"
-	if _, err := os.Stat(dirName); os.IsNotExist(err) {
-		os.Mkdir(dirName, 0666)
-	}
-	t := time.Now()
-	fileName := "log/" + t.Format(layout) + ".log"
-	logFile, _ := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	log.SetFlags(log.Flags() &^ log.LstdFlags)
-	log.SetOutput(io.MultiWriter(os.Stdout, logFile))
-	log.SetPrefix("======================================================\n")
-}
 
 func init() {
 	fmt.Println(" _   _ _                                    _ ")
@@ -61,20 +44,10 @@ func init() {
 	fmt.Println("MMMMMMMMMMMMMMMMMMMMMR((MMMMMMMMMMMMMMMMMMMMMM")
 	fmt.Println("MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM")
 	fmt.Println("MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM")
-	loggingSetting()
+	logger.LoggingSetting()
 }
 
 func main() {
-	/*
-		proxyUrl, err := url.Parse("http://172.16.82.190:8001")
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
-		http.DefaultTransport = &http.Transport{
-			Proxy: http.ProxyURL(proxyUrl),
-		}
-	*/
-
 	router := gin.Default()
 	router.Static("/views", "./views")
 
