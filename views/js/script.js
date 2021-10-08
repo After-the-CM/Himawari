@@ -93,6 +93,16 @@ var tree = new Vue({
                     this.doFetchSitemap();
                 }
             })
+        },
+        doReset() {
+            axios.get('/api/reset')
+                .then(response => {
+                    if (response.status != 200) {
+                        throw new Error('something error');
+                    } else {
+                        this.doFetchSitemap();
+                    }
+                })
         }
     }
 });

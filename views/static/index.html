@@ -28,8 +28,9 @@
 
 <body>
     <ul id="tree">
-        <p>Crawl: <input type="text" v-model="url" placeholder="http://localhost:8081" v-on:keyup.enter="doCrawl">
-            <button v-on:click="doCrawl()">add</button><br>
+        <p>URL: <input type="text" v-model="url" placeholder="http://localhost:8081" v-on:keyup.enter="doCrawl">
+            <button v-on:click="doCrawl()">crawl</button>
+            <button v-on:click="doReset()">reset</button><br>
         </p>
 
         <input type="file" v-on:change="onUpload">
