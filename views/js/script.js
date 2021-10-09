@@ -93,6 +93,18 @@ var tree = new Vue({
                     this.doFetchSitemap();
                 }
             })
+        },
+        doScan() {
+            axios.get('/api/scan')
+                .then(response => {
+                    if (response.status != 200) {
+                        throw new Error('something error');
+                    } else {
+                        var founditem = response.data;
+                        console.log(founditem)
+
+                    }
+                })
         }
     }
 });
