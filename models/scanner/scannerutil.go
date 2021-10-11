@@ -29,10 +29,10 @@ const (
 
 //sleep時間は3秒で実行。誤差を考えるなら2.5秒くらい？
 
-func compareAccessTime(origin float64, resp float64) bool {
+func compareAccessTime(origin float64, resp float64, kind string) bool {
 
 	if (resp-origin) >= (PayloadTime-MarginTime) && (PayloadTime+MarginTime) >= (resp-origin) {
-		fmt.Fprintln(os.Stderr, "os command injection!!")
+		fmt.Fprintln(os.Stderr, kind)
 		return true
 	}
 
@@ -62,18 +62,13 @@ func createPostReq(j *entity.JsonMessage, p url.Values) *http.Request {
 func (s SendStruct) isDetectedIssue() bool {
 
 	//ワンちゃん一番最後だけでええんちゃう？
-	//	if j.issue != nil {
 	for _, v := range *s.eachVulnIssue {
 		if v.Parameter == s.parameter && v.Kind == s.kind && v.URL == s.jsonMessage.URL {
 			return true
 		}
 
 	}
-	/*
-		} else {
-			j.issue = &[]Foundpage{}
-		}
-	*/
+
 	return false
 }
 
@@ -101,18 +96,9 @@ func genPostHeaderReq(req *http.Request, param string, gp *url.Values) *http.Req
 	return req
 }
 
-func extractPostValues(req *http.Request) url.Values {
-	p := req.ParseForm()
-	fmt.Fprintln(io.Discard, p)
-	return req.PostForm
-}
-
 //リダイレクト発生時、第３引数が元のリクエスト
 func timeBasedAttack(s SendStruct, req []*http.Request) {
 
-	//client := new(http.Client)
-
-	//client.Do(req)をする前に実行しないとリクエスト内容が消えてしまう。
 	//len(req)-1はリダイレクトがあったら元のほう
 	reqd, _ := httputil.DumpRequestOut(req[0], true)
 
@@ -120,15 +106,7 @@ func timeBasedAttack(s SendStruct, req []*http.Request) {
 	resp, _ := client.Do(req[0])
 	end := time.Now()
 
-	if compareAccessTime(s.jsonMessage.Time, (end.Sub(start)).Seconds()) {
-
-		/*
-			if req.Body != nil {
-				req.Body, _ = req.GetBody()
-			}
-		*/
-
-		//	fmt.Println(string(req))
+	if compareAccessTime(s.jsonMessage.Time, (end.Sub(start)).Seconds(), s.kind) {
 
 		respd, _ := httputil.DumpResponse(resp, true)
 
@@ -143,11 +121,7 @@ func timeBasedAttack(s SendStruct, req []*http.Request) {
 			Request:   string(reqd),
 			Response:  string(respd),
 		}
-		//osci内でのグローバル変数の
-		//nodeIssue = append(nodeIssue, s)
 		*s.eachVulnIssue = append(*s.eachVulnIssue, newIssue)
-		//サイト全体のIssues
-		//Issues = append(Issues, s)
 	}
 
 	body, _ := io.ReadAll(resp.Body)
@@ -225,6 +199,7 @@ func (s SendStruct) setKeyValues(key string, payload string, addparam bool, meth
 
 func (s SendStruct) setParam(payload string) {
 	//paramにpayload=1を追加する
+	//nameがない場合に追加するもの。nameの値を要件等
 	s.setKeyValues("Added by Himawari", payload, true, "GET")
 
 	for k, v := range s.jsonMessage.GetParams {
@@ -272,16 +247,6 @@ func (s SendStruct) setGetHeader(payload string) {
 		req := genGetHeaderReq(getRfReq, "Referer", &s.jsonMessage.GetParams)
 		s.sendMethod(s, []*http.Request{req})
 	}
-
-	//改行の文字コードも追加できる
-	//xxxx.Header.Add("test", "%0A")
-
-	//Header Method
-	/*
-		req := j.createreq()
-		req.Method = "GET%3Bls"
-		j.getRequestOfHeader(req,"Header Method")
-	*/
 
 }
 

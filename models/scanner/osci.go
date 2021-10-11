@@ -33,10 +33,8 @@ func Osci(j *entity.JsonNode) {
 			}
 		}
 		for _, v := range payload {
-			//s.jsonMessage = &j.Messages[0]
 			s.setHeaderDocumentRoot(v)
 		}
-		//j.Messages[0].URL = j.URL + "/"
 
 	}
 
@@ -51,16 +49,7 @@ func Osci(j *entity.JsonNode) {
 			} else {
 				s.setGetHeader(v)
 			}
-
 		}
-
 	}
-	//appendできているかな？無理そうならポインタに
-	//j.Issue = append(j.Issue, nodeIssue...)
-
-	//j.Issue = append(j.Issue, *s.eachVulnIssue...)
-	//Issues = append(Issues, nodeIssue...)
-
 	entity.WholeIssue = append(entity.WholeIssue, *s.eachVulnIssue...)
-	//return j.Issue
 }
