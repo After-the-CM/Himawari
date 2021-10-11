@@ -2,7 +2,6 @@ package logger
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -24,7 +23,7 @@ func LoggingSetting() {
 	fileName := "log/" + t.Format(layout) + ".log"
 	logFile, _ := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	log.SetFlags(log.Flags() &^ log.LstdFlags)
-	log.SetOutput(io.MultiWriter(os.Stdout, logFile))
+	log.SetOutput(logFile)
 	log.SetPrefix("======================================================\n")
 }
 
