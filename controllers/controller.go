@@ -12,6 +12,7 @@ import (
 
 	"Himawari/models/crawler"
 	"Himawari/models/entity"
+	"Himawari/models/scanner"
 	"Himawari/models/sitemap"
 )
 
@@ -52,8 +53,8 @@ func Crawl(c *gin.Context) {
 	// urlのバリデーション
 
 	// HTMLが崩れてる場合にpanicで終わってしまってもマージさせたいのでdefer。
-	defer sitemap.Merge(string(url.Scheme) + "://" + string(url.Host))
-
+	//defer sitemap.Merge(url.String())
+	defer sitemap.Merge(url.Scheme + "://" + url.Host)
 	crawler.Crawl(url)
 	//sitemap.PrintMap()
 	c.String(http.StatusOK, "OK")
@@ -62,6 +63,11 @@ func Crawl(c *gin.Context) {
 func FoundItem(c *gin.Context) {
 	f := entity.Item.Items
 	c.JSON(http.StatusOK, f)
+}
+
+func Scan(c *gin.Context) {
+	scanner.Scan(&entity.JsonNodes)
+	c.JSON(http.StatusOK, entity.WholeIssue)
 }
 
 func Sort(c *gin.Context) {

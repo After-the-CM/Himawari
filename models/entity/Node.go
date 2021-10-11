@@ -22,14 +22,28 @@ type JsonNode struct {
 	URL      string        `json:"URL"`
 	Messages []JsonMessage `json:"messages"`
 	Children []JsonNode    `json:"children"`
+	Issue    []Issue       `json:"issue"`
 }
 
 type JsonMessage struct {
+	URL        string     `json:"url"`
 	Time       float64    `json:"time"`
 	Referer    string     `json:"referer"`
 	GetParams  url.Values `json:"getParams"`
 	PostParams url.Values `json:"postParams"`
 }
+
+type Issue struct {
+	URL       string
+	Parameter string
+	Postparam url.Values
+	Getparam  url.Values
+	Kind      string
+	Request   string
+	Response  string
+}
+
+var WholeIssue []Issue
 
 var Nodes = Node{
 	Path: "/",

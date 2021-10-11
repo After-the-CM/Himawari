@@ -60,6 +60,7 @@ func main() {
 		api.GET("/found", controllers.FoundItem)
 		api.GET("/sort", controllers.Sort)
 		api.GET("/reset", controllers.Reset)
+		api.GET("/scan", controllers.Scan)
 	}
 	//	router.POST("/api/deletePath", controller.DeletePath)
 	router.GET("/download", controllers.DownloadSitemap)
