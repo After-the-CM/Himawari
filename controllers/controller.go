@@ -27,6 +27,8 @@ func DownloadSitemap(c *gin.Context) {
 }
 
 func UploadSitemap(c *gin.Context) {
+	sitemap.Reset()
+
 	file, err := c.FormFile("sitemap")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -44,6 +46,8 @@ func UploadSitemap(c *gin.Context) {
 }
 
 func Crawl(c *gin.Context) {
+	sitemap.Reset()
+
 	url, _ := url.Parse(c.PostForm("url"))
 
 	// urlのバリデーション
@@ -68,5 +72,10 @@ func Scan(c *gin.Context) {
 
 func Sort(c *gin.Context) {
 	sitemap.SortJson()
+	c.String(http.StatusOK, "OK")
+}
+
+func Reset(c *gin.Context) {
+	sitemap.Reset()
 	c.String(http.StatusOK, "OK")
 }
