@@ -213,13 +213,13 @@ func (s SendStruct) setGetHeader(payload string) {
 
 func (s SendStruct) setPostHeader(payload string) {
 	//Header User-Agent
-	s.parameter = "User-agent"
+	s.parameter = "User-Agent"
 	if !s.isAlreadyDetected() {
 		postUAReq := createPostReq(s.jsonMessage, s.jsonMessage.PostParams)
 		postUAReq.PostForm = s.jsonMessage.PostParams
 		postUAReq.Header.Set("User-Agent", postUAReq.UserAgent()+payload)
 
-		req := genPostHeaderReq(postUAReq, "User-agent", &s.jsonMessage.GetParams)
+		req := genPostHeaderReq(postUAReq, "User-Agent", &s.jsonMessage.GetParams)
 		s.approach(s, []*http.Request{req})
 	}
 
