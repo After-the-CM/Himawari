@@ -50,11 +50,16 @@ func timeBasedAttack(s SendStruct, req []*http.Request) {
 		//307想定、動くなら
 		l, _ := url.Parse(location)
 		redirect := req[len(req)-1].URL.ResolveReference(l)
-		if resp.StatusCode == 307 && len(req[len(req)-1].PostForm) != 0 {
-			redirectReq, _ = http.NewRequest(req[len(req)-1].Method, redirect.String(), strings.NewReader(req[len(req)-1].PostForm.Encode()))
-			redirectReq.PostForm = req[len(req)-1].PostForm
+		if isSameOrigin(req[len(req)-1].URL, redirect) {
+			if resp.StatusCode == 307 && len(req[len(req)-1].PostForm) != 0 {
+				redirectReq, _ = http.NewRequest(req[len(req)-1].Method, redirect.String(), strings.NewReader(req[len(req)-1].PostForm.Encode()))
+				redirectReq.PostForm = req[len(req)-1].PostForm
+			} else {
+				redirectReq, _ = http.NewRequest("GET", redirect.String(), nil)
+			}
 		} else {
-			redirectReq, _ = http.NewRequest("GET", redirect.String(), nil)
+			entity.Item.AppendItem(req[len(req)-1].URL.String(), redirect.String())
+			return
 		}
 		req = append(req, redirectReq)
 		//s要検討(リダイレクト先のtimeと比較するのは難しい)

@@ -85,6 +85,32 @@ func (s SendStruct) isAlreadyDetected() bool {
 	return false
 }
 
+func isSameOrigin(ref *url.URL, loc *url.URL) bool {
+	rport, lport := ref.Port(), loc.Port()
+	if rport == "" {
+		rport = getSchemaPort(ref.Scheme)
+	}
+	if lport == "" {
+		lport = getSchemaPort(loc.Scheme)
+	}
+	if ref.Hostname() == loc.Hostname() && rport == lport && ref.Scheme == loc.Scheme {
+		return true
+	}
+	return false
+}
+
+func getSchemaPort(s string) string {
+	switch s {
+	case "http":
+		return "80"
+	case "https":
+		return "443"
+	default:
+		fmt.Fprintln(os.Stderr, "http, httpsのスキーム以外のポートは自動解決されません。")
+		return ""
+	}
+}
+
 //func genGetParamReq(j *JsonMessage, param string, kind string, gp *url.Values, s SendStruct) *http.Request {
 
 func genGetParamReq(j *entity.JsonMessage, gp *url.Values) *http.Request {
