@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -66,6 +67,8 @@ func FoundItem(c *gin.Context) {
 }
 
 func Scan(c *gin.Context) {
+	log.Println("===============     START SCANING     ===============")
+	log.Printf("\n")
 	scanner.Scan(&entity.JsonNodes)
 	c.JSON(http.StatusOK, entity.WholeIssue)
 }
