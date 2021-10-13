@@ -1,8 +1,9 @@
 package scanner
 
 import (
-	"Himawari/models/entity"
 	"bufio"
+
+	"Himawari/models/entity"
 )
 
 func Osci(j *entity.JsonNode) {
@@ -15,7 +16,7 @@ func Osci(j *entity.JsonNode) {
 
 	s := SendStruct{
 		kind:          OSCI,
-		sendMethod:    timeBasedAttack, //ここでsendMethodを変えられる
+		approach:      timeBasedAttack, //ここでapproachを変えられる
 		eachVulnIssue: &j.Issue,
 	}
 
