@@ -23,44 +23,29 @@ var client = &http.Client{
 	},
 }
 
-func IsSameOrigin(r *entity.RequestStruct, n *url.URL) bool {
-	switch {
-	case (r.Referer.Port() == "") && (n.Port() == ""):
-		if (r.Referer.Hostname() == n.Hostname()) && (r.Referer.Scheme == n.Scheme) {
-			return true
-		} else {
-			return false
-		}
-	case r.Referer.Host == n.Host:
-		if r.Referer.Scheme == n.Scheme {
-			return true
-		} else {
-			return false
-		}
-	case r.Referer.Port() == "":
-		if getSchemaPort(&(r.Referer.Scheme), n.Port()) {
-			return true
-		}
-		fallthrough
-	case n.Port() == "":
-		if getSchemaPort(&(n.Scheme), r.Referer.Port()) {
-			return true
-		}
-		return false
-	default:
-		return false
+func isSameOrigin(ref *url.URL, loc *url.URL) bool {
+	rport, lport := ref.Port(), loc.Port()
+	if rport == "" {
+		rport = getSchemaPort(ref.Scheme)
 	}
+	if lport == "" {
+		lport = getSchemaPort(loc.Scheme)
+	}
+	if ref.Hostname() == loc.Hostname() && rport == lport && ref.Scheme == loc.Scheme {
+		return true
+	}
+	return false
 }
 
-func getSchemaPort(s *string, p string) bool {
-	switch *s {
+func getSchemaPort(s string) string {
+	switch s {
 	case "http":
-		return (p == "80")
+		return "80"
 	case "https":
-		return (p == "443")
+		return "443"
 	default:
 		fmt.Fprintln(os.Stderr, "http, httpsのスキーム以外のポートは自動解決されません。")
-		return false
+		return ""
 	}
 }
 

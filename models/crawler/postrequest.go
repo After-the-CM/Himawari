@@ -17,7 +17,7 @@ import (
 
 func PostRequest(r *entity.RequestStruct) {
 	abs := r.Referer.ResolveReference(r.Path)
-	if !IsSameOrigin(r, abs) {
+	if !isSameOrigin(r.Referer, abs) {
 		if abs.Scheme == "http" || abs.Scheme == "https" {
 			entity.Item.AppendItem(r.Referer.String(), abs.String())
 			return
@@ -55,7 +55,7 @@ func PostRequest(r *entity.RequestStruct) {
 		if location != "" {
 			l, _ := url.Parse(location)
 			redirect := r.Referer.ResolveReference(l)
-			if !IsSameOrigin(r, redirect) {
+			if !isSameOrigin(r.Referer, redirect) {
 				entity.Item.AppendItem(r.Referer.String(), redirect.String())
 				return
 			} else {
