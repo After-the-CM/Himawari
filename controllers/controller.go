@@ -61,8 +61,8 @@ func Crawl(c *gin.Context) {
 	c.String(http.StatusOK, "OK")
 }
 
-func FoundItem(c *gin.Context) {
-	f := entity.Item.Items
+func ExportOutOfOrigin(c *gin.Context) {
+	f := entity.OutOfOrigin
 	c.JSON(http.StatusOK, f)
 }
 

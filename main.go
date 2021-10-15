@@ -57,7 +57,7 @@ func main() {
 	{
 		api.GET("/sitemap", controllers.ReadSitemap)
 		api.POST("/crawl", controllers.Crawl)
-		api.GET("/found", controllers.FoundItem)
+		api.GET("/outoforigin", controllers.ExportOutOfOrigin)
 		api.GET("/sort", controllers.Sort)
 		api.GET("/reset", controllers.Reset)
 		api.GET("/scan", controllers.Scan)

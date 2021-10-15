@@ -57,8 +57,8 @@ var tree = new Vue({
                     }
                 })
         },
-        doFound() {
-            axios.get('/api/found')
+        exportOutOfOrigin() {
+            axios.get('/api/outoforigin')
                 .then(response => {
                     if (response.status != 200) {
                         throw new Error('something error');

@@ -17,7 +17,7 @@ func GetRequest(r *entity.RequestStruct) {
 	abs := r.Referer.ResolveReference(r.Path)
 	if !IsSameOrigin(r, abs) {
 		if abs.Scheme == "http" || abs.Scheme == "https" {
-			entity.Item.AppendItem(r.Referer.String(), abs.String())
+			entity.AppendOutOfOrigin(r.Referer.String(), abs.String())
 			return
 		}
 	}
@@ -50,7 +50,7 @@ func GetRequest(r *entity.RequestStruct) {
 			l, _ := url.Parse(location)
 			redirect := r.Referer.ResolveReference(l)
 			if !IsSameOrigin(r, redirect) {
-				entity.Item.AppendItem(r.Referer.String(), redirect.String())
+				entity.AppendOutOfOrigin(r.Referer.String(), redirect.String())
 				return
 			} else {
 				nextStruct := entity.RequestStruct{}
