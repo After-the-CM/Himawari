@@ -12,12 +12,12 @@ import (
 	"Himawari/models/logger"
 )
 
-type SendStruct struct {
+type determinant struct {
 	jsonMessage   *entity.JsonMessage
 	parameter     string
 	kind          string
-	approach      func(s SendStruct, req []*http.Request)
 	originalReq   []byte
+	approach      func(d determinant, req []*http.Request)
 	eachVulnIssue *[]entity.Issue
 }
 
@@ -34,7 +34,6 @@ var client = &http.Client{
 	CheckRedirect: func(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
 	},
-
 	Transport: logger.LoggingRoundTripper{
 		Proxied: http.DefaultTransport,
 	},
@@ -43,17 +42,14 @@ var client = &http.Client{
 //sleep時間は3秒で実行。誤差を考えるなら2.5秒くらい？
 
 func compareAccessTime(originalTime float64, respTime float64, kind string) bool {
-
-	if (respTime-originalTime) >= (PayloadTime-tolerance) && (PayloadTime+tolerance) >= (respTime-originalTime) {
+	if (PayloadTime+tolerance) >= (respTime-originalTime) && (respTime-originalTime) >= (PayloadTime-tolerance) {
 		fmt.Fprintln(os.Stderr, kind)
 		return true
 	}
-
 	return false
 }
 
 func createGetReq(j *entity.JsonMessage) *http.Request {
-
 	req, _ := http.NewRequest("GET", j.URL, nil)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("User-Agent", "Himawari")
@@ -72,16 +68,13 @@ func createPostReq(j *entity.JsonMessage, p url.Values) *http.Request {
 }
 
 //jsonMessageのissueに同じパラメーターで、同じ種類の脆弱性があるか確認する
-func (s SendStruct) isAlreadyDetected() bool {
-
+func (d determinant) isAlreadyDetected() bool {
 	//ワンちゃん一番最後だけでええんちゃう？
-	for _, v := range *s.eachVulnIssue {
-		if v.Parameter == s.parameter && v.Kind == s.kind && v.URL == s.jsonMessage.URL {
+	for _, v := range *d.eachVulnIssue {
+		if v.Parameter == d.parameter && v.Kind == d.kind && v.URL == d.jsonMessage.URL {
 			return true
 		}
-
 	}
-
 	return false
 }
 
@@ -110,8 +103,6 @@ func getSchemaPort(s string) string {
 		return ""
 	}
 }
-
-//func genGetParamReq(j *JsonMessage, param string, kind string, gp *url.Values, s SendStruct) *http.Request {
 
 func genGetParamReq(j *entity.JsonMessage, gp *url.Values) *http.Request {
 	req := createGetReq(j)
@@ -142,48 +133,44 @@ func copyUrlValues(u *url.Values) *url.Values {
 	for k, v := range *u {
 		tmp[k] = v
 	}
-
 	return &tmp
 }
 
-func (s SendStruct) setParam(payload string) {
+func (d determinant) setParam(payload string) {
 	//paramにpayload=1を追加する
 	//nameがない場合に追加するもの。nameの値を要件等
-	s.setKeyValues("Added by Himawari", payload, true, "GET")
+	d.setKeyValues("Added by Himawari", payload, true, "GET")
 
-	for k, v := range s.jsonMessage.GetParams {
-		s.setKeyValues(k, (v[0] + payload), false, "GET")
+	for k, v := range d.jsonMessage.GetParams {
+		d.setKeyValues(k, (v[0] + payload), false, "GET")
 	}
 
 	//paramにpayload=1を追加する
-	s.setKeyValues("Added by Himawari", payload, true, "POST")
+	d.setKeyValues("Added by Himawari", payload, true, "POST")
 
-	for k, v := range s.jsonMessage.PostParams {
-		s.setKeyValues(k, (v[0] + payload), false, "POST")
+	for k, v := range d.jsonMessage.PostParams {
+		d.setKeyValues(k, (v[0] + payload), false, "POST")
 	}
 }
-func (s SendStruct) setKeyValues(key string, payload string, addparam bool, method string) {
-	s.parameter = key
+func (d determinant) setKeyValues(key string, payload string, addparam bool, method string) {
+	d.parameter = key
 
-	if !s.isAlreadyDetected() {
+	if !d.isAlreadyDetected() {
 		switch method {
 		case "GET":
-			tmpUrlValues := copyUrlValues(&s.jsonMessage.GetParams)
-
+			tmpUrlValues := copyUrlValues(&d.jsonMessage.GetParams)
 			if addparam {
 				tmpUrlValues.Add(payload, "1")
-				//place = key
 			} else {
 				tmpUrlValues.Del(key)
 				tmpUrlValues.Set(key, payload)
 			}
 
-			req := genGetParamReq(s.jsonMessage, tmpUrlValues)
-			s.approach(s, []*http.Request{req})
+			req := genGetParamReq(d.jsonMessage, tmpUrlValues)
+			d.approach(d, []*http.Request{req})
 
 		case "POST":
-
-			tmpUrlValues := copyUrlValues(&s.jsonMessage.PostParams)
+			tmpUrlValues := copyUrlValues(&d.jsonMessage.PostParams)
 			if addparam {
 				tmpUrlValues.Add(payload, "1")
 			} else {
@@ -191,84 +178,79 @@ func (s SendStruct) setKeyValues(key string, payload string, addparam bool, meth
 				tmpUrlValues.Set(key, payload)
 			}
 
-			req := genPostParamReq(s.jsonMessage, tmpUrlValues)
+			req := genPostParamReq(d.jsonMessage, tmpUrlValues)
 			req.PostForm = *tmpUrlValues
-			s.approach(s, []*http.Request{req})
+			d.approach(d, []*http.Request{req})
 		default:
 			fmt.Fprintf(os.Stderr, "No support method\n")
-
 		}
 	}
 }
 
-func (s SendStruct) setHeaderDocumentRoot(payload string) {
-
-	s.parameter = "Path"
-	if !s.isAlreadyDetected() {
-		getPtReq := createGetReq(s.jsonMessage)
+func (d determinant) setHeaderDocumentRoot(payload string) {
+	d.parameter = "Path"
+	if !d.isAlreadyDetected() {
+		getPtReq := createGetReq(d.jsonMessage)
 		getPtReq.URL.Path = getPtReq.URL.Path + payload
 
-		req := genGetHeaderReq(getPtReq, "Path", &s.jsonMessage.GetParams)
-		s.approach(s, []*http.Request{req})
+		req := genGetHeaderReq(getPtReq, "Path", &d.jsonMessage.GetParams)
+		d.approach(d, []*http.Request{req})
 	}
 
 }
 
-func (s SendStruct) setGetHeader(payload string) {
-
+func (d determinant) setGetHeader(payload string) {
 	//Header User-Agent
-	s.parameter = "User-Agent"
-	if !s.isAlreadyDetected() {
-		getUAReq := createGetReq(s.jsonMessage)
+	d.parameter = "User-Agent"
+	if !d.isAlreadyDetected() {
+		getUAReq := createGetReq(d.jsonMessage)
 		getUAReq.Header.Set("User-Agent", getUAReq.UserAgent()+payload)
 
-		req := genGetHeaderReq(getUAReq, "User-Agent", &s.jsonMessage.GetParams)
-		s.approach(s, []*http.Request{req})
+		req := genGetHeaderReq(getUAReq, "User-Agent", &d.jsonMessage.GetParams)
+		d.approach(d, []*http.Request{req})
 	}
 	//Header Referer
-	s.parameter = "Referer"
-	if !s.isAlreadyDetected() {
-		getRfReq := createGetReq(s.jsonMessage)
+	d.parameter = "Referer"
+	if !d.isAlreadyDetected() {
+		getRfReq := createGetReq(d.jsonMessage)
 		getRfReq.Header.Set("Referer", getRfReq.Referer()+payload)
 
-		req := genGetHeaderReq(getRfReq, "Referer", &s.jsonMessage.GetParams)
-		s.approach(s, []*http.Request{req})
+		req := genGetHeaderReq(getRfReq, "Referer", &d.jsonMessage.GetParams)
+		d.approach(d, []*http.Request{req})
 	}
 
 }
 
-func (s SendStruct) setPostHeader(payload string) {
+func (d determinant) setPostHeader(payload string) {
 	//Header User-Agent
-	s.parameter = "User-Agent"
-	if !s.isAlreadyDetected() {
-		postUAReq := createPostReq(s.jsonMessage, s.jsonMessage.PostParams)
-		postUAReq.PostForm = s.jsonMessage.PostParams
+	d.parameter = "User-Agent"
+	if !d.isAlreadyDetected() {
+		postUAReq := createPostReq(d.jsonMessage, d.jsonMessage.PostParams)
+		postUAReq.PostForm = d.jsonMessage.PostParams
 		postUAReq.Header.Set("User-Agent", postUAReq.UserAgent()+payload)
 
-		req := genPostHeaderReq(postUAReq, "User-Agent", &s.jsonMessage.GetParams)
-		s.approach(s, []*http.Request{req})
+		req := genPostHeaderReq(postUAReq, "User-Agent", &d.jsonMessage.GetParams)
+		d.approach(d, []*http.Request{req})
 	}
 
 	//Header Referer
-	s.parameter = "Referer"
-	if !s.isAlreadyDetected() {
-		postRfReq := createPostReq(s.jsonMessage, s.jsonMessage.PostParams)
-		postRfReq.PostForm = s.jsonMessage.PostParams
+	d.parameter = "Referer"
+	if !d.isAlreadyDetected() {
+		postRfReq := createPostReq(d.jsonMessage, d.jsonMessage.PostParams)
+		postRfReq.PostForm = d.jsonMessage.PostParams
 		postRfReq.Header.Set("Referer", postRfReq.Referer()+payload)
 
-		req := genPostHeaderReq(postRfReq, "Referer", &s.jsonMessage.GetParams)
-		s.approach(s, []*http.Request{req})
+		req := genPostHeaderReq(postRfReq, "Referer", &d.jsonMessage.GetParams)
+		d.approach(d, []*http.Request{req})
 	}
 }
 
 //fileにストリーム開く用
 func readfile(fn string) *os.File {
-
 	file, err := os.Open(fn)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-
 	return file
 }
