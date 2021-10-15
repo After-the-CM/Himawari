@@ -29,7 +29,6 @@ func Osci(j *entity.JsonNode) {
 				j.Children[0].Messages[0].URL = j.Children[0].URL
 				s.jsonMessage = &j.Children[0].Messages[0]
 		*/
-		//やりたいのはこんな感じなんだけど、"/"つけるのはおかしい
 		if len(j.Messages) != 0 {
 			u, _ := url.Parse(j.URL)
 			slash, _ := url.Parse("/")
@@ -51,7 +50,6 @@ func Osci(j *entity.JsonNode) {
 
 	}
 
-	//	for i, v := range j.Messages {
 	for i := 0; i < len(j.Messages); i++ {
 		j.Messages[i].URL = j.URL
 		for _, v := range payload {
