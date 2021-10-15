@@ -15,10 +15,17 @@ import (
 func timeBasedAttack(s SendStruct, req []*http.Request) {
 
 	//len(req)-1はリダイレクトがあったら元のほう
-	reqd, _ := httputil.DumpRequestOut(req[0], true)
+
+	var reqd []byte
+	if len(req) == 1 {
+		reqd, _ = httputil.DumpRequestOut(req[0], true)
+		s.originalReq = reqd
+	} else {
+		reqd = s.originalReq
+	}
 
 	start := time.Now()
-	resp, _ := client.Do(req[0])
+	resp, _ := client.Do(req[len(req)-1])
 	end := time.Now()
 
 	if compareAccessTime(s.jsonMessage.Time, (end.Sub(start)).Seconds(), s.kind) {
@@ -26,12 +33,10 @@ func timeBasedAttack(s SendStruct, req []*http.Request) {
 		respd, _ := httputil.DumpResponse(resp, true)
 
 		newIssue := entity.Issue{
-			URL: s.jsonMessage.URL,
-			//URL:       req.URL.String(),
+			URL:       s.jsonMessage.URL,
 			Parameter: s.parameter,
 			Kind:      s.kind,
 			Getparam:  req[0].URL.Query(),
-			//Postparam: extractPostValues(req),
 			Postparam: req[0].PostForm,
 			Request:   string(reqd),
 			Response:  string(respd),

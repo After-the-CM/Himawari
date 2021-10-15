@@ -13,11 +13,11 @@ import (
 )
 
 type SendStruct struct {
-	jsonMessage *entity.JsonMessage
-	//req         *http.Request
+	jsonMessage   *entity.JsonMessage
 	parameter     string
 	kind          string
 	approach      func(s SendStruct, req []*http.Request)
+	originalReq   []byte
 	eachVulnIssue *[]entity.Issue
 }
 
@@ -30,11 +30,11 @@ const (
 var jar, _ = cookiejar.New(nil)
 var client = &http.Client{
 	Jar: jar,
-	/*
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
-	*/
+
+	CheckRedirect: func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
+	},
+
 	Transport: logger.LoggingRoundTripper{
 		Proxied: http.DefaultTransport,
 	},

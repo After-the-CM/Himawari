@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"bufio"
+	"net/url"
 
 	"Himawari/models/entity"
 )
@@ -21,9 +22,20 @@ func Osci(j *entity.JsonNode) {
 	}
 
 	if j.Path == "/" {
-		if len(j.Messages) == 0 {
-			j.Children[0].Messages[0].URL = j.Children[0].URL
-			s.jsonMessage = &j.Children[0].Messages[0]
+
+		//before
+		/*
+			if len(j.Messages) == 0 {
+				j.Children[0].Messages[0].URL = j.Children[0].URL
+				s.jsonMessage = &j.Children[0].Messages[0]
+		*/
+		//やりたいのはこんな感じなんだけど、"/"つけるのはおかしい
+		if len(j.Messages) != 0 {
+			u, _ := url.Parse(j.URL)
+			slash, _ := url.Parse("/")
+			j.Messages[0].URL = u.ResolveReference(slash).String()
+			s.jsonMessage = &j.Messages[0]
+
 		} else {
 			for i, v := range j.Children {
 				if len(v.Messages) != 0 {
