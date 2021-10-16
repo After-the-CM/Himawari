@@ -23,14 +23,14 @@ func Osci(j *entity.JsonNode) {
 
 	if j.Path == "/" {
 		if len(j.Messages) != 0 {
-			u, _ := url.Parse(j.URL)
+			//crawl時に入力されたURLの語尾に`/`がない場合の対処
+			u, _ := url.Parse(j.Messages[0].URL)
 			slash, _ := url.Parse("/")
 			j.Messages[0].URL = u.ResolveReference(slash).String()
 			d.jsonMessage = &j.Messages[0]
 		} else {
 			for i, v := range j.Children {
 				if len(v.Messages) != 0 {
-					j.Children[i].Messages[0].URL = j.Children[i].URL
 					d.jsonMessage = &j.Children[i].Messages[0]
 					continue
 				}
@@ -43,7 +43,6 @@ func Osci(j *entity.JsonNode) {
 	}
 
 	for i := 0; i < len(j.Messages); i++ {
-		j.Messages[i].URL = j.URL
 		for _, v := range payload {
 			d.jsonMessage = &j.Messages[i]
 			d.setParam(v)
