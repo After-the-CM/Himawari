@@ -22,9 +22,12 @@ type determinant struct {
 }
 
 const (
-	PayloadTime = 3
-	tolerance   = 0.5
-	OSCI        = "OS Command Injection"
+	PayloadTime   = 3
+	tolerance     = 0.5
+	OSCI          = "OS Command Injection"
+	dirTrav       = "Directory Traversal"
+	TimeBasedSQLi = "Time based SQL Injection"
+	ErrBasedSQLi  = "Error Based SQL Injection"
 )
 
 var jar, _ = cookiejar.New(nil)
@@ -43,7 +46,7 @@ var client = &http.Client{
 
 func compareAccessTime(originalTime float64, respTime float64, kind string) bool {
 	if (PayloadTime+tolerance) >= (respTime-originalTime) && (respTime-originalTime) >= (PayloadTime-tolerance) {
-		fmt.Fprintln(os.Stderr, kind)
+		fmt.Println(kind)
 		return true
 	}
 	return false
