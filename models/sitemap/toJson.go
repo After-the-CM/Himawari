@@ -15,6 +15,7 @@ func messages(node *entity.Node) []entity.JsonMessage {
 			Referer:    m.Request.Referer(),
 			GetParams:  m.Request.URL.Query(),
 			PostParams: m.Request.PostForm,
+			URL:        m.Request.URL.Scheme + "://" + m.Request.URL.Host + m.Request.URL.Path,
 		}
 	}
 	return msg
