@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -91,10 +90,9 @@ func stringMatching(d determinant, req []*http.Request) {
 	}
 	//reqd, _ := httputil.DumpRequestOut(req[0], true)
 
-	resp, _ := client.Do(req[len(req)-1])
-
-	if resp == nil {
-		log.Println("No Response")
+	resp, err := client.Do(req[len(req)-1])
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		return
 	}
 
