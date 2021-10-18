@@ -142,10 +142,11 @@ func copyUrlValues(u *url.Values) *url.Values {
 func (d determinant) setParam(payload string) {
 	//paramにpayload=1を追加する
 	//nameがない場合に追加するもの。nameの値を要件等
+	//fmt.Println(d.jsonMessage.GetParams)
 	d.setKeyValues("Added by Himawari", payload, true, "GET")
-
 	for k, v := range d.jsonMessage.GetParams {
 		d.setKeyValues(k, (v[0] + payload), false, "GET")
+		//d.setKevValues(k, payload, false, "GET")
 	}
 
 	//paramにpayload=1を追加する
@@ -153,6 +154,7 @@ func (d determinant) setParam(payload string) {
 
 	for k, v := range d.jsonMessage.PostParams {
 		d.setKeyValues(k, (v[0] + payload), false, "POST")
+		//d.setKeyValues(k, payload, false, "POST")
 	}
 }
 func (d determinant) setKeyValues(key string, payload string, addparam bool, method string) {

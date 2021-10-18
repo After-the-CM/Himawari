@@ -63,13 +63,19 @@ Type mismatch
 Unable to jump to row
 Unclosed quotation mark before the character string
 Unterminated string constant
-Warning:
 Warning: PDOStatement
 Warning: Cannot modify header information - headers already sent
 Warning: Supplied argument is not a valid File-Handle resource in
 Warning: mysql_query
 Warning: mysql_fetch_array
 Warning: pg_connect: Unable to connect to PostgreSQL server: FATAL
+<b>Warning</b>:  PDO::query(): SQLSTATE
+<b>Warning</b>:  PDOStatement
+<b>Warning</b>:  Cannot modify header information - headers already sent
+<b>Warning</b>:  Supplied argument is not a valid File-Handle resource in
+<b>Warning</b>:  mysql_query
+<b>Warning</b>:  mysql_fetch_array
+<b>Warning</b>:  pg_connect: Unable to connect to PostgreSQL server: FATAL
 You have an error in your SQL syntax near
 data source=
 detected an internal error [IBM][CLI Driver][DB2/6000]
@@ -139,3 +145,4 @@ Zend_Db_Adapter_Oracle_Exception
 Zend_Db_Statement_Oracle_Exception
 oracle.jdbc
 macromedia.jdbc.oracle
+unterminated quoted string at or near

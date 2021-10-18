@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
@@ -25,7 +26,11 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 	}
 
 	start := time.Now()
-	resp, _ := client.Do(req[len(req)-1])
+	resp, err := client.Do(req[len(req)-1])
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
 	end := time.Now()
 
 	if compareAccessTime(d.jsonMessage.Time, (end.Sub(start)).Seconds(), d.kind) {
@@ -44,12 +49,17 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 		*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
 	}
 
-	body, _ := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+	}
 	fmt.Fprintln(io.Discard, string(body))
 	resp.Body.Close()
 
 	//リダイレクト発生時
+
 	location := resp.Header.Get("Location")
+
 	if location != "" {
 		var redirectReq *http.Request
 		l, _ := url.Parse(location)
@@ -98,6 +108,7 @@ func stringMatching(d determinant, req []*http.Request) {
 	for msg.Scan() {
 		messages = append(messages, msg.Text())
 	}
+	respd, _ := httputil.DumpResponse(resp, true)
 
 	body, _ := io.ReadAll(resp.Body)
 	var targetResp string
@@ -112,7 +123,7 @@ func stringMatching(d determinant, req []*http.Request) {
 	for _, msg := range messages {
 		if strings.Contains(targetResp, msg) {
 			fmt.Println(d.kind)
-			respd, _ := httputil.DumpResponse(resp, true)
+			//respd, _ := httputil.DumpResponse(resp, true)
 
 			newIssue := entity.Issue{
 				URL: d.jsonMessage.URL,
@@ -126,27 +137,51 @@ func stringMatching(d determinant, req []*http.Request) {
 				Response:  string(respd),
 			}
 			*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
+			fmt.Fprintln(io.Discard, string(body))
+			resp.Body.Close()
+			return
 		}
 	}
 
 	//リダイレクト発生時
+	//location := resp.Header.Get("Location")
+	//fmt.Fprintln(io.Discard, string(body))
+	//resp.Body.Close()
+	/*
+		if location != "" {
+			var redirectReq *http.Request
+			//307想定、動くなら
+			l, _ := url.Parse(location)
+			redirect := req[len(req)-1].URL.ResolveReference(l)
+			if resp.StatusCode == 307 && len(req[len(req)-1].PostForm) != 0 {
+				redirectReq, _ = http.NewRequest(req[len(req)-1].Method, redirect.String(), strings.NewReader(req[len(req)-1].PostForm.Encode()))
+				redirectReq.PostForm = req[len(req)-1].PostForm
+			} else {
+				redirectReq, _ = http.NewRequest("GET", redirect.String(), nil)
+			}
+			req = append(req, redirectReq)
+			//s要検討(リダイレクト先のtimeと比較するのは難しい)
+			stringMatching(d, req)
+		}
+	*/
 	location := resp.Header.Get("Location")
-	fmt.Fprintln(io.Discard, string(body))
-	resp.Body.Close()
-
 	if location != "" {
 		var redirectReq *http.Request
-		//307想定、動くなら
 		l, _ := url.Parse(location)
 		redirect := req[len(req)-1].URL.ResolveReference(l)
-		if resp.StatusCode == 307 && len(req[len(req)-1].PostForm) != 0 {
-			redirectReq, _ = http.NewRequest(req[len(req)-1].Method, redirect.String(), strings.NewReader(req[len(req)-1].PostForm.Encode()))
-			redirectReq.PostForm = req[len(req)-1].PostForm
+		if isSameOrigin(req[len(req)-1].URL, redirect) {
+			if resp.StatusCode == 307 && len(req[len(req)-1].PostForm) != 0 {
+				redirectReq, _ = http.NewRequest(req[len(req)-1].Method, redirect.String(), strings.NewReader(req[len(req)-1].PostForm.Encode()))
+				redirectReq.PostForm = req[len(req)-1].PostForm
+			} else {
+				redirectReq, _ = http.NewRequest("GET", redirect.String(), nil)
+			}
 		} else {
-			redirectReq, _ = http.NewRequest("GET", redirect.String(), nil)
+			entity.AppendOutOfOrigin(req[len(req)-1].URL.String(), redirect.String())
+			return
 		}
 		req = append(req, redirectReq)
-		//s要検討(リダイレクト先のtimeと比較するのは難しい)
+		//d要検討(リダイレクト先のtimeと比較するのは難しい)
 		stringMatching(d, req)
 	}
 }

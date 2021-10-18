@@ -3,6 +3,8 @@ package scanner
 import (
 	"Himawari/models/entity"
 	"bufio"
+	"fmt"
+	"net/url"
 )
 
 func SQLi(j *entity.JsonNode) {
@@ -35,35 +37,39 @@ func SQLi(j *entity.JsonNode) {
 	}
 
 	var vulnNum int
-
 	if j.Path == "/" {
 		vulnNum = len(*e.eachVulnIssue)
-		if len(j.Messages) == 0 {
-			j.Children[0].Messages[0].URL = j.Children[0].URL
-			e.jsonMessage = &j.Children[0].Messages[0]
-			t.jsonMessage = &j.Children[0].Messages[0]
+		if len(j.Messages) != 0 {
+			//crawl時に入力されたURLの語尾に`/`がない場合の対処
+			u, _ := url.Parse(j.Messages[0].URL)
+			slash, _ := url.Parse("/")
+			j.Messages[0].URL = u.ResolveReference(slash).String()
+			e.jsonMessage = &j.Messages[0]
+			t.jsonMessage = &j.Messages[0]
 		} else {
 			for i, v := range j.Children {
+				fmt.Println(v.Messages)
 				if len(v.Messages) != 0 {
-					j.Children[i].Messages[0].URL = j.Children[i].URL
 					e.jsonMessage = &j.Children[i].Messages[0]
 					t.jsonMessage = &j.Children[i].Messages[0]
 					continue
 				}
 			}
+
 			for _, v := range errSQLiPayloads {
 				e.setHeaderDocumentRoot(v)
 			}
-			// error basedのpayloadが刺さらなかったら
-			if vulnNum-len(*e.eachVulnIssue) == 0 {
+			if vulnNum-len(*e.eachVulnIssue) != 0 {
 				for _, v := range timeSQLiPayloads {
 					t.setHeaderDocumentRoot(v)
 				}
 			}
+
 		}
 	}
+
 	for i := 0; i < len(j.Messages); i++ {
-		j.Messages[i].URL = j.URL
+		//j.Messages[i].URL = j.URL
 		vulnNum = len(*e.eachVulnIssue)
 		for _, v := range errSQLiPayloads {
 			e.jsonMessage = &j.Messages[i]
@@ -75,7 +81,7 @@ func SQLi(j *entity.JsonNode) {
 			}
 		}
 		// error basedのpayloadが刺さらなかったら
-		if len(*e.eachVulnIssue)-vulnNum == 0 {
+		if len(*e.eachVulnIssue)-vulnNum != 0 {
 			entity.WholeIssue = append(entity.WholeIssue, *e.eachVulnIssue...)
 			return
 		}
@@ -89,6 +95,7 @@ func SQLi(j *entity.JsonNode) {
 				t.setGetHeader(v)
 			}
 		}
+
 	}
-	entity.WholeIssue = append(entity.WholeIssue, *t.eachVulnIssue...)
+	//entity.WholeIssue = append(entity.WholeIssue, *t.eachVulnIssue...)
 }

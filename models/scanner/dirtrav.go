@@ -9,9 +9,9 @@ import (
 func DirTrav(j *entity.JsonNode) {
 	payload := make([]string, 0, 20)
 	p := readfile("models/scanner/payload/dirtrav.txt")
-	osciPayload := bufio.NewScanner(p)
-	for osciPayload.Scan() {
-		payload = append(payload, osciPayload.Text())
+	dirtravPayload := bufio.NewScanner(p)
+	for dirtravPayload.Scan() {
+		payload = append(payload, dirtravPayload.Text())
 	}
 
 	d := determinant{
