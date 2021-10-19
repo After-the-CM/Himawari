@@ -53,6 +53,4 @@ func Osci(j *entity.JsonNode) {
 			}
 		}
 	}
-	//2重になる原因
-	entity.WholeIssue = append(entity.WholeIssue, *d.eachVulnIssue...)
 }

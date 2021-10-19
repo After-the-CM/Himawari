@@ -40,6 +40,7 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 			Response:  string(respd),
 		}
 		*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
+		entity.WholeIssue = append(entity.WholeIssue, newIssue)
 	}
 
 	body, _ := io.ReadAll(resp.Body)
