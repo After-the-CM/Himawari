@@ -48,13 +48,13 @@ func GetRequest(r *entity.RequestStruct) {
 		location := resp.Header.Get("Location")
 		if location != "" {
 			l, _ := url.Parse(location)
-			redirect := r.Referer.ResolveReference(l)
+			redirect := req.URL.ResolveReference(l)
 			if !IsSameOrigin(r, redirect) {
 				entity.AppendOutOfOrigin(r.Referer.String(), redirect.String())
 				return
 			} else {
 				nextStruct := entity.RequestStruct{}
-				nextStruct.Referer = r.Referer
+				nextStruct.Referer = req.URL
 				nextStruct.Path = l
 				if resp.StatusCode == 307 {
 					nextStruct.Param = r.Param
