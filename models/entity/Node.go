@@ -19,7 +19,6 @@ type Message struct {
 
 type JsonNode struct {
 	Path     string        `json:"path"`
-	URL      string        `json:"URL"`
 	Messages []JsonMessage `json:"messages"`
 	Children []JsonNode    `json:"children"`
 	Issue    []Issue       `json:"issue"`
