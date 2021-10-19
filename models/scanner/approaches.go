@@ -1,7 +1,6 @@
 package scanner
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"net/http/httputil"
@@ -43,8 +42,7 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 		entity.WholeIssue = append(entity.WholeIssue, newIssue)
 	}
 
-	body, _ := io.ReadAll(resp.Body)
-	fmt.Fprintln(io.Discard, string(body))
+	io.ReadAll(resp.Body)
 	resp.Body.Close()
 
 	//リダイレクト発生時
