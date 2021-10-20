@@ -42,7 +42,7 @@ var client = &http.Client{
 //sleep時間は3秒で実行。誤差を考えるなら2.5秒くらい？
 
 func compareAccessTime(originalTime float64, respTime float64, kind string) bool {
-	if (PayloadTime+tolerance) >= (respTime-originalTime) && (respTime-originalTime) >= (PayloadTime-tolerance) {
+	if (respTime - originalTime) >= (PayloadTime - tolerance) {
 		fmt.Fprintln(os.Stderr, kind)
 		return true
 	}
@@ -152,6 +152,7 @@ func (d determinant) setParam(payload string) {
 		d.setKeyValues(k, (v[0] + payload), false, "POST")
 	}
 }
+
 func (d determinant) setKeyValues(key string, payload string, addparam bool, method string) {
 	d.parameter = key
 
