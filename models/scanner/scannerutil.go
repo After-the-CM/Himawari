@@ -255,3 +255,15 @@ func readfile(fn string) *os.File {
 	}
 	return file
 }
+
+func retrieveJsonMessage(j *entity.JsonNode) *entity.JsonMessage {
+	if len(j.Messages) != 0 {
+		return &j.Messages[0]
+	}
+	for _, v := range j.Children {
+		if len(v.Messages) != 0 {
+			return retrieveJsonMessage(&v)
+		}
+	}
+	return nil
+}
