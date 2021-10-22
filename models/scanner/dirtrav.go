@@ -20,14 +20,14 @@ func DirTrav(j *entity.JsonNode) {
 	}
 
 	if j.Path == "/" {
-		for i, v := range j.Children {
-			if len(v.Messages) != 0 {
-				d.jsonMessage = &j.Children[i].Messages[0]
+		for _, v := range j.Children {
+			d.jsonMessage = retrieveJsonMessage(&v)
+			if d.jsonMessage != nil {
+				for _, v := range payload {
+					d.setHeaderDocumentRoot(v)
+				}
 				break
 			}
-		}
-		for _, v := range payload {
-			d.setHeaderDocumentRoot(v)
 		}
 
 	}
