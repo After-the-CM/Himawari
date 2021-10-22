@@ -16,7 +16,7 @@ func DirTrav(j *entity.JsonNode) {
 
 	d := determinant{
 		kind:          dirTrav,
-		approach:      stringMatching, //ここでsendMethodを変えられる
+		approach:      stringMatching,
 		eachVulnIssue: &j.Issue,
 	}
 
@@ -55,12 +55,4 @@ func DirTrav(j *entity.JsonNode) {
 		}
 
 	}
-	//appendできているかな？無理そうならポインタに
-	//j.Issue = append(j.Issue, nodeIssue...)
-
-	//j.Issue = append(j.Issue, *s.eachVulnIssue...)
-	//Issues = append(Issues, nodeIssue...)
-
-	//entity.WholeIssue = append(entity.WholeIssue, *s.eachVulnIssue...)
-	//return j.Issue
 }
