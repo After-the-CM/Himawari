@@ -13,12 +13,8 @@ import (
 
 //リダイレクト発生時、第３引数が元のリクエスト
 func timeBasedAttack(d determinant, req []*http.Request) {
-	var reqd []byte
 	if len(req) == 1 {
-		reqd, _ = httputil.DumpRequestOut(req[0], true)
-		d.originalReq = reqd
-	} else {
-		reqd = d.originalReq
+		d.originalReq, _ = httputil.DumpRequestOut(req[0], true)
 	}
 
 	start := time.Now()
@@ -27,7 +23,7 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 
 	if compareAccessTime(d.jsonMessage.Time, (end.Sub(start)).Seconds(), d.kind) {
 
-		respd, _ := httputil.DumpResponse(resp, true)
+		dumpedResp, _ := httputil.DumpResponse(resp, true)
 
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
@@ -35,8 +31,8 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 			Kind:      d.kind,
 			Getparam:  req[0].URL.Query(),
 			Postparam: req[0].PostForm,
-			Request:   string(reqd),
-			Response:  string(respd),
+			Request:   string(d.originalReq),
+			Response:  string(dumpedResp),
 		}
 		*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
 		entity.WholeIssue = append(entity.WholeIssue, newIssue)
