@@ -23,14 +23,12 @@ func SQLi(j *entity.JsonNode) {
 	}
 
 	e := determinant{
-		//kind: SQLI,
 		kind:          ErrBasedSQLi,
 		approach:      stringMatching,
 		eachVulnIssue: &j.Issue,
 	}
 
 	t := determinant{
-		//kind: SQLI,
 		kind:          TimeBasedSQLi,
 		approach:      timeBasedAttack,
 		eachVulnIssue: &j.Issue,
@@ -69,7 +67,6 @@ func SQLi(j *entity.JsonNode) {
 	}
 
 	for i := 0; i < len(j.Messages); i++ {
-		//j.Messages[i].URL = j.URL
 		vulnNum = len(*e.eachVulnIssue)
 		for _, v := range errSQLiPayloads {
 			e.jsonMessage = &j.Messages[i]
@@ -80,9 +77,8 @@ func SQLi(j *entity.JsonNode) {
 				e.setGetHeader(v)
 			}
 		}
-		// error basedのpayloadが刺さらなかったら
+
 		if len(*e.eachVulnIssue)-vulnNum != 0 {
-			entity.WholeIssue = append(entity.WholeIssue, *e.eachVulnIssue...)
 			return
 		}
 
@@ -97,5 +93,4 @@ func SQLi(j *entity.JsonNode) {
 		}
 
 	}
-	//entity.WholeIssue = append(entity.WholeIssue, *t.eachVulnIssue...)
 }
