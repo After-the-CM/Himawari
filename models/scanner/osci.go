@@ -7,17 +7,18 @@ import (
 )
 
 func Osci(j *entity.JsonNode) {
-	payload := make([]string, 0, 20)
-	p := readfile("models/scanner/payload/" + OSCI + ".txt")
-	osciPayload := bufio.NewScanner(p)
-	for osciPayload.Scan() {
-		payload = append(payload, osciPayload.Text())
-	}
 
 	d := determinant{
 		kind:          OSCI,
 		approach:      timeBasedAttack, //ここでapproachを変えられる
 		eachVulnIssue: &j.Issue,
+	}
+
+	payload := make([]string, 0, 20)
+	p := readfile("models/scanner/payload/" + d.kind + ".txt")
+	osciPayload := bufio.NewScanner(p)
+	for osciPayload.Scan() {
+		payload = append(payload, osciPayload.Text())
 	}
 
 	if j.Path == "/" {
