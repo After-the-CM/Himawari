@@ -24,7 +24,7 @@ type determinant struct {
 const (
 	PayloadTime = 3
 	tolerance   = 0.5
-	OSCI        = "OS Command Injection"
+	OSCI        = "OS_Command_Injection"
 )
 
 var jar, _ = cookiejar.New(nil)
