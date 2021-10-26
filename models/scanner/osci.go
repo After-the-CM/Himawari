@@ -14,7 +14,7 @@ func Osci(j *entity.JsonNode) {
 		eachVulnIssue: &j.Issue,
 	}
 
-	payload := make([]string, 0, 20)
+	var payload []string
 	p := readfile("models/scanner/payload/" + d.kind + ".txt")
 	osciPayload := bufio.NewScanner(p)
 	for osciPayload.Scan() {
