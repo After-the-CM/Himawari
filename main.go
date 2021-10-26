@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net"
 
 	"net/http"
 
@@ -9,6 +10,7 @@ import (
 	"Himawari/models/logger"
 
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/browser"
 )
 
 func init() {
@@ -47,7 +49,23 @@ func init() {
 	logger.LoggingSetting()
 }
 
+func isRunSunflower() {
+	_, err := net.Dial("tcp", "localhost:18080")
+	if err != nil {
+		panic("Sunflowerを起動してください。")
+	}
+}
+
+func openBrowser() {
+	err := browser.OpenURL("http://localhost:8080")
+	if err != nil {
+		panic(err)
+	}
+}
+
 func main() {
+	isRunSunflower()
+	go openBrowser()
 	router := gin.Default()
 	router.Static("/views", "./views")
 
