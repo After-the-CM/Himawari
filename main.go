@@ -57,7 +57,7 @@ func isRunSunflower() {
 }
 
 func openBrowser() {
-	err := browser.OpenURL("http://localhost:8080")
+	err := browser.OpenURL("http://localhost:8080/Himawari/?url=http%3A%2F%2Flocalhost%3A18080%2F")
 	if err != nil {
 		panic(err)
 	}
