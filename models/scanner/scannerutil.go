@@ -115,16 +115,6 @@ func genPostParamReq(j *entity.JsonMessage, pp *url.Values) *http.Request {
 	return req
 }
 
-func genGetHeaderReq(req *http.Request, gp *url.Values) *http.Request {
-	req.URL.RawQuery = gp.Encode()
-	return req
-}
-
-func genPostHeaderReq(req *http.Request, gp *url.Values) *http.Request {
-	req.URL.RawQuery = gp.Encode()
-	return req
-}
-
 //jsonMessageのparamをコピー
 func copyUrlValues(u *url.Values) *url.Values {
 	tmp := url.Values{}
@@ -192,9 +182,9 @@ func (d determinant) setHeaderDocumentRoot(payload string) {
 	if !d.isAlreadyDetected() {
 		getPtReq := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
 		getPtReq.URL.Path = getPtReq.URL.Path + payload
+		getPtReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
-		req := genGetHeaderReq(getPtReq, &d.jsonMessage.GetParams)
-		d.approach(d, []*http.Request{req})
+		d.approach(d, []*http.Request{getPtReq})
 	}
 
 }
@@ -205,18 +195,18 @@ func (d determinant) setGetHeader(payload string) {
 	if !d.isAlreadyDetected() {
 		getUAReq := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
 		getUAReq.Header.Set("User-Agent", getUAReq.UserAgent()+payload)
+		getUAReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
-		req := genGetHeaderReq(getUAReq, &d.jsonMessage.GetParams)
-		d.approach(d, []*http.Request{req})
+		d.approach(d, []*http.Request{getUAReq})
 	}
 	//Header Referer
 	d.parameter = "Referer"
 	if !d.isAlreadyDetected() {
 		getRfReq := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
 		getRfReq.Header.Set("Referer", getRfReq.Referer()+payload)
+		getRfReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
-		req := genGetHeaderReq(getRfReq, &d.jsonMessage.GetParams)
-		d.approach(d, []*http.Request{req})
+		d.approach(d, []*http.Request{getRfReq})
 	}
 
 }
@@ -228,9 +218,9 @@ func (d determinant) setPostHeader(payload string) {
 		postUAReq := createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
 		postUAReq.PostForm = d.jsonMessage.PostParams
 		postUAReq.Header.Set("User-Agent", postUAReq.UserAgent()+payload)
+		postUAReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
-		req := genPostHeaderReq(postUAReq, &d.jsonMessage.GetParams)
-		d.approach(d, []*http.Request{req})
+		d.approach(d, []*http.Request{postUAReq})
 	}
 
 	//Header Referer
@@ -239,9 +229,9 @@ func (d determinant) setPostHeader(payload string) {
 		postRfReq := createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
 		postRfReq.PostForm = d.jsonMessage.PostParams
 		postRfReq.Header.Set("Referer", postRfReq.Referer()+payload)
+		postRfReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
-		req := genPostHeaderReq(postRfReq, &d.jsonMessage.GetParams)
-		d.approach(d, []*http.Request{req})
+		d.approach(d, []*http.Request{postRfReq})
 	}
 }
 
