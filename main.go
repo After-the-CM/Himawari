@@ -49,23 +49,26 @@ func init() {
 	logger.LoggingSetting()
 }
 
-func isRunSunflower() {
-	_, err := net.Dial("tcp", "localhost:18080")
+func isRunSunflower() string {
+	sunflower := "localhost:18080"
+	_, err := net.Dial("tcp", sunflower)
 	if err != nil {
-		panic("Sunflowerを起動してください。")
+		return "http://localhost:8080/"
+	} else {
+		return "http://localhost:8080/Himawari/?url=http%3A%2F%2Flocalhost%3A18080%2F"
 	}
 }
 
-func openBrowser() {
-	err := browser.OpenURL("http://localhost:8080/Himawari/?url=http%3A%2F%2Flocalhost%3A18080%2F")
+func openBrowser(target string) {
+	err := browser.OpenURL(target)
 	if err != nil {
 		panic(err)
 	}
 }
 
 func main() {
-	isRunSunflower()
-	go openBrowser()
+	target := isRunSunflower()
+	go openBrowser(target)
 	router := gin.Default()
 	router.Static("/views", "./views")
 
