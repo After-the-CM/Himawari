@@ -1,7 +1,6 @@
 package sitemap
 
 import (
-	"path"
 	"sort"
 
 	"Himawari/models/entity"
@@ -26,7 +25,8 @@ func jsonAddChild(node *entity.Node, jsonNode *entity.JsonNode, url string) {
 		for i, n := range *node.Children {
 
 			child := &entity.JsonNode{
-				URL:      path.Join(url, n.Path),
+				// path.Joinだと`http://`の`/`が消えてしまう
+				URL:      url + "/" + n.Path,
 				Path:     n.Path,
 				Messages: messages(&n),
 			}
