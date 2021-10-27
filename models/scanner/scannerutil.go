@@ -25,9 +25,9 @@ const (
 	PayloadTime   = 3
 	tolerance     = 0.5
 	OSCI          = "OS Command Injection"
-	dirTrav       = "Directory Traversal"
-	TimeBasedSQLi = "Time based SQL Injection"
-	ErrBasedSQLi  = "Error Based SQL Injection"
+	dirTrav       = "Directory_Traversal"
+	TimeBasedSQLi = "Time_based_SQL_Injection"
+	ErrBasedSQLi  = "Error_Based_SQL_Injection"
 )
 
 var jar, _ = cookiejar.New(nil)

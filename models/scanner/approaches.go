@@ -91,13 +91,10 @@ func stringMatching(d determinant, req []*http.Request) {
 	dumpedResp, _ := httputil.DumpResponse(resp, true)
 
 	body, _ := io.ReadAll(resp.Body)
-	var targetResp string
-
-	targetResp = string(body)
+	targetResp := string(body)
 
 	for _, msg := range messages {
 		if strings.Contains(targetResp, msg) {
-			fmt.Println(d.kind)
 			newIssue := entity.Issue{
 				URL:       d.jsonMessage.URL,
 				Parameter: d.parameter,
@@ -109,11 +106,12 @@ func stringMatching(d determinant, req []*http.Request) {
 			}
 			*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
 			entity.WholeIssue = append(entity.WholeIssue, newIssue)
-			io.ReadAll(resp.Body)
-			resp.Body.Close()
-			return
+			break
 		}
 	}
+
+	io.ReadAll(resp.Body)
+	resp.Body.Close()
 
 	location := resp.Header.Get("Location")
 	if location != "" {

@@ -6,17 +6,18 @@ import (
 )
 
 func DirTrav(j *entity.JsonNode) {
-	payload := make([]string, 0, 20)
-	p := readfile("models/scanner/payload/dirtrav.txt")
-	dirtravPayload := bufio.NewScanner(p)
-	for dirtravPayload.Scan() {
-		payload = append(payload, dirtravPayload.Text())
-	}
 
 	d := determinant{
 		kind:          dirTrav,
 		approach:      stringMatching,
 		eachVulnIssue: &j.Issue,
+	}
+
+	var payload []string
+	p := readfile("models/scanner/payload/" + d.kind + ".txt")
+	dirtravPayload := bufio.NewScanner(p)
+	for dirtravPayload.Scan() {
+		payload = append(payload, dirtravPayload.Text())
 	}
 
 	if j.Path == "/" {
