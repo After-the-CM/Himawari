@@ -22,12 +22,13 @@ type determinant struct {
 }
 
 const (
-	PayloadTime = 3
-	tolerance   = 0.5
-	OSCI        = "OS_Command_Injection"
-  dirTrav       = "Directory_Traversal"
+	PayloadTime   = 3
+	tolerance     = 0.5
+	OSCI          = "OS_Command_Injection"
+	dirTrav       = "Directory_Traversal"
 	TimeBasedSQLi = "Time_based_SQL_Injection"
 	ErrBasedSQLi  = "Error_Based_SQL_Injection"
+	xss           = "XSS"
 )
 
 var jar, _ = cookiejar.New(nil)
