@@ -18,8 +18,8 @@ func GetRequest(r *entity.RequestStruct) {
 	if !isSameOrigin(r.Referer, abs) {
 		if abs.Scheme == "http" || abs.Scheme == "https" {
 			entity.AppendOutOfOrigin(r.Referer.String(), abs.String())
-			return
 		}
+		return
 	}
 
 	req, err := http.NewRequest("GET", abs.String(), nil)
