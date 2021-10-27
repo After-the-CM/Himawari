@@ -83,7 +83,7 @@ func stringMatching(d determinant, req []*http.Request) {
 	}
 
 	var messages []string
-	m := readfile("models/scanner/messages/" + string(d.kind) + ".txt")
+	m := readfile("models/scanner/messages/" + d.kind + ".txt")
 	msg := bufio.NewScanner(m)
 	for msg.Scan() {
 		messages = append(messages, msg.Text())
