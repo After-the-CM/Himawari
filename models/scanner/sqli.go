@@ -1,8 +1,9 @@
 package scanner
 
 import (
-	"Himawari/models/entity"
 	"bufio"
+
+	"Himawari/models/entity"
 )
 
 func SQLi(j *entity.JsonNode) {
@@ -18,14 +19,14 @@ func SQLi(j *entity.JsonNode) {
 		eachVulnIssue: &j.Issue,
 	}
 
-	errSQLiPayloads := make([]string, 0, 1)
+	var errSQLiPayloads []string
 	ePayload := readfile("models/scanner/payload/" + e.kind + ".txt")
 	ePayloads := bufio.NewScanner(ePayload)
 	for ePayloads.Scan() {
 		errSQLiPayloads = append(errSQLiPayloads, ePayloads.Text())
 	}
 
-	timeSQLiPayloads := make([]string, 0, 3)
+	var timeSQLiPayloads []string
 	tPayload := readfile("models/scanner/payload/" + t.kind + ".txt")
 	tPayloads := bufio.NewScanner(tPayload)
 	for tPayloads.Scan() {
