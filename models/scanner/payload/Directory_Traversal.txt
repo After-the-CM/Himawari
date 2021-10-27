@@ -1,0 +1,3 @@
+hogefuga
+/etc/passwd
+../../../../etc/passwd

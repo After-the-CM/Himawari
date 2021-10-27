@@ -25,6 +25,9 @@ const (
 	PayloadTime = 3
 	tolerance   = 0.5
 	OSCI        = "OS_Command_Injection"
+  dirTrav       = "Directory_Traversal"
+	TimeBasedSQLi = "Time_based_SQL_Injection"
+	ErrBasedSQLi  = "Error_Based_SQL_Injection"
 )
 
 var jar, _ = cookiejar.New(nil)
@@ -43,7 +46,7 @@ var client = &http.Client{
 
 func compareAccessTime(originalTime float64, respTime float64, kind string) bool {
 	if (respTime - originalTime) >= (PayloadTime - tolerance) {
-		fmt.Fprintln(os.Stderr, kind)
+		fmt.Println(kind)
 		return true
 	}
 	return false
