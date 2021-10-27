@@ -31,16 +31,9 @@ type TestStruct struct {
 	//formの場合はaction
 	Validation string
 }
-type FoundItemList struct {
-	Items map[string][]string
-}
 
-var Item = FoundItemList{
-	make(map[string][]string),
-}
+var OutOfOrigin = make(map[string][]string)
 
-//オリジン外のlinkを収集 存在したページ:link
-func (itemList *FoundItemList) AppendItem(place string, u string) {
-	//Itemが[string][]stringのため、appendできる。
-	itemList.Items[place] = append(itemList.Items[place], u)
+func AppendOutOfOrigin(page string, externalLink string) {
+	OutOfOrigin[page] = append(OutOfOrigin[page], externalLink)
 }

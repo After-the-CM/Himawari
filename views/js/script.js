@@ -26,7 +26,7 @@ var tree = new Vue({
     el: "#tree",
     data: {
         treeData: {},
-        url: ""
+        url: new URLSearchParams(window.location.search.substring(1)).get('url')
     },
     created: function () {
         this.doFetchSitemap();
@@ -57,8 +57,8 @@ var tree = new Vue({
                     }
                 })
         },
-        doFound() {
-            axios.get('/api/found')
+        exportOutOfOrigin() {
+            axios.get('/api/outoforigin')
                 .then(response => {
                     if (response.status != 200) {
                         throw new Error('something error');

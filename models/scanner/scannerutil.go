@@ -1,176 +1,118 @@
 package scanner
 
 import (
-	"Himawari/models/entity"
 	"fmt"
-	"io"
 	"net/http"
-	"net/http/httputil"
+	"net/http/cookiejar"
 	"net/url"
 	"os"
 	"strings"
-	"time"
+
+	"Himawari/models/entity"
+	"Himawari/models/logger"
 )
 
-type SendStruct struct {
-	jsonMessage *entity.JsonMessage
-	//req         *http.Request
+type determinant struct {
+	jsonMessage   *entity.JsonMessage
 	parameter     string
 	kind          string
-	sendMethod    func(s SendStruct, req []*http.Request)
+	originalReq   []byte
+	approach      func(d determinant, req []*http.Request)
 	eachVulnIssue *[]entity.Issue
 }
 
 const (
 	PayloadTime = 3
-	MarginTime  = 0.5
-	OSCI        = "OS Command Injection"
+	tolerance   = 0.5
+	OSCI        = "OS_Command_Injection"
 )
+
+var jar, _ = cookiejar.New(nil)
+var client = &http.Client{
+	Jar: jar,
+
+	CheckRedirect: func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
+	},
+	Transport: logger.LoggingRoundTripper{
+		Proxied: http.DefaultTransport,
+	},
+}
 
 //sleep時間は3秒で実行。誤差を考えるなら2.5秒くらい？
 
-func compareAccessTime(origin float64, resp float64) bool {
-
-	if (resp-origin) >= (PayloadTime-MarginTime) && (PayloadTime+MarginTime) >= (resp-origin) {
-		fmt.Fprintln(os.Stderr, "os command injection!!")
+func compareAccessTime(originalTime float64, respTime float64, kind string) bool {
+	if (respTime - originalTime) >= (PayloadTime - tolerance) {
+		fmt.Fprintln(os.Stderr, kind)
 		return true
 	}
-
 	return false
 }
 
-func createGetReq(j *entity.JsonMessage) *http.Request {
-
-	req, _ := http.NewRequest("GET", j.URL, nil)
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+func createGetReq(url string, ref string) *http.Request {
+	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("User-Agent", "Himawari")
-	req.Header.Set("Referer", j.Referer)
+	req.Header.Set("Referer", ref)
 	return req
 
 }
 
-func createPostReq(j *entity.JsonMessage, p url.Values) *http.Request {
-	req, _ := http.NewRequest("POST", j.URL, strings.NewReader(p.Encode()))
+func createPostReq(url string, ref string, p url.Values) *http.Request {
+	req, _ := http.NewRequest("POST", url, strings.NewReader(p.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("User-Agent", "Himawari")
-	req.Header.Set("Referer", j.Referer)
+	req.Header.Set("Referer", ref)
 	return req
 
 }
 
 //jsonMessageのissueに同じパラメーターで、同じ種類の脆弱性があるか確認する
-func (s SendStruct) isDetectedIssue() bool {
-
+func (d determinant) isAlreadyDetected() bool {
 	//ワンちゃん一番最後だけでええんちゃう？
-	//	if j.issue != nil {
-	for _, v := range *s.eachVulnIssue {
-		if v.Parameter == s.parameter && v.Kind == s.kind && v.URL == s.jsonMessage.URL {
+	for _, v := range *d.eachVulnIssue {
+		if v.Parameter == d.parameter && v.Kind == d.kind && v.URL == d.jsonMessage.URL {
 			return true
 		}
-
 	}
-	/*
-		} else {
-			j.issue = &[]Foundpage{}
-		}
-	*/
 	return false
 }
 
-//func genGetParamReq(j *JsonMessage, param string, kind string, gp *url.Values, s SendStruct) *http.Request {
+func isSameOrigin(ref *url.URL, loc *url.URL) bool {
+	rport, lport := ref.Port(), loc.Port()
+	if rport == "" {
+		rport = getSchemaPort(ref.Scheme)
+	}
+	if lport == "" {
+		lport = getSchemaPort(loc.Scheme)
+	}
+	if ref.Hostname() == loc.Hostname() && rport == lport && ref.Scheme == loc.Scheme {
+		return true
+	}
+	return false
+}
+
+func getSchemaPort(s string) string {
+	switch s {
+	case "http":
+		return "80"
+	case "https":
+		return "443"
+	default:
+		fmt.Fprintln(os.Stderr, "http, httpsのスキーム以外のポートは自動解決されません。")
+		return ""
+	}
+}
 
 func genGetParamReq(j *entity.JsonMessage, gp *url.Values) *http.Request {
-	req := createGetReq(j)
+	req := createGetReq(j.URL, j.Referer)
 	req.URL.RawQuery = gp.Encode()
 	return req
 }
 
 func genPostParamReq(j *entity.JsonMessage, pp *url.Values) *http.Request {
-	req := createPostReq(j, *pp)
+	req := createPostReq(j.URL, j.Referer, *pp)
 	req.URL.RawQuery = j.GetParams.Encode()
 	return req
-}
-
-func genGetHeaderReq(req *http.Request, param string, gp *url.Values) *http.Request {
-	req.URL.RawQuery = gp.Encode()
-	return req
-}
-
-func genPostHeaderReq(req *http.Request, param string, gp *url.Values) *http.Request {
-	req.URL.RawQuery = gp.Encode()
-	return req
-}
-
-func extractPostValues(req *http.Request) url.Values {
-	p := req.ParseForm()
-	fmt.Fprintln(io.Discard, p)
-	return req.PostForm
-}
-
-//リダイレクト発生時、第３引数が元のリクエスト
-func timeBasedAttack(s SendStruct, req []*http.Request) {
-
-	//client := new(http.Client)
-
-	//client.Do(req)をする前に実行しないとリクエスト内容が消えてしまう。
-	//len(req)-1はリダイレクトがあったら元のほう
-	reqd, _ := httputil.DumpRequestOut(req[0], true)
-
-	start := time.Now()
-	resp, _ := client.Do(req[0])
-	end := time.Now()
-
-	if compareAccessTime(s.jsonMessage.Time, (end.Sub(start)).Seconds()) {
-
-		/*
-			if req.Body != nil {
-				req.Body, _ = req.GetBody()
-			}
-		*/
-
-		//	fmt.Println(string(req))
-
-		respd, _ := httputil.DumpResponse(resp, true)
-
-		newIssue := entity.Issue{
-			URL: s.jsonMessage.URL,
-			//URL:       req.URL.String(),
-			Parameter: s.parameter,
-			Kind:      s.kind,
-			Getparam:  req[0].URL.Query(),
-			//Postparam: extractPostValues(req),
-			Postparam: req[0].PostForm,
-			Request:   string(reqd),
-			Response:  string(respd),
-		}
-		//osci内でのグローバル変数の
-		//nodeIssue = append(nodeIssue, s)
-		*s.eachVulnIssue = append(*s.eachVulnIssue, newIssue)
-		//サイト全体のIssues
-		//Issues = append(Issues, s)
-	}
-
-	body, _ := io.ReadAll(resp.Body)
-	fmt.Fprintln(io.Discard, string(body))
-	resp.Body.Close()
-
-	//リダイレクト発生時
-	location := resp.Header.Get("Location")
-	if location != "" {
-		var redirectReq *http.Request
-		//307想定、動くなら
-		l, _ := url.Parse(location)
-		redirect := req[len(req)-1].URL.ResolveReference(l)
-		if resp.StatusCode == 307 && len(req[len(req)-1].PostForm) != 0 {
-			redirectReq, _ = http.NewRequest(req[len(req)-1].Method, redirect.String(), strings.NewReader(req[len(req)-1].PostForm.Encode()))
-			redirectReq.PostForm = req[len(req)-1].PostForm
-		} else {
-			redirectReq, _ = http.NewRequest("GET", redirect.String(), nil)
-		}
-		req = append(req, redirectReq)
-		//s要検討(リダイレクト先のtimeと比較するのは難しい)
-		timeBasedAttack(s, req)
-	}
 }
 
 //jsonMessageのparamをコピー
@@ -180,32 +122,45 @@ func copyUrlValues(u *url.Values) *url.Values {
 	for k, v := range *u {
 		tmp[k] = v
 	}
-
 	return &tmp
 }
 
-func (s SendStruct) setKeyValues(key string, payload string, addparam bool, method string) {
-	s.parameter = key
+func (d determinant) setParam(payload string) {
+	//paramにpayload=1を追加する
+	//nameがない場合に追加するもの。nameの値を要件等
+	d.setKeyValues("Added by Himawari", payload, true, "GET")
 
-	if !s.isDetectedIssue() {
+	for k, v := range d.jsonMessage.GetParams {
+		d.setKeyValues(k, (v[0] + payload), false, "GET")
+	}
+
+	//paramにpayload=1を追加する
+	d.setKeyValues("Added by Himawari", payload, true, "POST")
+
+	for k, v := range d.jsonMessage.PostParams {
+		d.setKeyValues(k, (v[0] + payload), false, "POST")
+	}
+}
+
+func (d determinant) setKeyValues(key string, payload string, addparam bool, method string) {
+	d.parameter = key
+
+	if !d.isAlreadyDetected() {
 		switch method {
 		case "GET":
-			tmpUrlValues := copyUrlValues(&s.jsonMessage.GetParams)
-
+			tmpUrlValues := copyUrlValues(&d.jsonMessage.GetParams)
 			if addparam {
 				tmpUrlValues.Add(payload, "1")
-				//place = key
 			} else {
 				tmpUrlValues.Del(key)
 				tmpUrlValues.Set(key, payload)
 			}
 
-			req := genGetParamReq(s.jsonMessage, tmpUrlValues)
-			s.sendMethod(s, []*http.Request{req})
+			req := genGetParamReq(d.jsonMessage, tmpUrlValues)
+			d.approach(d, []*http.Request{req})
 
 		case "POST":
-
-			tmpUrlValues := copyUrlValues(&s.jsonMessage.PostParams)
+			tmpUrlValues := copyUrlValues(&d.jsonMessage.PostParams)
 			if addparam {
 				tmpUrlValues.Add(payload, "1")
 			} else {
@@ -213,110 +168,91 @@ func (s SendStruct) setKeyValues(key string, payload string, addparam bool, meth
 				tmpUrlValues.Set(key, payload)
 			}
 
-			req := genPostParamReq(s.jsonMessage, tmpUrlValues)
+			req := genPostParamReq(d.jsonMessage, tmpUrlValues)
 			req.PostForm = *tmpUrlValues
-			s.sendMethod(s, []*http.Request{req})
+			d.approach(d, []*http.Request{req})
 		default:
 			fmt.Fprintf(os.Stderr, "No support method\n")
-
 		}
 	}
 }
 
-func (s SendStruct) setParam(payload string) {
-	//paramにpayload=1を追加する
-	s.setKeyValues("Added by Himawari", payload, true, "GET")
-
-	for k, v := range s.jsonMessage.GetParams {
-		s.setKeyValues(k, (v[0] + payload), false, "GET")
-	}
-
-	//paramにpayload=1を追加する
-	s.setKeyValues("Added by Himawari", payload, true, "POST")
-
-	for k, v := range s.jsonMessage.PostParams {
-		s.setKeyValues(k, (v[0] + payload), false, "POST")
-	}
-}
-
-func (s SendStruct) setHeaderDocumentRoot(payload string) {
-
-	s.parameter = "Path"
-	if !s.isDetectedIssue() {
-		getPtReq := createGetReq(s.jsonMessage)
+func (d determinant) setHeaderDocumentRoot(payload string) {
+	d.parameter = "Path"
+	if !d.isAlreadyDetected() {
+		getPtReq := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
 		getPtReq.URL.Path = getPtReq.URL.Path + payload
+		getPtReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
-		req := genGetHeaderReq(getPtReq, "Path", &s.jsonMessage.GetParams)
-		s.sendMethod(s, []*http.Request{req})
+		d.approach(d, []*http.Request{getPtReq})
 	}
 
 }
 
-func (s SendStruct) setGetHeader(payload string) {
-
+func (d determinant) setGetHeader(payload string) {
 	//Header User-Agent
-	s.parameter = "User-Agent"
-	if !s.isDetectedIssue() {
-		getUAReq := createGetReq(s.jsonMessage)
+	d.parameter = "User-Agent"
+	if !d.isAlreadyDetected() {
+		getUAReq := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
 		getUAReq.Header.Set("User-Agent", getUAReq.UserAgent()+payload)
+		getUAReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
-		req := genGetHeaderReq(getUAReq, "User-Agent", &s.jsonMessage.GetParams)
-		s.sendMethod(s, []*http.Request{req})
+		d.approach(d, []*http.Request{getUAReq})
 	}
 	//Header Referer
-	s.parameter = "Referer"
-	if !s.isDetectedIssue() {
-		getRfReq := createGetReq(s.jsonMessage)
+	d.parameter = "Referer"
+	if !d.isAlreadyDetected() {
+		getRfReq := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
 		getRfReq.Header.Set("Referer", getRfReq.Referer()+payload)
+		getRfReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
-		req := genGetHeaderReq(getRfReq, "Referer", &s.jsonMessage.GetParams)
-		s.sendMethod(s, []*http.Request{req})
+		d.approach(d, []*http.Request{getRfReq})
 	}
-
-	//改行の文字コードも追加できる
-	//xxxx.Header.Add("test", "%0A")
-
-	//Header Method
-	/*
-		req := j.createreq()
-		req.Method = "GET%3Bls"
-		j.getRequestOfHeader(req,"Header Method")
-	*/
 
 }
 
-func (s SendStruct) setPostHeader(payload string) {
+func (d determinant) setPostHeader(payload string) {
 	//Header User-Agent
-	s.parameter = "User-Agent"
-	if !s.isDetectedIssue() {
-		postUAReq := createPostReq(s.jsonMessage, s.jsonMessage.PostParams)
-		postUAReq.PostForm = s.jsonMessage.PostParams
+	d.parameter = "User-Agent"
+	if !d.isAlreadyDetected() {
+		postUAReq := createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
+		postUAReq.PostForm = d.jsonMessage.PostParams
 		postUAReq.Header.Set("User-Agent", postUAReq.UserAgent()+payload)
+		postUAReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
-		req := genPostHeaderReq(postUAReq, s.parameter, &s.jsonMessage.GetParams)
-		s.sendMethod(s, []*http.Request{req})
+		d.approach(d, []*http.Request{postUAReq})
 	}
 
 	//Header Referer
-	s.parameter = "Referer"
-	if !s.isDetectedIssue() {
-		postRfReq := createPostReq(s.jsonMessage, s.jsonMessage.PostParams)
-		postRfReq.PostForm = s.jsonMessage.PostParams
+	d.parameter = "Referer"
+	if !d.isAlreadyDetected() {
+		postRfReq := createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
+		postRfReq.PostForm = d.jsonMessage.PostParams
 		postRfReq.Header.Set("Referer", postRfReq.Referer()+payload)
+		postRfReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
-		req := genPostHeaderReq(postRfReq, s.parameter, &s.jsonMessage.GetParams)
-		s.sendMethod(s, []*http.Request{req})
+		d.approach(d, []*http.Request{postRfReq})
 	}
 }
 
 //fileにストリーム開く用
 func readfile(fn string) *os.File {
-
 	file, err := os.Open(fn)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-
 	return file
+}
+
+func retrieveJsonMessage(j *entity.JsonNode) *entity.JsonMessage {
+	if len(j.Messages) != 0 {
+		return &j.Messages[0]
+	}
+	for _, v := range j.Children {
+		if len(v.Messages) != 0 {
+			return retrieveJsonMessage(&v)
+		}
+	}
+	return nil
 }
