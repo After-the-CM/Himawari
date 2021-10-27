@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -12,6 +13,7 @@ import (
 
 	"Himawari/models/crawler"
 	"Himawari/models/entity"
+	"Himawari/models/scanner"
 	"Himawari/models/sitemap"
 )
 
@@ -26,6 +28,8 @@ func DownloadSitemap(c *gin.Context) {
 }
 
 func UploadSitemap(c *gin.Context) {
+	sitemap.Reset()
+
 	file, err := c.FormFile("sitemap")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -43,24 +47,40 @@ func UploadSitemap(c *gin.Context) {
 }
 
 func Crawl(c *gin.Context) {
+	log.Println("===============     START CRAWLING     ===============")
+	log.Printf("\n")
+
+	sitemap.Reset()
+
 	url, _ := url.Parse(c.PostForm("url"))
 
 	// urlのバリデーション
 
 	// HTMLが崩れてる場合にpanicで終わってしまってもマージさせたいのでdefer。
-	defer sitemap.Merge(url.String())
-
+	defer sitemap.Merge(url.Scheme + "://" + url.Host)
 	crawler.Crawl(url)
 	//sitemap.PrintMap()
 	c.String(http.StatusOK, "OK")
 }
 
-func FoundItem(c *gin.Context) {
-	f := entity.Item.Items
+func ExportOutOfOrigin(c *gin.Context) {
+	f := entity.OutOfOrigin
 	c.JSON(http.StatusOK, f)
+}
+
+func Scan(c *gin.Context) {
+	log.Println("===============     START SCANNING     ===============")
+	log.Printf("\n")
+	scanner.Scan(&entity.JsonNodes)
+	c.JSON(http.StatusOK, entity.WholeIssue)
 }
 
 func Sort(c *gin.Context) {
 	sitemap.SortJson()
+	c.String(http.StatusOK, "OK")
+}
+
+func Reset(c *gin.Context) {
+	sitemap.Reset()
 	c.String(http.StatusOK, "OK")
 }

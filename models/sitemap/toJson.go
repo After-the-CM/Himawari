@@ -2,7 +2,6 @@ package sitemap
 
 import (
 	"sort"
-	"strings"
 
 	"Himawari/models/entity"
 )
@@ -15,6 +14,7 @@ func messages(node *entity.Node) []entity.JsonMessage {
 			Referer:    m.Request.Referer(),
 			GetParams:  m.Request.URL.Query(),
 			PostParams: m.Request.PostForm,
+			URL:        m.Request.URL.Scheme + "://" + m.Request.URL.Host + m.Request.URL.Path,
 		}
 	}
 	return msg
@@ -23,16 +23,10 @@ func messages(node *entity.Node) []entity.JsonMessage {
 func jsonAddChild(node *entity.Node, jsonNode *entity.JsonNode) {
 	if node.Children != nil {
 		for i, n := range *node.Children {
+
 			child := &entity.JsonNode{
 				Path:     n.Path,
-				URL:      jsonNode.URL,
 				Messages: messages(&n),
-			}
-
-			if strings.HasSuffix((*child).URL, "/") {
-				child.URL += n.Path
-			} else {
-				child.URL += "/" + n.Path
 			}
 
 			(*jsonNode).Children = append((*jsonNode).Children, *child)
@@ -46,7 +40,6 @@ func jsonAddChild(node *entity.Node, jsonNode *entity.JsonNode) {
 func Merge(url string) {
 	entity.JsonNodes = entity.JsonNode{
 		Path:     entity.Nodes.Path,
-		URL:      url,
 		Messages: messages(&entity.Nodes),
 	}
 	jsonAddChild(&entity.Nodes, &entity.JsonNodes)

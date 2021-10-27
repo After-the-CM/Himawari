@@ -28,8 +28,9 @@
 
 <body>
     <ul id="tree">
-        <p>Crawl: <input type="text" v-model="url" placeholder="http://localhost:8081" v-on:keyup.enter="doCrawl">
-            <button v-on:click="doCrawl()">add</button><br>
+        <p>URL: <input type="text" v-model="url" placeholder="http://localhost:8081" v-on:keyup.enter="doCrawl">
+            <button v-on:click="doCrawl()">crawl</button>
+            <button v-on:click="doReset()">reset</button><br>
         </p>
 
         <input type="file" v-on:change="onUpload">
@@ -37,7 +38,8 @@
         <button v-on:click="doSort()">sort</button>
         <tree-item class="item" :item="treeData"></tree-item>
         <p>
-            <button v-on:click="doFound()">found</button>
+            <button v-on:click="exportOutOfOrigin()">ExportOutOfOrigin</button>
+            <button v-on:click="doScan()">scan</button>
         </p>
         <a href="/download">download</a>
     </ul>

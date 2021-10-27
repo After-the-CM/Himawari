@@ -122,3 +122,11 @@ func removeSpace(parsedPath []string) []string {
 	}
 	return paths
 }
+
+func Reset() {
+	entity.Nodes = entity.Node{
+		Path: "/",
+	}
+
+	entity.JsonNodes = entity.JsonNode{}
+}

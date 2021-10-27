@@ -2,7 +2,6 @@ package logger
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -24,7 +23,7 @@ func LoggingSetting() {
 	fileName := "log/" + t.Format(layout) + ".log"
 	logFile, _ := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	log.SetFlags(log.Flags() &^ log.LstdFlags)
-	log.SetOutput(io.MultiWriter(os.Stdout, logFile))
+	log.SetOutput(logFile)
 	log.SetPrefix("======================================================\n")
 }
 
@@ -35,7 +34,7 @@ func (lrt LoggingRoundTripper) RoundTrip(req *http.Request) (res *http.Response,
 	}
 
 	log.SetFlags(log.Ltime)
-	log.Println(string(req.URL.Scheme) + "://" + string(req.URL.Host))
+	log.Println(req.URL.Scheme + "://" + req.URL.Host)
 	log.SetFlags(log.Flags() &^ log.LstdFlags)
 	log.Println(string(dumpedReq))
 	log.Printf("\n\n\n")
@@ -51,7 +50,7 @@ func (lrt LoggingRoundTripper) RoundTrip(req *http.Request) (res *http.Response,
 		}
 
 		log.SetFlags(log.Ltime)
-		log.Println(string(res.Request.URL.Scheme) + "://" + string(res.Request.URL.Host))
+		log.Println(res.Request.URL.Scheme + "://" + res.Request.URL.Host)
 		log.SetFlags(log.Flags() &^ log.LstdFlags)
 		log.Println(string(dumpedResp))
 		log.Printf("\n\n\n")

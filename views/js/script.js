@@ -26,7 +26,7 @@ var tree = new Vue({
     el: "#tree",
     data: {
         treeData: {},
-        url: ""
+        url: new URLSearchParams(window.location.search.substring(1)).get('url')
     },
     created: function () {
         this.doFetchSitemap();
@@ -57,8 +57,8 @@ var tree = new Vue({
                     }
                 })
         },
-        doFound() {
-            axios.get('/api/found')
+        exportOutOfOrigin() {
+            axios.get('/api/outoforigin')
                 .then(response => {
                     if (response.status != 200) {
                         throw new Error('something error');
@@ -86,13 +86,34 @@ var tree = new Vue({
         },
         doSort() {
             axios.get('/api/sort')
-            .then(response => {
-                if (response.status != 200) {
-                    throw new Error('something error');
-                } else {
-                    this.doFetchSitemap();
-                }
-            })
+                .then(response => {
+                    if (response.status != 200) {
+                        throw new Error('something error');
+                    } else {
+                        this.doFetchSitemap();
+                    }
+                })
+        },
+        doReset() {
+            axios.get('/api/reset')
+                .then(response => {
+                    if (response.status != 200) {
+                        throw new Error('something error');
+                    } else {
+                        this.doFetchSitemap();
+                    }
+                })
+        },
+        doScan() {
+            axios.get('/api/scan')
+                .then(response => {
+                    if (response.status != 200) {
+                        throw new Error('something error');
+                    } else {
+                        var founditem = response.data;
+                        console.log(founditem)
+                    }
+                })
         }
     }
 });
