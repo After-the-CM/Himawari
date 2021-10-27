@@ -22,12 +22,13 @@ type determinant struct {
 }
 
 const (
-	PayloadTime = 3
-	tolerance   = 0.5
-	OSCI        = "OS_Command_Injection"
-  dirTrav       = "Directory_Traversal"
+	PayloadTime   = 3
+	tolerance     = 0.5
+	OSCI          = "OS_Command_Injection"
+	dirTrav       = "Directory_Traversal"
 	TimeBasedSQLi = "Time_based_SQL_Injection"
 	ErrBasedSQLi  = "Error_Based_SQL_Injection"
+	DirList       = "Directory_Listing"
 )
 
 var jar, _ = cookiejar.New(nil)
@@ -55,7 +56,9 @@ func compareAccessTime(originalTime float64, respTime float64, kind string) bool
 func createGetReq(url string, ref string) *http.Request {
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("User-Agent", "Himawari")
-	req.Header.Set("Referer", ref)
+	if ref != "" {
+		req.Header.Set("Referer", ref)
+	}
 	return req
 
 }
