@@ -15,11 +15,11 @@ import (
 
 func GetRequest(r *entity.RequestStruct) {
 	abs := r.Referer.ResolveReference(r.Path)
-	if !IsSameOrigin(r, abs) {
+	if !isSameOrigin(r.Referer, abs) {
 		if abs.Scheme == "http" || abs.Scheme == "https" {
 			entity.AppendOutOfOrigin(r.Referer.String(), abs.String())
-			return
 		}
+		return
 	}
 
 	req, err := http.NewRequest("GET", abs.String(), nil)
@@ -48,13 +48,13 @@ func GetRequest(r *entity.RequestStruct) {
 		location := resp.Header.Get("Location")
 		if location != "" {
 			l, _ := url.Parse(location)
-			redirect := r.Referer.ResolveReference(l)
-			if !IsSameOrigin(r, redirect) {
+			redirect := req.URL.ResolveReference(l)
+			if !isSameOrigin(r.Referer, redirect) {
 				entity.AppendOutOfOrigin(r.Referer.String(), redirect.String())
 				return
 			} else {
 				nextStruct := entity.RequestStruct{}
-				nextStruct.Referer = r.Referer
+				nextStruct.Referer = req.URL
 				nextStruct.Path = l
 				if resp.StatusCode == 307 {
 					nextStruct.Param = r.Param

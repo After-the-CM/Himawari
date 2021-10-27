@@ -47,6 +47,9 @@ func UploadSitemap(c *gin.Context) {
 }
 
 func Crawl(c *gin.Context) {
+	log.Println("===============     START CRAWLING     ===============")
+	log.Printf("\n")
+
 	sitemap.Reset()
 
 	url, _ := url.Parse(c.PostForm("url"))
@@ -54,7 +57,6 @@ func Crawl(c *gin.Context) {
 	// urlのバリデーション
 
 	// HTMLが崩れてる場合にpanicで終わってしまってもマージさせたいのでdefer。
-	//defer sitemap.Merge(url.String())
 	defer sitemap.Merge(url.Scheme + "://" + url.Host)
 	crawler.Crawl(url)
 	//sitemap.PrintMap()
@@ -67,7 +69,7 @@ func ExportOutOfOrigin(c *gin.Context) {
 }
 
 func Scan(c *gin.Context) {
-	log.Println("===============     START SCANING     ===============")
+	log.Println("===============     START SCANNING     ===============")
 	log.Printf("\n")
 	scanner.Scan(&entity.JsonNodes)
 	c.JSON(http.StatusOK, entity.WholeIssue)

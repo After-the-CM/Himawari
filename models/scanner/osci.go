@@ -2,18 +2,11 @@ package scanner
 
 import (
 	"bufio"
-	"net/url"
 
 	"Himawari/models/entity"
 )
 
 func Osci(j *entity.JsonNode) {
-	payload := make([]string, 0, 20)
-	p := readfile("models/scanner/payload/osci.txt")
-	osciPayload := bufio.NewScanner(p)
-	for osciPayload.Scan() {
-		payload = append(payload, osciPayload.Text())
-	}
 
 	d := determinant{
 		kind:          OSCI,
@@ -21,25 +14,24 @@ func Osci(j *entity.JsonNode) {
 		eachVulnIssue: &j.Issue,
 	}
 
+	var payload []string
+	p := readfile("models/scanner/payload/" + d.kind + ".txt")
+	osciPayload := bufio.NewScanner(p)
+	for osciPayload.Scan() {
+		payload = append(payload, osciPayload.Text())
+	}
+
 	if j.Path == "/" {
-		if len(j.Messages) != 0 {
-			//crawl時に入力されたURLの語尾に`/`がない場合の対処
-			u, _ := url.Parse(j.Messages[0].URL)
-			slash, _ := url.Parse("/")
-			j.Messages[0].URL = u.ResolveReference(slash).String()
-			d.jsonMessage = &j.Messages[0]
-		} else {
-			for i, v := range j.Children {
-				if len(v.Messages) != 0 {
-					d.jsonMessage = &j.Children[i].Messages[0]
-					continue
+		//直接retrieveJsonMessageにjを渡してもよいが、`/`問題を解決するために、forで回している。
+		for _, v := range j.Children {
+			d.jsonMessage = retrieveJsonMessage(&v)
+			if d.jsonMessage != nil {
+				for _, v := range payload {
+					d.setHeaderDocumentRoot(v)
 				}
+				break
 			}
 		}
-		for _, v := range payload {
-			d.setHeaderDocumentRoot(v)
-		}
-
 	}
 
 	for i := 0; i < len(j.Messages); i++ {
@@ -53,6 +45,4 @@ func Osci(j *entity.JsonNode) {
 			}
 		}
 	}
-	//2重になる原因
-	entity.WholeIssue = append(entity.WholeIssue, *d.eachVulnIssue...)
 }

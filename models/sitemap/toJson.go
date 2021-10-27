@@ -1,7 +1,6 @@
 package sitemap
 
 import (
-	"path"
 	"sort"
 
 	"Himawari/models/entity"
@@ -27,7 +26,6 @@ func jsonAddChild(node *entity.Node, jsonNode *entity.JsonNode) {
 
 			child := &entity.JsonNode{
 				Path:     n.Path,
-				URL:      path.Join(jsonNode.URL, n.Path),
 				Messages: messages(&n),
 			}
 
@@ -42,7 +40,6 @@ func jsonAddChild(node *entity.Node, jsonNode *entity.JsonNode) {
 func Merge(url string) {
 	entity.JsonNodes = entity.JsonNode{
 		Path:     entity.Nodes.Path,
-		URL:      url,
 		Messages: messages(&entity.Nodes),
 	}
 	jsonAddChild(&entity.Nodes, &entity.JsonNodes)

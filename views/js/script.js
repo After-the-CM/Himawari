@@ -26,7 +26,7 @@ var tree = new Vue({
     el: "#tree",
     data: {
         treeData: {},
-        url: ""
+        url: new URLSearchParams(window.location.search.substring(1)).get('url')
     },
     created: function () {
         this.doFetchSitemap();
