@@ -49,7 +49,7 @@ func GetRequest(r *entity.RequestStruct) {
 		if location != "" {
 			l, _ := url.Parse(location)
 			redirect := req.URL.ResolveReference(l)
-			if !isSameOrigin(r, redirect) {
+			if !isSameOrigin(r.Referer, redirect) {
 				entity.AppendOutOfOrigin(r.Referer.String(), redirect.String())
 				return
 			} else {
