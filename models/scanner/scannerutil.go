@@ -46,7 +46,7 @@ var client = &http.Client{
 
 func compareAccessTime(originalTime float64, respTime float64, kind string) bool {
 	if (respTime - originalTime) >= (PayloadTime - tolerance) {
-		fmt.Fprintln(os.Stderr, kind)
+		fmt.Println(kind)
 		return true
 	}
 	return false

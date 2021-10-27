@@ -95,6 +95,7 @@ func stringMatching(d determinant, req []*http.Request) {
 
 	for _, msg := range messages {
 		if strings.Contains(targetResp, msg) {
+			fmt.Println(d.kind)
 			newIssue := entity.Issue{
 				URL:       d.jsonMessage.URL,
 				Parameter: d.parameter,
