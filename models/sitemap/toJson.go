@@ -20,18 +20,20 @@ func messages(node *entity.Node) []entity.JsonMessage {
 	return msg
 }
 
-func jsonAddChild(node *entity.Node, jsonNode *entity.JsonNode) {
+func jsonAddChild(node *entity.Node, jsonNode *entity.JsonNode, url string) {
 	if node.Children != nil {
 		for i, n := range *node.Children {
 
 			child := &entity.JsonNode{
+				// path.Joinだと`http://`の`/`が消えてしまう
+				URL:      url + "/" + n.Path,
 				Path:     n.Path,
 				Messages: messages(&n),
 			}
 
 			(*jsonNode).Children = append((*jsonNode).Children, *child)
 			if node.Children != nil && *node.Children != nil {
-				jsonAddChild(&(*node.Children)[i], &jsonNode.Children[i])
+				jsonAddChild(&(*node.Children)[i], &jsonNode.Children[i], child.URL)
 			}
 		}
 	}
@@ -39,10 +41,11 @@ func jsonAddChild(node *entity.Node, jsonNode *entity.JsonNode) {
 
 func Merge(url string) {
 	entity.JsonNodes = entity.JsonNode{
+		URL:      url,
 		Path:     entity.Nodes.Path,
 		Messages: messages(&entity.Nodes),
 	}
-	jsonAddChild(&entity.Nodes, &entity.JsonNodes)
+	jsonAddChild(&entity.Nodes, &entity.JsonNodes, url)
 }
 
 func SortJson() {

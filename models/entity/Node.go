@@ -22,6 +22,9 @@ type JsonNode struct {
 	Messages []JsonMessage `json:"messages"`
 	Children []JsonNode    `json:"children"`
 	Issue    []Issue       `json:"issue"`
+
+	// Directory Listing scanのためのフィールド。末尾"/"がないのでそのままは使えません。
+	URL string `json:"url"`
 }
 
 type JsonMessage struct {
