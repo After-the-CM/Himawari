@@ -135,14 +135,22 @@ func (d determinant) setParam(payload string) {
 	d.setKeyValues("Added by Himawari", payload, true, "GET")
 
 	for k, v := range d.jsonMessage.GetParams {
-		d.setKeyValues(k, (v[0] + payload), false, "GET")
+		if d.kind == openRedirect {
+			d.setKeyValues(k, (payload), false, "GET")
+		} else {
+			d.setKeyValues(k, (v[0] + payload), false, "GET")
+		}
 	}
 
 	//paramにpayload=1を追加する
 	d.setKeyValues("Added by Himawari", payload, true, "POST")
 
 	for k, v := range d.jsonMessage.PostParams {
-		d.setKeyValues(k, (v[0] + payload), false, "POST")
+		if d.kind == openRedirect {
+			d.setKeyValues(k, (payload), false, "POST")
+		} else {
+			d.setKeyValues(k, (v[0] + payload), false, "POST")
+		}
 	}
 }
 

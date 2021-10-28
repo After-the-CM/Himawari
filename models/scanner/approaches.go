@@ -163,9 +163,10 @@ func detectOpenRedirect(d determinant, req []*http.Request) {
 
 	dumpedResp, _ := httputil.DumpResponse(resp, true)
 
-	targetResp := resp.Header.Get("Location")
+	location := resp.Header.Get("Location")
+	l, _ := url.Parse(location)
 
-	if strings.Contains(targetResp, "//example.com") || strings.Contains(targetResp, "example.com") {
+	if l.Host == "example.com" {
 		fmt.Println(d.kind)
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
@@ -183,7 +184,6 @@ func detectOpenRedirect(d determinant, req []*http.Request) {
 	io.ReadAll(resp.Body)
 	resp.Body.Close()
 
-	location := resp.Header.Get("Location")
 	if location != "" {
 		var redirectReq *http.Request
 		l, _ := url.Parse(location)
