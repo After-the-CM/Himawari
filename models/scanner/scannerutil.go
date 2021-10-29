@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -19,6 +20,8 @@ type determinant struct {
 	originalReq   []byte
 	approach      func(d determinant, req []*http.Request)
 	eachVulnIssue *[]entity.Issue
+	candidate     *[]entity.JsonMessage
+	randmark      string
 }
 
 const (
@@ -29,6 +32,7 @@ const (
 	TimeBasedSQLi = "Time_based_SQL_Injection"
 	ErrBasedSQLi  = "Error_Based_SQL_Injection"
 	reflectedXSS  = "Reflected_XSS"
+	storedXSS     = "Stored_XSS"
 )
 
 var jar, _ = cookiejar.New(nil)
@@ -42,6 +46,8 @@ var client = &http.Client{
 		Proxied: http.DefaultTransport,
 	},
 }
+
+var genRandomark = initRandmark(0)
 
 //sleep時間は3秒で実行。誤差を考えるなら2.5秒くらい？
 
@@ -259,4 +265,59 @@ func retrieveJsonMessage(j *entity.JsonNode) *entity.JsonMessage {
 		}
 	}
 	return nil
+}
+
+func initRandmark(n int) func() string {
+	cnt := n
+	return func() string {
+		cnt++
+		return "Himawari" + fmt.Sprintf("%05d", cnt)
+	}
+}
+
+func (d *determinant) gatherCandidates(j *entity.JsonNode) {
+	for _, v := range j.Messages {
+		d.randmark = genRandomark()
+		// vを引数にrandomarkを入れる
+		d.setParam(d.randmark)
+		if len(v.PostParams) != 0 {
+			d.setPostHeader(d.randmark)
+		} else {
+			d.setGetHeader(d.randmark)
+		}
+	}
+
+	for _, v := range j.Children {
+		d.gatherCandidates(&v)
+	}
+}
+
+func (d *determinant) patrol(j entity.JsonNode, randmark string) {
+	for _, v := range j.Messages {
+		//createRequest(v)
+		var req *http.Request
+		if len(v.PostParams) != 0 {
+			req = genPostParamReq(&v, &v.PostParams)
+		} else {
+			req = genGetParamReq(&v, &v.GetParams)
+		}
+
+		//Doする
+		resp, err := client.Do(req)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			return
+		}
+		body, _ := io.ReadAll(resp.Body)
+		targetResp := string(body)
+
+		if strings.Contains(targetResp, randmark) {
+			*d.candidate = append(*d.candidate, *d.jsonMessage)
+		}
+
+		//通常のredirectならcrawl時に発見できているはず
+	}
+	for _, v := range j.Children {
+		d.patrol(v, randmark)
+	}
 }

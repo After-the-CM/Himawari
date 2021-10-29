@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"bufio"
+	"fmt"
 
 	"Himawari/models/entity"
 )
@@ -9,8 +10,9 @@ import (
 func XSS(j *entity.JsonNode) {
 
 	d := determinant{
-		kind:          reflectedXSS,
-		approach:      detectXSS,
+		kind: reflectedXSS,
+		// SetHeaderDocumentRootのために一度approachをセット
+		approach:      detectReflectedXSS,
 		eachVulnIssue: &j.Issue,
 	}
 
@@ -20,6 +22,8 @@ func XSS(j *entity.JsonNode) {
 	for xssPayload.Scan() {
 		payload = append(payload, xssPayload.Text())
 	}
+
+	// おそらくreflectのみで、randmarkを送信して検証する必要はなさそう。
 
 	if j.Path == "/" {
 		for _, v := range j.Children {
@@ -35,8 +39,26 @@ func XSS(j *entity.JsonNode) {
 	}
 
 	for i := 0; i < len(j.Messages); i++ {
+		d.jsonMessage = &j.Messages[i]
+		d.approach = searchRandmark
+		tmpCandidate := make([]entity.JsonMessage, 0)
+		d.candidate = &tmpCandidate
+		d.gatherCandidates(&entity.JsonNodes)
+		fmt.Println("====================================================")
+		fmt.Println(j.Path)
+		fmt.Println(*d.candidate)
+
+		if len(*d.candidate) != 0 {
+			// stored
+			d.kind = storedXSS
+			d.approach = detectStoredXSS
+		} else {
+			// reflect
+			d.kind = reflectedXSS
+			d.approach = detectReflectedXSS
+		}
+
 		for _, v := range payload {
-			d.jsonMessage = &j.Messages[i]
 			d.setParam(v)
 			if len(j.Messages[i].PostParams) != 0 {
 				d.setPostHeader(v)
@@ -44,6 +66,6 @@ func XSS(j *entity.JsonNode) {
 				d.setGetHeader(v)
 			}
 		}
-
 	}
+
 }
