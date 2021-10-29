@@ -224,11 +224,6 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 }
 
 func detectStoredXSS(d determinant, req []*http.Request) {
-
-	if len(req) == 1 {
-		d.originalReq, _ = httputil.DumpRequestOut(req[0], true)
-	}
-
 	resp, err := client.Do(req[len(req)-1])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -268,7 +263,6 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 
 	location := resp.Header.Get("Location")
 
-	//for _, v := range d.candidate {
 	if location != "" {
 		var redirectReq *http.Request
 		l, _ := url.Parse(location)
@@ -297,7 +291,6 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 	}
 }
 
-//
 func searchRandmark(d determinant, req []*http.Request) {
 	resp, err := client.Do(req[len(req)-1])
 	if err != nil {
