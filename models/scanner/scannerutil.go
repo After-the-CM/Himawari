@@ -28,7 +28,7 @@ const (
 	dirTrav       = "Directory_Traversal"
 	TimeBasedSQLi = "Time_based_SQL_Injection"
 	ErrBasedSQLi  = "Error_Based_SQL_Injection"
-	xss           = "XSS"
+	reflectedXSS  = "Reflected_XSS"
 )
 
 var jar, _ = cookiejar.New(nil)

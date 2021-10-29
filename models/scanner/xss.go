@@ -9,7 +9,7 @@ import (
 func XSS(j *entity.JsonNode) {
 
 	d := determinant{
-		kind:          xss,
+		kind:          reflectedXSS,
 		approach:      detectXSS,
 		eachVulnIssue: &j.Issue,
 	}
