@@ -100,11 +100,18 @@ func stringMatching(d determinant, req []*http.Request) {
 	body, _ := io.ReadAll(resp.Body)
 	targetResp := string(body)
 
+	var u string
+	if d.kind == DirList {
+		u = req[0].URL.String()
+	} else {
+		u = d.jsonMessage.URL
+	}
+
 	for _, msg := range messages {
 		if strings.Contains(targetResp, msg) {
 			fmt.Println(d.kind)
 			newIssue := entity.Issue{
-				URL:       d.jsonMessage.URL,
+				URL:       u,
 				Parameter: d.parameter,
 				Kind:      d.kind,
 				Getparam:  req[0].URL.Query(),
