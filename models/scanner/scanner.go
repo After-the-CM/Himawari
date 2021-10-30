@@ -9,7 +9,8 @@ func Scan(j *entity.JsonNode) {
 	DirTrav(j)
 	SQLi(j)
 	Dirlisting(j)
-  XSS(j)
+	XSS(j)
+	HTTPHeaderi(j)
 
 	if len(j.Children) > 0 {
 		for i := 0; i < len(j.Children); i++ {

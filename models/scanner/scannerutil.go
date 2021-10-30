@@ -35,6 +35,7 @@ const (
 	reflectedXSS  = "Reflected_XSS"
 	storedXSS     = "Stored_XSS"
 	DirList       = "Directory_Listing"
+	HttpHeaderi   = "HTTP_Header_Injection"
 )
 
 var jar, _ = cookiejar.New(nil)
