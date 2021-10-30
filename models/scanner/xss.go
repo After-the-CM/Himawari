@@ -3,66 +3,106 @@ package scanner
 import (
 	"bufio"
 	"fmt"
+	"strings"
 
 	"Himawari/models/entity"
 )
 
 func XSS(j *entity.JsonNode) {
-	d := determinant{
+	r := determinant{
 		kind: reflectedXSS,
 		// SetHeaderDocumentRootのために一度approachをセット
 		approach:      detectReflectedXSS,
 		eachVulnIssue: &j.Issue,
 	}
 
-	var payload []string
-	p := readfile("models/scanner/payload/" + d.kind + ".txt")
-	xssPayload := bufio.NewScanner(p)
-	for xssPayload.Scan() {
-		payload = append(payload, xssPayload.Text())
+	s := determinant{
+		kind: storedXSS,
+		// SetHeaderDocumentRootのために一度approachをセット
+		approach:      detectStoredXSS,
+		eachVulnIssue: &j.Issue,
+	}
+
+	var reflectedPayloads []string
+	rp := readfile("models/scanner/payload/" + r.kind + ".txt")
+	reflectedPayload := bufio.NewScanner(rp)
+	for reflectedPayload.Scan() {
+		reflectedPayloads = append(reflectedPayloads, reflectedPayload.Text())
+	}
+
+	var storedPayloads []string
+	sp := readfile("models/scanner/payload/" + s.kind + ".txt")
+	storedPayload := bufio.NewScanner(sp)
+	for storedPayload.Scan() {
+		storedPayloads = append(storedPayloads, storedPayload.Text())
 	}
 
 	// おそらくreflectのみで、randmarkを送信して検証する必要はなさそう。
 
 	if j.Path == "/" {
 		for _, v := range j.Children {
-			d.jsonMessage = retrieveJsonMessage(&v)
-			if d.jsonMessage != nil {
-				for _, v := range payload {
-					d.setHeaderDocumentRoot(v)
+			r.jsonMessage = retrieveJsonMessage(&v)
+			if r.jsonMessage != nil {
+				for _, v := range reflectedPayloads {
+					r.setHeaderDocumentRoot(v)
 				}
 				break
 			}
 		}
-
 	}
 
 	for i := 0; i < len(j.Messages); i++ {
-		d.jsonMessage = &j.Messages[i]
-		d.approach = searchRandmark
+		r.jsonMessage = &j.Messages[i]
+		s.jsonMessage = &j.Messages[i]
+		s.approach = searchRandmark
 		tmpCandidate := make([]entity.JsonMessage, 0)
-		d.candidate = &tmpCandidate
-		d.gatherCandidates(&entity.JsonNodes)
+		s.candidate = &tmpCandidate
+		s.gatherCandidates(&entity.JsonNodes)
 
-		fmt.Println(j.Path, *d.candidate)
+		fmt.Println(j.Path, *s.candidate)
 
-		if len(*d.candidate) != 0 {
+		//approachでcandidateをループで回して<scirpt>...があるかを確認する
+		//途中で見つけたらリターン
+		if len(*s.candidate) != 0 {
 			// stored
-			d.kind = storedXSS
-			d.approach = detectStoredXSS
+			s.kind = storedXSS
+			s.approach = detectStoredXSS
+
+			for _, v := range storedPayloads {
+				//vをreplaceする？
+				//<scirpt>alert(Himawari0003)</scirpt>
+				s.randmark = genRandmark()
+				s.setGetParam(strings.Replace(v, "[randmark]", s.randmark, 1))
+				//vをreplaceする？
+				//<scirpt>alert(Himawari0004)</scirpt>
+				s.randmark = genRandmark()
+				s.setPostParam(strings.Replace(v, "[randmark]", s.randmark, 1))
+
+				//if fullscan{}
+				//scannerutil.gatherCandidates
+				/*
+					if len(j.Messages[i].PostParams) != 0 {
+						s.setPostHeader(v)
+					} else {
+						s.setGetHeader(v)
+					}
+				*/
+			}
 		} else {
 			// reflect
-			d.kind = reflectedXSS
-			d.approach = detectReflectedXSS
-		}
+			r.kind = reflectedXSS
+			r.approach = detectReflectedXSS
+			for _, v := range reflectedPayloads {
+				r.setGetParam(v)
+				r.setPostParam(v)
 
-		for _, v := range payload {
-			d.setParam(v)
-			if len(j.Messages[i].PostParams) != 0 {
-				d.setPostHeader(v)
-			} else {
-				d.setGetHeader(v)
+				if len(j.Messages[i].PostParams) != 0 {
+					r.setPostHeader(v)
+				} else {
+					r.setGetHeader(v)
+				}
 			}
 		}
+
 	}
 }

@@ -1,3 +1,3 @@
-<script>alert(1)</script>
-"><script>alert(1)</script>
-</textarea><script>alert(1)</script>
+<script>alert("[randmark]")</script>
+"><script>alert("[randmark]")</script>
+</textarea><script>alert("[randmark]")</script>

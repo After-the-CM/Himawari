@@ -277,24 +277,31 @@ func initRandmark(n int) func() string {
 }
 
 func (d *determinant) gatherCandidates(j *entity.JsonNode) {
-	for _, v := range j.Messages {
+	//for _, v := range j.Messages {
+	for i := 0; len(j.Messages) > i; i++ {
 
 		d.randmark = genRandmark()
 		d.setGetParam(d.randmark)
 		d.randmark = genRandmark()
 		d.setPostParam(d.randmark)
 
-		if len(v.PostParams) != 0 {
-			d.randmark = genRandmark()
-			d.setPostUA(d.randmark)
-			d.randmark = genRandmark()
-			d.setPostRef(d.randmark)
-		} else {
-			d.randmark = genRandmark()
-			d.setGetUA(d.randmark)
-			d.randmark = genRandmark()
-			d.setGetRef(d.randmark)
-		}
+		//d.randmark = genRandmark()
+		//d.randmark = genRandmark()
+
+		//if fullscan{}
+		/*
+			if len(v.PostParams) != 0 {
+				d.randmark = genRandmark()
+				d.setPostUA(d.randmark)
+				d.randmark = genRandmark()
+				d.setPostRef(d.randmark)
+			} else {
+				d.randmark = genRandmark()
+				d.setGetUA(d.randmark)
+				d.randmark = genRandmark()
+				d.setGetRef(d.randmark)
+			}
+		*/
 	}
 
 	for _, v := range j.Children {
