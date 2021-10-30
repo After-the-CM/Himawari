@@ -42,12 +42,9 @@ func PostRequest(r *entity.RequestStruct) {
 
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
-		}
-
-		if err != nil {
 			dump, _ := httputil.DumpRequestOut(req, true)
-			fmt.Printf("%s", dump)
-			fmt.Fprintln(os.Stderr, err)
+			fmt.Fprintln(os.Stderr, string(dump))
+			return
 		}
 
 		location := resp.Header.Get("Location")
