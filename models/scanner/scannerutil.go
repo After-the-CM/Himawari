@@ -48,7 +48,7 @@ var client = &http.Client{
 	},
 }
 
-var genRandomark = initRandmark(0)
+var genRandmark = initRandmark(0)
 
 //sleep時間は3秒で実行。誤差を考えるなら2.5秒くらい？
 
@@ -279,20 +279,20 @@ func initRandmark(n int) func() string {
 func (d *determinant) gatherCandidates(j *entity.JsonNode) {
 	for _, v := range j.Messages {
 
-		d.randmark = genRandomark()
+		d.randmark = genRandmark()
 		d.setGetParam(d.randmark)
-		d.randmark = genRandomark()
+		d.randmark = genRandmark()
 		d.setPostParam(d.randmark)
 
 		if len(v.PostParams) != 0 {
-			d.randmark = genRandomark()
+			d.randmark = genRandmark()
 			d.setPostUA(d.randmark)
-			d.randmark = genRandomark()
+			d.randmark = genRandmark()
 			d.setPostRef(d.randmark)
 		} else {
-			d.randmark = genRandomark()
+			d.randmark = genRandmark()
 			d.setGetUA(d.randmark)
-			d.randmark = genRandomark()
+			d.randmark = genRandmark()
 			d.setGetRef(d.randmark)
 		}
 	}
@@ -302,6 +302,7 @@ func (d *determinant) gatherCandidates(j *entity.JsonNode) {
 	}
 }
 
+// candidateの収集を行う
 func (d *determinant) patrol(j entity.JsonNode, randmark string) {
 	for _, v := range j.Messages {
 		//createRequest(v)
@@ -320,6 +321,7 @@ func (d *determinant) patrol(j entity.JsonNode, randmark string) {
 		}
 		body, _ := io.ReadAll(resp.Body)
 		targetResp := string(body)
+		resp.Body.Close()
 
 		if strings.Contains(targetResp, randmark) {
 			if !isExist(d.candidate, v) {
