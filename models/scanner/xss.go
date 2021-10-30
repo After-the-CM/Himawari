@@ -10,34 +10,30 @@ import (
 
 func XSS(j *entity.JsonNode) {
 	r := determinant{
-		kind: reflectedXSS,
-		// SetHeaderDocumentRootのために一度approachをセット
+		kind:          reflectedXSS,
 		approach:      detectReflectedXSS,
 		eachVulnIssue: &j.Issue,
 	}
 
 	s := determinant{
-		kind: storedXSS,
-		// SetHeaderDocumentRootのために一度approachをセット
+		kind:          storedXSS,
 		approach:      detectStoredXSS,
 		eachVulnIssue: &j.Issue,
 	}
 
 	var reflectedPayloads []string
 	rp := readfile("models/scanner/payload/" + r.kind + ".txt")
-	reflectedPayload := bufio.NewScanner(rp)
-	for reflectedPayload.Scan() {
-		reflectedPayloads = append(reflectedPayloads, reflectedPayload.Text())
+	rPayloads := bufio.NewScanner(rp)
+	for rPayloads.Scan() {
+		reflectedPayloads = append(reflectedPayloads, rPayloads.Text())
 	}
 
 	var storedPayloads []string
 	sp := readfile("models/scanner/payload/" + s.kind + ".txt")
-	storedPayload := bufio.NewScanner(sp)
-	for storedPayload.Scan() {
-		storedPayloads = append(storedPayloads, storedPayload.Text())
+	sPayloads := bufio.NewScanner(sp)
+	for sPayloads.Scan() {
+		storedPayloads = append(storedPayloads, sPayloads.Text())
 	}
-
-	// おそらくreflectのみで、randmarkを送信して検証する必要はなさそう。
 
 	if j.Path == "/" {
 		for _, v := range j.Children {
@@ -61,20 +57,15 @@ func XSS(j *entity.JsonNode) {
 
 		fmt.Println(j.Path, *s.candidate)
 
-		//approachでcandidateをループで回して<scirpt>...があるかを確認する
-		//途中で見つけたらリターン
 		if len(*s.candidate) != 0 {
 			// stored
 			s.kind = storedXSS
 			s.approach = detectStoredXSS
 
 			for _, v := range storedPayloads {
-				//vをreplaceする？
-				//<scirpt>alert(Himawari0003)</scirpt>
 				s.randmark = genRandmark()
 				s.setGetParam(strings.Replace(v, "[randmark]", s.randmark, 1))
-				//vをreplaceする？
-				//<scirpt>alert(Himawari0004)</scirpt>
+
 				s.randmark = genRandmark()
 				s.setPostParam(strings.Replace(v, "[randmark]", s.randmark, 1))
 
@@ -103,6 +94,5 @@ func XSS(j *entity.JsonNode) {
 				}
 			}
 		}
-
 	}
 }
