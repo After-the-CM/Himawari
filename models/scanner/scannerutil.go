@@ -36,6 +36,7 @@ const (
 	storedXSS     = "Stored_XSS"
 	DirList       = "Directory_Listing"
 	HttpHeaderi   = "HTTP_Header_Injection"
+	csrf          = "CSRF"
 )
 
 var jar, _ = cookiejar.New(nil)
@@ -402,7 +403,13 @@ func (d determinant) setPostRef(payload string) {
 	//Header Referer
 	d.parameter = "Referer"
 	if !d.isAlreadyDetected() {
-		postRfReq := createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
+		var postRfReq *http.Request
+		if d.kind == "CSRF" {
+			postRfReq = createPostReq(d.jsonMessage.URL, "", d.jsonMessage.PostParams)
+		} else {
+			postRfReq = createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
+		}
+
 		postRfReq.PostForm = d.jsonMessage.PostParams
 		postRfReq.Header.Set("Referer", postRfReq.Referer()+payload)
 		postRfReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
