@@ -285,14 +285,14 @@ func (d *determinant) gatherCandidates(j *entity.JsonNode) {
 		d.setPostParam(d.randmark)
 
 		if len(v.PostParams) != 0 {
-			d.randmark = genRandomark()
+			d.randmark = genRandmark()
 			d.setPostUA(d.randmark)
-			d.randmark = genRandomark()
+			d.randmark = genRandmark()
 			d.setPostRef(d.randmark)
 		} else {
-			d.randmark = genRandomark()
+			d.randmark = genRandmark()
 			d.setGetUA(d.randmark)
-			d.randmark = genRandomark()
+			d.randmark = genRandmark()
 			d.setGetRef(d.randmark)
 		}
 	}
