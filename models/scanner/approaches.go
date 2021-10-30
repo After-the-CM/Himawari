@@ -163,7 +163,6 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 		return
 	}
 
-	//var msg string
 	dumpedResp, _ := httputil.DumpResponse(resp, true)
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
@@ -234,8 +233,6 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 		return
 	}
 
-	//var msg string
-	//candidateのresponse
 	var dumpedResp []byte
 	b := false
 	for _, v := range *d.candidate {
@@ -274,7 +271,6 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 				}
 				*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
 				entity.WholeIssue = append(entity.WholeIssue, newIssue)
-
 				b = true
 				return false
 			}

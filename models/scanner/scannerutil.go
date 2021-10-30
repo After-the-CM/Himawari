@@ -285,9 +285,6 @@ func (d *determinant) gatherCandidates(j *entity.JsonNode) {
 		d.randmark = genRandmark()
 		d.setPostParam(d.randmark)
 
-		//d.randmark = genRandmark()
-		//d.randmark = genRandmark()
-
 		//if fullscan{}
 		/*
 			if len(v.PostParams) != 0 {
@@ -312,7 +309,6 @@ func (d *determinant) gatherCandidates(j *entity.JsonNode) {
 // candidateの収集を行う
 func (d *determinant) patrol(j entity.JsonNode, randmark string) {
 	for _, v := range j.Messages {
-		//createRequest(v)
 		var req *http.Request
 		if len(v.PostParams) != 0 {
 			req = genPostParamReq(&v, &v.PostParams)
@@ -320,7 +316,6 @@ func (d *determinant) patrol(j entity.JsonNode, randmark string) {
 			req = genGetParamReq(&v, &v.GetParams)
 		}
 
-		//Doする
 		resp, err := client.Do(req)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
@@ -384,7 +379,6 @@ func (d determinant) setGetRef(payload string) {
 
 		d.approach(d, []*http.Request{getRfReq})
 	}
-
 }
 
 func (d determinant) setPostUA(payload string) {
