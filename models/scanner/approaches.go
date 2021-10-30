@@ -224,6 +224,10 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 }
 
 func detectStoredXSS(d determinant, req []*http.Request) {
+	if len(req) == 1 {
+		d.originalReq, _ = httputil.DumpRequestOut(req[0], true)
+	}
+
 	resp, err := client.Do(req[len(req)-1])
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
