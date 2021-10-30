@@ -8,7 +8,6 @@ import (
 )
 
 func XSS(j *entity.JsonNode) {
-
 	d := determinant{
 		kind: reflectedXSS,
 		// SetHeaderDocumentRootのために一度approachをセット
@@ -44,9 +43,8 @@ func XSS(j *entity.JsonNode) {
 		tmpCandidate := make([]entity.JsonMessage, 0)
 		d.candidate = &tmpCandidate
 		d.gatherCandidates(&entity.JsonNodes)
-		fmt.Println("====================================================")
-		fmt.Println(j.Path)
-		fmt.Println(*d.candidate)
+
+		fmt.Println(j.Path, *d.candidate)
 
 		if len(*d.candidate) != 0 {
 			// stored
@@ -67,5 +65,4 @@ func XSS(j *entity.JsonNode) {
 			}
 		}
 	}
-
 }
