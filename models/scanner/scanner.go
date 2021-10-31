@@ -8,6 +8,7 @@ func Scan(j *entity.JsonNode) {
 	Osci(j)
 	DirTrav(j)
 	SQLi(j)
+	OpenRedirect(j)
 	Dirlisting(j)
 	XSS(j)
 	HTTPHeaderi(j)
