@@ -345,11 +345,11 @@ func searchRandmark(d determinant, req []*http.Request) {
 }
 
 func detectHTTPHeaderi(d determinant, req []*http.Request) {
+	req[len(req)-1].URL.RawQuery = strings.Replace(req[len(req)-1].URL.RawQuery, "%25", "%", -1)
+
 	if len(req) == 1 {
 		d.originalReq, _ = httputil.DumpRequestOut(req[0], true)
 	}
-
-	req[len(req)-1].URL.RawQuery = strings.Replace(req[len(req)-1].URL.RawQuery, "%25", "%", -1)
 
 	resp, err := client.Do(req[len(req)-1])
 	if err != nil {

@@ -20,7 +20,6 @@ func HTTPHeaderi(j *entity.JsonNode) {
 	}
 
 	if j.Path == "/" {
-		//直接retrieveJsonMessageにjを渡してもよいが、`/`問題を解決するために、forで回している。
 		for _, v := range j.Children {
 			d.jsonMessage = retrieveJsonMessage(&v)
 			if d.jsonMessage != nil {
