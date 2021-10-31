@@ -11,6 +11,7 @@ func Scan(j *entity.JsonNode) {
 	Dirlisting(j)
 	XSS(j)
 	HTTPHeaderi(j)
+	CSRF(j)
 
 	if len(j.Children) > 0 {
 		for i := 0; i < len(j.Children); i++ {
