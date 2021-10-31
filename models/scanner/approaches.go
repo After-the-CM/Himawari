@@ -439,34 +439,6 @@ func detectCSRF(d determinant, req []*http.Request) {
 
 	io.ReadAll(resp.Body)
 	resp.Body.Close()
-
-	location := resp.Header.Get("Location")
-	if location != "" {
-		var redirectReq *http.Request
-		l, _ := url.Parse(location)
-		redirect := req[len(req)-1].URL.ResolveReference(l)
-
-		if isSameOrigin(req[len(req)-1].URL, redirect) {
-			if resp.StatusCode == 301 || resp.StatusCode == 302 {
-				redirectReq = createGetReq(redirect.String(), req[len(req)-1].URL.String())
-			} else {
-				return
-			}
-			/*307リダイレクト時のコード
-			if resp.StatusCode == 307 && len(req[len(req)-1].PostForm) != 0 {
-				redirectReq = createPostReq(redirect.String(), req[len(req)-1].URL.String(), req[len(req)-1].PostForm)
-				redirectReq.PostForm = req[len(req)-1].PostForm
-			} else {
-				redirectReq = createGetReq(redirect.String(), req[len(req)-1].URL.String())
-			}
-			*/
-		} else {
-			entity.AppendOutOfOrigin(req[len(req)-1].URL.String(), redirect.String())
-			return
-		}
-		req = append(req, redirectReq)
-		detectCSRF(d, req)
-	}
 }
 
 func detectOpenRedirect(d determinant, req []*http.Request) {
