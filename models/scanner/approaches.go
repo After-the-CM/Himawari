@@ -103,7 +103,7 @@ func stringMatching(d determinant, req []*http.Request) {
 	targetResp := string(body)
 
 	var u string
-	if d.kind == DirList {
+	if d.kind == dirListing {
 		u = req[0].URL.String()
 	} else {
 		u = d.jsonMessage.URL

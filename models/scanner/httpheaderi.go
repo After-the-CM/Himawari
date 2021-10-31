@@ -5,9 +5,9 @@ import (
 	"bufio"
 )
 
-func HTTPHeaderi(j *entity.JsonNode) {
+func auditHTTPHeaderi(j *entity.JsonNode) {
 	d := determinant{
-		kind:          HttpHeaderi,
+		kind:          httpHeaderi,
 		approach:      detectHTTPHeaderi,
 		eachVulnIssue: &j.Issue,
 	}

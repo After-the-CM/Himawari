@@ -6,10 +6,10 @@ import (
 	"Himawari/models/entity"
 )
 
-func Osci(j *entity.JsonNode) {
+func auditOSCi(j *entity.JsonNode) {
 
 	d := determinant{
-		kind:          OSCI,
+		kind:          osci,
 		approach:      timeBasedAttack, //ここでapproachを変えられる
 		eachVulnIssue: &j.Issue,
 	}

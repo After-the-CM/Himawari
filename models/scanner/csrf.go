@@ -2,7 +2,7 @@ package scanner
 
 import "Himawari/models/entity"
 
-func CSRF(j *entity.JsonNode) {
+func auditCSRF(j *entity.JsonNode) {
 
 	d := determinant{
 		kind:          csrf,

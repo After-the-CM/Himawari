@@ -6,10 +6,10 @@ import (
 	"Himawari/models/entity"
 )
 
-func Dirlisting(j *entity.JsonNode) {
+func auditDirListing(j *entity.JsonNode) {
 
 	d := determinant{
-		kind:          DirList,
+		kind:          dirListing,
 		approach:      stringMatching,
 		eachVulnIssue: &j.Issue,
 	}

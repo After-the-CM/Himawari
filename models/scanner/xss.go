@@ -8,7 +8,7 @@ import (
 	"Himawari/models/entity"
 )
 
-func XSS(j *entity.JsonNode) {
+func auditXSS(j *entity.JsonNode) {
 	r := determinant{
 		kind:          reflectedXSS,
 		approach:      detectReflectedXSS,

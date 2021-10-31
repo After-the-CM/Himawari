@@ -6,15 +6,15 @@ import (
 	"Himawari/models/entity"
 )
 
-func SQLi(j *entity.JsonNode) {
+func auditSQLi(j *entity.JsonNode) {
 	e := determinant{
-		kind:          ErrBasedSQLi,
+		kind:          errBasedSQLi,
 		approach:      stringMatching,
 		eachVulnIssue: &j.Issue,
 	}
 
 	t := determinant{
-		kind:          TimeBasedSQLi,
+		kind:          timeBasedSQLi,
 		approach:      timeBasedAttack,
 		eachVulnIssue: &j.Issue,
 	}

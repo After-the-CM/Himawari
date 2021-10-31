@@ -6,7 +6,7 @@ import (
 	"Himawari/models/entity"
 )
 
-func OpenRedirect(j *entity.JsonNode) {
+func auditOpenRedirect(j *entity.JsonNode) {
 
 	d := determinant{
 		kind:          openRedirect,

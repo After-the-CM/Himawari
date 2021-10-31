@@ -5,10 +5,10 @@ import (
 	"bufio"
 )
 
-func DirTrav(j *entity.JsonNode) {
+func auditDirTraversal(j *entity.JsonNode) {
 
 	d := determinant{
-		kind:          dirTrav,
+		kind:          dirTraversal,
 		approach:      stringMatching,
 		eachVulnIssue: &j.Issue,
 	}

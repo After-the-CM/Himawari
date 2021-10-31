@@ -26,18 +26,18 @@ type determinant struct {
 }
 
 const (
-	PayloadTime   = 3
+	settingTime   = 3
 	tolerance     = 0.5
-	OSCI          = "OS_Command_Injection"
-	dirTrav       = "Directory_Traversal"
-	TimeBasedSQLi = "Time_based_SQL_Injection"
-	ErrBasedSQLi  = "Error_Based_SQL_Injection"
+	osci          = "OS_Command_Injection"
+	dirTraversal  = "Directory_Traversal"
+	timeBasedSQLi = "Time_based_SQL_Injection"
+	errBasedSQLi  = "Error_Based_SQL_Injection"
 	reflectedXSS  = "Reflected_XSS"
 	storedXSS     = "Stored_XSS"
 	openRedirect  = "Open_Redirect"
-	DirList       = "Directory_Listing"
-	HttpHeaderi   = "HTTP_Header_Injection"
-	csrf          = "CSRF"
+	dirListing    = "Directory_Listing"
+	httpHeaderi   = "HTTP_Header_Injection"
+	csrf          = "Cross_Site_Request_Forgery"
 )
 
 var jar, _ = cookiejar.New(nil)
@@ -57,7 +57,7 @@ var genRandmark = initRandmark(0)
 //sleep時間は3秒で実行。誤差を考えるなら2.5秒くらい？
 
 func compareAccessTime(originalTime float64, respTime float64, kind string) bool {
-	if (respTime - originalTime) >= (PayloadTime - tolerance) {
+	if (respTime - originalTime) >= (settingTime - tolerance) {
 		fmt.Println(kind)
 		return true
 	}
