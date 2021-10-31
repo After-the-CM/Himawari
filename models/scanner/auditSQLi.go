@@ -6,29 +6,29 @@ import (
 	"Himawari/models/entity"
 )
 
-func SQLi(j *entity.JsonNode) {
+func auditSQLi(j *entity.JsonNode) {
 	e := determinant{
-		kind:          ErrBasedSQLi,
+		kind:          errBasedSQLi,
 		approach:      stringMatching,
 		eachVulnIssue: &j.Issue,
 	}
 
 	t := determinant{
-		kind:          TimeBasedSQLi,
+		kind:          timeBasedSQLi,
 		approach:      timeBasedAttack,
 		eachVulnIssue: &j.Issue,
 	}
 
 	var errSQLiPayloads []string
-	ePayload := readfile("models/scanner/payload/" + e.kind + ".txt")
-	ePayloads := bufio.NewScanner(ePayload)
+	ep := readfile("models/scanner/payload/" + e.kind + ".txt")
+	ePayloads := bufio.NewScanner(ep)
 	for ePayloads.Scan() {
 		errSQLiPayloads = append(errSQLiPayloads, ePayloads.Text())
 	}
 
 	var timeSQLiPayloads []string
-	tPayload := readfile("models/scanner/payload/" + t.kind + ".txt")
-	tPayloads := bufio.NewScanner(tPayload)
+	tp := readfile("models/scanner/payload/" + t.kind + ".txt")
+	tPayloads := bufio.NewScanner(tp)
 	for tPayloads.Scan() {
 		timeSQLiPayloads = append(timeSQLiPayloads, tPayloads.Text())
 	}

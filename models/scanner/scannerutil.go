@@ -2,10 +2,12 @@ package scanner
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
 	"os"
+	"reflect"
 	"strings"
 
 	"Himawari/models/entity"
@@ -19,17 +21,23 @@ type determinant struct {
 	originalReq   []byte
 	approach      func(d determinant, req []*http.Request)
 	eachVulnIssue *[]entity.Issue
+	candidate     *[]entity.JsonMessage
+	randmark      string
 }
 
 const (
-	PayloadTime   = 3
+	settingTime   = 3
 	tolerance     = 0.5
-	OSCI          = "OS_Command_Injection"
-	dirTrav       = "Directory_Traversal"
-	TimeBasedSQLi = "Time_based_SQL_Injection"
-	ErrBasedSQLi  = "Error_Based_SQL_Injection"
+	osci          = "OS_Command_Injection"
+	dirTraversal  = "Directory_Traversal"
+	timeBasedSQLi = "Time_based_SQL_Injection"
+	errBasedSQLi  = "Error_Based_SQL_Injection"
+	reflectedXSS  = "Reflected_XSS"
+	storedXSS     = "Stored_XSS"
 	openRedirect  = "Open_Redirect"
-	DirList       = "Directory_Listing"
+	dirListing    = "Directory_Listing"
+	httpHeaderi   = "HTTP_Header_Injection"
+	csrf          = "Cross_Site_Request_Forgery"
 )
 
 var jar, _ = cookiejar.New(nil)
@@ -44,10 +52,12 @@ var client = &http.Client{
 	},
 }
 
+var genRandmark = initRandmark(0)
+
 //sleep時間は3秒で実行。誤差を考えるなら2.5秒くらい？
 
 func compareAccessTime(originalTime float64, respTime float64, kind string) bool {
-	if (respTime - originalTime) >= (PayloadTime - tolerance) {
+	if (respTime - originalTime) >= (settingTime - tolerance) {
 		fmt.Println(kind)
 		return true
 	}
@@ -270,4 +280,158 @@ func retrieveJsonMessage(j *entity.JsonNode) *entity.JsonMessage {
 		}
 	}
 	return nil
+}
+
+func initRandmark(n int) func() string {
+	cnt := n
+	return func() string {
+		cnt++
+		return "Himawari" + fmt.Sprintf("%05d", cnt)
+	}
+}
+
+func (d *determinant) gatherCandidates(j *entity.JsonNode) {
+	//for _, v := range j.Messages {
+	for i := 0; len(j.Messages) > i; i++ {
+
+		d.randmark = genRandmark()
+		d.setGetParam(d.randmark)
+		d.randmark = genRandmark()
+		d.setPostParam(d.randmark)
+
+		//if fullscan{}
+		/*
+			if len(v.PostParams) != 0 {
+				d.randmark = genRandmark()
+				d.setPostUA(d.randmark)
+				d.randmark = genRandmark()
+				d.setPostRef(d.randmark)
+			} else {
+				d.randmark = genRandmark()
+				d.setGetUA(d.randmark)
+				d.randmark = genRandmark()
+				d.setGetRef(d.randmark)
+			}
+		*/
+	}
+
+	for _, v := range j.Children {
+		d.gatherCandidates(&v)
+	}
+}
+
+// candidateの収集を行う
+func (d *determinant) patrol(j entity.JsonNode, randmark string) {
+	for _, v := range j.Messages {
+		var req *http.Request
+		if len(v.PostParams) != 0 {
+			req = genPostParamReq(&v, &v.PostParams)
+		} else {
+			req = genGetParamReq(&v, &v.GetParams)
+		}
+
+		resp, err := client.Do(req)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			return
+		}
+		body, _ := io.ReadAll(resp.Body)
+		targetResp := string(body)
+		resp.Body.Close()
+
+		if strings.Contains(targetResp, randmark) {
+			if !isExist(d.candidate, v) {
+				*d.candidate = append(*d.candidate, v)
+			}
+		}
+
+		//通常のredirectならcrawl時に発見できているはず
+	}
+	for _, v := range j.Children {
+		d.patrol(v, randmark)
+	}
+}
+
+func (d determinant) setGetParam(payload string) {
+	//paramにpayload=1を追加する
+	//nameがない場合に追加するもの。nameの値を要件等
+	d.setKeyValues("Added by Himawari", payload, true, "GET")
+
+	for k, v := range d.jsonMessage.GetParams {
+		d.setKeyValues(k, (v[0] + payload), false, "GET")
+	}
+}
+
+func (d determinant) setPostParam(payload string) {
+	//paramにpayload=1を追加する
+	d.setKeyValues("Added by Himawari", payload, true, "POST")
+
+	for k, v := range d.jsonMessage.PostParams {
+		d.setKeyValues(k, (v[0] + payload), false, "POST")
+	}
+}
+
+func (d determinant) setGetUA(payload string) {
+	//Header User-Agent
+	d.parameter = "User-Agent"
+	if !d.isAlreadyDetected() {
+		getUAReq := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
+		getUAReq.Header.Set("User-Agent", getUAReq.UserAgent()+payload)
+		getUAReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
+
+		d.approach(d, []*http.Request{getUAReq})
+	}
+}
+
+func (d determinant) setGetRef(payload string) {
+	//Header Referer
+	d.parameter = "Referer"
+	if !d.isAlreadyDetected() {
+		getRfReq := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
+		getRfReq.Header.Set("Referer", getRfReq.Referer()+payload)
+		getRfReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
+
+		d.approach(d, []*http.Request{getRfReq})
+	}
+}
+
+func (d determinant) setPostUA(payload string) {
+	//Header User-Agent
+	d.parameter = "User-Agent"
+	if !d.isAlreadyDetected() {
+		postUAReq := createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
+		postUAReq.PostForm = d.jsonMessage.PostParams
+		postUAReq.Header.Set("User-Agent", postUAReq.UserAgent()+payload)
+		postUAReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
+
+		d.approach(d, []*http.Request{postUAReq})
+	}
+}
+
+func (d determinant) setPostRef(payload string) {
+	//Header Referer
+	d.parameter = "Referer"
+	if !d.isAlreadyDetected() {
+		var postRfReq *http.Request
+		if d.kind == csrf {
+			postRfReq = createPostReq(d.jsonMessage.URL, "", d.jsonMessage.PostParams)
+		} else {
+			postRfReq = createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
+		}
+
+		postRfReq.PostForm = d.jsonMessage.PostParams
+		postRfReq.Header.Set("Referer", postRfReq.Referer()+payload)
+		postRfReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
+
+		d.approach(d, []*http.Request{postRfReq})
+	}
+}
+
+func isExist(candidates *[]entity.JsonMessage, v entity.JsonMessage) bool {
+	for _, candidate := range *candidates {
+		if reflect.DeepEqual(candidate, v) {
+			return true
+		}
+	}
+	return false
 }

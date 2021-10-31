@@ -1,0 +1,3 @@
+<script>alert("[randmark]")</script>
+"><script>alert("[randmark]")</script>
+</textarea><script>alert("[randmark]")</script>

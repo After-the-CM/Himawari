@@ -4,10 +4,10 @@ import "net/url"
 
 type Issue struct {
 	URL       string
-	Parameter string
-	Postparam url.Values
-	Getparam  url.Values
 	Kind      string
+	Parameter string
+	Getparam  url.Values
+	Postparam url.Values
 	Request   string
 	Response  string
 }

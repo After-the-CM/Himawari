@@ -5,19 +5,18 @@ import (
 	"bufio"
 )
 
-func DirTrav(j *entity.JsonNode) {
-
+func auditHTTPHeaderi(j *entity.JsonNode) {
 	d := determinant{
-		kind:          dirTrav,
-		approach:      stringMatching,
+		kind:          httpHeaderi,
+		approach:      detectHTTPHeaderi,
 		eachVulnIssue: &j.Issue,
 	}
 
 	var payload []string
 	p := readfile("models/scanner/payload/" + d.kind + ".txt")
-	dirtravPayload := bufio.NewScanner(p)
-	for dirtravPayload.Scan() {
-		payload = append(payload, dirtravPayload.Text())
+	hhiPayload := bufio.NewScanner(p)
+	for hhiPayload.Scan() {
+		payload = append(payload, hhiPayload.Text())
 	}
 
 	if j.Path == "/" {
@@ -30,7 +29,6 @@ func DirTrav(j *entity.JsonNode) {
 				break
 			}
 		}
-
 	}
 
 	for i := 0; i < len(j.Messages); i++ {
@@ -43,6 +41,5 @@ func DirTrav(j *entity.JsonNode) {
 				d.setGetHeader(v)
 			}
 		}
-
 	}
 }

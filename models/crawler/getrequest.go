@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"os"
 	"time"
@@ -43,6 +44,9 @@ func GetRequest(r *entity.RequestStruct) {
 
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
+			dump, _ := httputil.DumpRequestOut(req, true)
+			fmt.Fprintln(os.Stderr, string(dump))
+			return
 		}
 
 		location := resp.Header.Get("Location")
