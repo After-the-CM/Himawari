@@ -43,6 +43,5 @@ func OpenRedirect(j *entity.JsonNode) {
 				d.setGetHeader(v)
 			}
 		}
-
 	}
 }
