@@ -413,7 +413,7 @@ func (d determinant) setPostRef(payload string) {
 	d.parameter = "Referer"
 	if !d.isAlreadyDetected() {
 		var postRfReq *http.Request
-		if d.kind == "CSRF" {
+		if d.kind == csrf {
 			postRfReq = createPostReq(d.jsonMessage.URL, "", d.jsonMessage.PostParams)
 		} else {
 			postRfReq = createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
