@@ -13,17 +13,17 @@ type Issue struct {
 }
 
 type Vuln struct {
-	CWE      string  `json:"CWE"`
-	Severity string  `json:"Severity"`
-	Desc     string  `json:"Desc"`
-	Solution string  `json:"Solution"`
-	Issues   []Issue `json:"Issues"`
+	CWE         string  `json:"CWE"`
+	Severity    string  `json:"Severity"`
+	Description string  `json:"Description"`
+	Solution    string  `json:"Solution"`
+	Issues      []Issue `json:"Issues"`
 }
 
 var csrfVuln = Vuln{
 	CWE:      "CWE-352",
 	Severity: "High",
-	Desc: "攻撃者が悪意のあるコンテンツをHTTPリクエストに書き込み、サーバからのレスポンスにスクリプトを仕込みます。\n" +
+	Description: "攻撃者が悪意のあるコンテンツをHTTPリクエストに書き込み、サーバからのレスポンスにスクリプトを仕込みます。\n" +
 		"これを利用し、攻撃者が作成したリクエストを他のユーザに実行させ悪意のあるスクリプトを実行させます。\n" +
 		"攻撃者は、悪意のあるパラメータを含んだURLを掲示板に公開したり、被害者に向けてメッセージを送り攻撃を誘導します。\n",
 	Solution: "「必須対策」\n" +
@@ -41,10 +41,10 @@ var csrfVuln = Vuln{
 	Issues: []Issue{},
 }
 
-var refxssVuln = Vuln{
+var reflectedxssVuln = Vuln{
 	CWE:      "CWE-79",
 	Severity: "High",
-	Desc: "攻撃者が悪意のあるコンテンツを書き込み、保存されます。以降Webアプリケーションにアクセスするたびにスクリプトが実行されてしまいます。\n" +
+	Description: "攻撃者が悪意のあるコンテンツを書き込み、保存されます。以降Webアプリケーションにアクセスするたびにスクリプトが実行されてしまいます。\n" +
 		"攻撃者が書き込んだ悪意のあるスクリプトが保存されるため、格納型(stored)と呼ばれます。\n" +
 		"これを利用し、悪意のあるスクリプトが保存されたWebアプリケーションにアクセスしたユーザにスクリプトを実行します。\n",
 	Solution: "「必須対策」\n" +
@@ -64,7 +64,7 @@ var refxssVuln = Vuln{
 var storedxssVuln = Vuln{
 	CWE:      "CWE-79",
 	Severity: "High",
-	Desc: "攻撃者が悪意のあるコンテンツを書き込み、保存されます。以降Webアプリケーションにアクセスするたびにスクリプトが実行されてしまいます。\n" +
+	Description: "攻撃者が悪意のあるコンテンツを書き込み、保存されます。以降Webアプリケーションにアクセスするたびにスクリプトが実行されてしまいます。\n" +
 		"攻撃者が書き込んだ悪意のあるスクリプトが保存されるため、格納型(stored)と呼ばれます。\n" +
 		"これを利用し、悪意のあるスクリプトが保存されたWebアプリケーションにアクセスしたユーザにスクリプトを実行します。",
 	Solution: "「必須対策」\n" +
@@ -84,7 +84,7 @@ var storedxssVuln = Vuln{
 var osciVuln = Vuln{
 	CWE:      "CWE-78",
 	Severity: "High",
-	Desc: "シェルを呼び出す機能を適切に使えていないと発生する脆弱性。\n" +
+	Description: "シェルを呼び出す機能を適切に使えていないと発生する脆弱性。\n" +
 		"攻撃者が利用することで情報漏洩、任意のコマンド実行し不正なシステム操作、他システムへの攻撃の踏み台などが発生する可能性があります。\n",
 	Solution: "「必須対策」\n" +
 		"-シェルを呼び出し機能のある関数の利用を避けましょう。\n" +
@@ -94,10 +94,10 @@ var osciVuln = Vuln{
 	Issues: []Issue{},
 }
 
-var dirtravVuln = Vuln{
+var dirtraversalVuln = Vuln{
 	CWE:      "CWE-22",
 	Severity: "High",
-	Desc: "ファイル名の指定の実装に問題があるので、攻撃者によって制限されたディレクトリ外の任意のファイルを指定され、開発者の意図しない処理が行われる可能性があります。\n" +
+	Description: "ファイル名の指定の実装に問題があるので、攻撃者によって制限されたディレクトリ外の任意のファイルを指定され、開発者の意図しない処理が行われる可能性があります。\n" +
 		"Webアプリケーションの実装によっては、Webサーバ内にあるファイルの情報漏洩だけでなく、内容の改ざん・削除をされる可能性もあります。\n",
 	Solution: "「必須対策」\n" +
 		"- Webサーバ内のファイル名を外部からのパラメータで指定する実装は避けてください。\n" +
@@ -108,10 +108,10 @@ var dirtravVuln = Vuln{
 	Issues: []Issue{},
 }
 
-var timebasesqliVuln = Vuln{
+var timebasedsqliVuln = Vuln{
 	CWE:      "CWE-89",
 	Severity: "High",
-	Desc: "データベースと連携したアプリケーションでSQLの呼び出し方に不備があると発生する脆弱性です。\n" +
+	Description: "データベースと連携したアプリケーションでSQLの呼び出し方に不備があると発生する脆弱性です。\n" +
 		"攻撃者が利用することで情報漏洩、データベースの改ざん、不正ログイン、OSコマンドの実行、ファイルの参照・更新などが発生する可能性があります。\n",
 	Solution: "「必須対策」\n" +
 		"- SQL文の組み立てをプレースホルダで実装するようにしましょう。\n" +
@@ -124,10 +124,10 @@ var timebasesqliVuln = Vuln{
 	Issues: []Issue{},
 }
 
-var errbasesqliVuln = Vuln{
+var errbasedsqliVuln = Vuln{
 	CWE:      "CWE-89",
 	Severity: "High",
-	Desc: "データベースと連携したアプリケーションでSQLの呼び出し方に不備があると発生する脆弱性です。\n" +
+	Description: "データベースと連携したアプリケーションでSQLの呼び出し方に不備があると発生する脆弱性です。\n" +
 		"攻撃者が利用することで情報漏洩、データベースの改ざん、不正ログイン、OSコマンドの実行、ファイルの参照・更新などが発生する可能性があります。\n",
 	Solution: "「必須対策」\n" +
 		"- SQL文の組み立てをプレースホルダで実装するようにしましょう。\n" +
@@ -143,7 +143,7 @@ var errbasesqliVuln = Vuln{
 var openredirectVuln = Vuln{
 	CWE:      "CWE-601",
 	Severity: "Medium",
-	Desc: "攻撃者が任意の外部ドメインにリダイレクトさせるURLを作成することができます。\n" +
+	Description: "攻撃者が任意の外部ドメインにリダイレクトさせるURLを作成することができます。\n" +
 		"これを利用し攻撃者は、被害者に悪意のあるサイトに誘導することが可能になり、フィッシング攻撃が可能になります。\n" +
 		"この攻撃は、正しいURLを使用している上にSSL証明書のエラーも出ないため被害者が気づきにくくなっています。この状態でログインID、パスワードなど個人情報を求められた場合に被害者は入力してしまう可能性があります。\n",
 	Solution: "「必須対策」\n" +
@@ -152,10 +152,10 @@ var openredirectVuln = Vuln{
 	Issues: []Issue{},
 }
 
-var dirlistVuln = Vuln{
+var dirlistingVuln = Vuln{
 	CWE:      "CWE-548",
 	Severity: "Low",
-	Desc: "特定のWebサイトディレクトリにインデックスファイルがない場合にディレクトリの内容を表示するWebサーバーの機能がオンになっています。\n" +
+	Description: "特定のWebサイトディレクトリにインデックスファイルがない場合にディレクトリの内容を表示するWebサーバーの機能がオンになっています。\n" +
 		"この機能がオンになっていることによって、攻撃者が攻撃を仕掛けるのに十分な情報を与えてしまう可能性があります。\n",
 	Solution: "「必須対策」\n" +
 		"- 公開ディレクトリに非公開ファイルを配置しないでください。情報漏洩となります。\n" +
@@ -164,10 +164,10 @@ var dirlistVuln = Vuln{
 	Issues: []Issue{},
 }
 
-var httpheadVuln = Vuln{
+var httpheaderiVuln = Vuln{
 	CWE:      "CWE-113",
 	Severity: "Medium",
-	Desc: "HTTPレスポンスヘッダの出力処理に問題がある場合に発生する脆弱性です。\n" +
+	Description: "HTTPレスポンスヘッダの出力処理に問題がある場合に発生する脆弱性です。\n" +
 		"攻撃者が利用することで成りすまし、表示内容の改変、キャッシュ汚染、任意のJavaScriptの実行などが発生する可能性があります。\n",
 	Solution: "「必須対策」\n" +
 		"- ヘッダ出力用のAPIを使用するようにしましょう。\n" +
@@ -181,15 +181,15 @@ var httpheadVuln = Vuln{
 
 var Vulnmap = map[string]*Vuln{
 	"Cross_Site_Request_Forgery": &csrfVuln,
-	"Reflected_XSS":              &refxssVuln,
+	"Reflected_XSS":              &reflectedxssVuln,
 	"Stored_XSS":                 &storedxssVuln,
 	"OS_Command_Injection":       &osciVuln,
-	"Directory_Traversal":        &dirtravVuln,
-	"Time_based_SQL_Injection":   &timebasesqliVuln,
-	"Error_Based_SQL_Injection":  &errbasesqliVuln,
+	"Directory_Traversal":        &dirtraversalVuln,
+	"Time_based_SQL_Injection":   &timebasedsqliVuln,
+	"Error_Based_SQL_Injection":  &errbasedsqliVuln,
 	"Open_Redirect":              &openredirectVuln,
-	"Directory_Listing":          &dirlistVuln,
-	"HTTP_Header_Injection":      &httpheadVuln,
+	"Directory_Listing":          &dirlistingVuln,
+	"HTTP_Header_Injection":      &httpheaderiVuln,
 }
 
 var WholeIssue []Issue
