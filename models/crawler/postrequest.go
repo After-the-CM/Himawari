@@ -42,14 +42,31 @@ func PostRequest(r *entity.RequestStruct) {
 
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
-			dump, _ := httputil.DumpRequestOut(req, true)
+			dump, err := httputil.DumpRequestOut(req, true)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+			}
 			fmt.Fprintln(os.Stderr, string(dump))
 			return
 		}
 
+		sitemap.Add(*req, (end.Sub(start)).Seconds())
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			//return
+		}
+		defer resp.Body.Close()
+
 		location := resp.Header.Get("Location")
 		if location != "" {
-			l, _ := url.Parse(location)
+			//locationのParseができないとリダイレクトができないためreturn
+			l, err := url.Parse(location)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				return
+			}
 			redirect := req.URL.ResolveReference(l)
 			if !isSameOrigin(r.Referer, redirect) {
 				entity.AppendOutOfOrigin(r.Referer.String(), redirect.String())
@@ -66,9 +83,6 @@ func PostRequest(r *entity.RequestStruct) {
 				}
 			}
 		}
-		sitemap.Add(*req, (end.Sub(start)).Seconds())
-		body, _ := io.ReadAll(resp.Body)
-		resp.Body.Close()
 		CollectLinks(bytes.NewBuffer(body), abs)
 	}
 }
