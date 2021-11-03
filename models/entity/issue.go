@@ -13,13 +13,15 @@ type Issue struct {
 }
 
 type Vuln struct {
-	Severity string  `json:"severity"`
-	Desc     string  `json:"desc"`
+	CWE      string  `json:"CWE"`
+	Severity string  `json:"Severity"`
+	Desc     string  `json:"Desc"`
 	Solution string  `json:"Solution"`
 	Issues   []Issue `json:"Issues"`
 }
 
-var Csrfvulns = Vuln{
+var csrfVuln = Vuln{
+	CWE:      "CWE-352",
 	Severity: "High",
 	Desc: "攻撃者が悪意のあるコンテンツをHTTPリクエストに書き込み、サーバからのレスポンスにスクリプトを仕込みます。\n" +
 		"これを利用し、攻撃者が作成したリクエストを他のユーザに実行させ悪意のあるスクリプトを実行させます。\n" +
@@ -39,7 +41,8 @@ var Csrfvulns = Vuln{
 	Issues: []Issue{},
 }
 
-var Refxssvulns = Vuln{
+var refxssVuln = Vuln{
+	CWE:      "CWE-79",
 	Severity: "High",
 	Desc: "攻撃者が悪意のあるコンテンツを書き込み、保存されます。以降Webアプリケーションにアクセスするたびにスクリプトが実行されてしまいます。\n" +
 		"攻撃者が書き込んだ悪意のあるスクリプトが保存されるため、格納型(stored)と呼ばれます。\n" +
@@ -58,7 +61,8 @@ var Refxssvulns = Vuln{
 	Issues: []Issue{},
 }
 
-var Storedxssvulns = Vuln{
+var storedxssVuln = Vuln{
+	CWE:      "CWE-79",
 	Severity: "High",
 	Desc: "攻撃者が悪意のあるコンテンツを書き込み、保存されます。以降Webアプリケーションにアクセスするたびにスクリプトが実行されてしまいます。\n" +
 		"攻撃者が書き込んだ悪意のあるスクリプトが保存されるため、格納型(stored)と呼ばれます。\n" +
@@ -77,7 +81,8 @@ var Storedxssvulns = Vuln{
 	Issues: []Issue{},
 }
 
-var Oscivulns = Vuln{
+var osciVuln = Vuln{
+	CWE:      "CWE-78",
 	Severity: "High",
 	Desc: "シェルを呼び出す機能を適切に使えていないと発生する脆弱性。\n" +
 		"攻撃者が利用することで情報漏洩、任意のコマンド実行し不正なシステム操作、他システムへの攻撃の踏み台などが発生する可能性があります。\n",
@@ -89,7 +94,8 @@ var Oscivulns = Vuln{
 	Issues: []Issue{},
 }
 
-var Dirtravvulns = Vuln{
+var dirtravVuln = Vuln{
+	CWE:      "CWE-22",
 	Severity: "High",
 	Desc: "ファイル名の指定の実装に問題があるので、攻撃者によって制限されたディレクトリ外の任意のファイルを指定され、開発者の意図しない処理が行われる可能性があります。\n" +
 		"Webアプリケーションの実装によっては、Webサーバ内にあるファイルの情報漏洩だけでなく、内容の改ざん・削除をされる可能性もあります。\n",
@@ -102,7 +108,8 @@ var Dirtravvulns = Vuln{
 	Issues: []Issue{},
 }
 
-var Timebasesqlivulns = Vuln{
+var timebasesqliVuln = Vuln{
+	CWE:      "CWE-89",
 	Severity: "High",
 	Desc: "データベースと連携したアプリケーションでSQLの呼び出し方に不備があると発生する脆弱性です。\n" +
 		"攻撃者が利用することで情報漏洩、データベースの改ざん、不正ログイン、OSコマンドの実行、ファイルの参照・更新などが発生する可能性があります。\n",
@@ -117,7 +124,8 @@ var Timebasesqlivulns = Vuln{
 	Issues: []Issue{},
 }
 
-var Errbasesqlivulns = Vuln{
+var errbasesqliVuln = Vuln{
+	CWE:      "CWE-89",
 	Severity: "High",
 	Desc: "データベースと連携したアプリケーションでSQLの呼び出し方に不備があると発生する脆弱性です。\n" +
 		"攻撃者が利用することで情報漏洩、データベースの改ざん、不正ログイン、OSコマンドの実行、ファイルの参照・更新などが発生する可能性があります。\n",
@@ -132,7 +140,8 @@ var Errbasesqlivulns = Vuln{
 	Issues: []Issue{},
 }
 
-var Openredirectvulns = Vuln{
+var openredirectVuln = Vuln{
+	CWE:      "CWE-601",
 	Severity: "Medium",
 	Desc: "攻撃者が任意の外部ドメインにリダイレクトさせるURLを作成することができます。\n" +
 		"これを利用し攻撃者は、被害者に悪意のあるサイトに誘導することが可能になり、フィッシング攻撃が可能になります。\n" +
@@ -143,7 +152,8 @@ var Openredirectvulns = Vuln{
 	Issues: []Issue{},
 }
 
-var Dirlistvulns = Vuln{
+var dirlistVuln = Vuln{
+	CWE:      "CWE-548",
 	Severity: "Low",
 	Desc: "特定のWebサイトディレクトリにインデックスファイルがない場合にディレクトリの内容を表示するWebサーバーの機能がオンになっています。\n" +
 		"この機能がオンになっていることによって、攻撃者が攻撃を仕掛けるのに十分な情報を与えてしまう可能性があります。\n",
@@ -154,7 +164,8 @@ var Dirlistvulns = Vuln{
 	Issues: []Issue{},
 }
 
-var Httpheadvulns = Vuln{
+var httpheadVuln = Vuln{
+	CWE:      "CWE-113",
 	Severity: "Medium",
 	Desc: "HTTPレスポンスヘッダの出力処理に問題がある場合に発生する脆弱性です。\n" +
 		"攻撃者が利用することで成りすまし、表示内容の改変、キャッシュ汚染、任意のJavaScriptの実行などが発生する可能性があります。\n",
@@ -169,16 +180,16 @@ var Httpheadvulns = Vuln{
 }
 
 var Vulnmap = map[string]*Vuln{
-	"Cross_Site_Request_Forgery": &Csrfvulns,
-	"Reflected_XSS":              &Refxssvulns,
-	"Stored_XSS":                 &Storedxssvulns,
-	"OS_Command_Injection":       &Oscivulns,
-	"Directory_Traversal":        &Dirtravvulns,
-	"Time_based_SQL_Injection":   &Timebasesqlivulns,
-	"Error_Based_SQL_Injection":  &Errbasesqlivulns,
-	"Open_Redirect":              &Openredirectvulns,
-	"Directory_Listing":          &Dirlistvulns,
-	"HTTP_Header_Injection":      &Httpheadvulns,
+	"Cross_Site_Request_Forgery": &csrfVuln,
+	"Reflected_XSS":              &refxssVuln,
+	"Stored_XSS":                 &storedxssVuln,
+	"OS_Command_Injection":       &osciVuln,
+	"Directory_Traversal":        &dirtravVuln,
+	"Time_based_SQL_Injection":   &timebasesqliVuln,
+	"Error_Based_SQL_Injection":  &errbasesqliVuln,
+	"Open_Redirect":              &openredirectVuln,
+	"Directory_Listing":          &dirlistVuln,
+	"HTTP_Header_Injection":      &httpheadVuln,
 }
 
 var WholeIssue []Issue

@@ -344,7 +344,7 @@ func searchRandmark(d determinant, req []*http.Request) {
 		return
 	} else {
 		// stored
-		//d.patrol(entity.JsonNodes, d.randmark)
+		d.patrol(entity.JsonNodes, d.randmark)
 	}
 }
 
