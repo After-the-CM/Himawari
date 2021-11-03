@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"os"
+	"syscall"
 	"time"
 )
 
@@ -16,12 +17,22 @@ type LoggingRoundTripper struct {
 func LoggingSetting() {
 	layout := "2006-01-02_15:04:05"
 	dirName := "log"
+	defaultUmask := syscall.Umask(0)
 	if _, err := os.Stat(dirName); os.IsNotExist(err) {
-		os.Mkdir(dirName, 0666)
+		err := os.Mkdir(dirName, 0777)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			time.Sleep(time.Second * 5)
+		}
 	}
 	t := time.Now()
 	fileName := "log/" + t.Format(layout) + ".log"
-	logFile, _ := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	logFile, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0777)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		time.Sleep(time.Second * 5)
+	}
+	syscall.Umask(defaultUmask)
 	log.SetFlags(log.Flags() &^ log.LstdFlags)
 	log.SetOutput(logFile)
 	log.SetPrefix("======================================================\n")
