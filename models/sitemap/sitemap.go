@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 
 	"Himawari/models/entity"
@@ -42,9 +43,14 @@ func Add(req http.Request, time float64) {
 	parsedPath := strings.Split(req.URL.Path, "/")
 	parsedPath = removeSpace(parsedPath)
 
+	var err error
 	// paramに `;` があるとクエリのパースでバグるため、`;` だけURLエンコード
 	req.URL.RawQuery = strings.Replace(req.URL.RawQuery, ";", "%3B", -1)
-	req.PostForm, _ = url.ParseQuery(strings.Replace(req.PostForm.Encode(), ";", "%3B", -1))
+	req.PostForm, err = url.ParseQuery(strings.Replace(req.PostForm.Encode(), ";", "%3B", -1))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
 
 	addChild(&entity.Nodes, parsedPath, req, time)
 }
@@ -65,8 +71,13 @@ func IsExist(req http.Request) bool {
 	parsedPath := strings.Split(req.URL.Path, "/")
 	parsedPath = removeSpace(parsedPath)
 
+	var err error
+	//url.ParseQueryがerrの場合、中断するしかないため仕方なくtrueを返す。
 	req.URL.RawQuery = strings.Replace(req.URL.RawQuery, ";", "%3B", -1)
-	req.PostForm, _ = url.ParseQuery(strings.Replace(req.PostForm.Encode(), ";", "%3B", -1))
+	req.PostForm, err = url.ParseQuery(strings.Replace(req.PostForm.Encode(), ";", "%3B", -1))
+	if err != nil {
+		return true
+	}
 
 	return isExist(&entity.Nodes, parsedPath, req)
 }

@@ -12,7 +12,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-var tagUrlAttr = map[string][]string {
+var tagUrlAttr = map[string][]string{
 	"a":       {"href"},
 	"applet":  {"code"},
 	"area":    {"href"},
@@ -50,12 +50,18 @@ func CollectLinks(body io.Reader, referer *url.URL) {
 func parseHtml(doc *goquery.Document, r *entity.RequestStruct) {
 	for i, v := range tagUrlAttr {
 		for _, w := range v {
-			doc.Find(i).Each(func(_ int, s *goquery.Selection) {
+			doc.Find(i).EachWithBreak(func(_ int, s *goquery.Selection) bool {
 				attr, b := s.Attr(w)
 				if b {
-					r.Path, _ = url.Parse(attr)
+					var err error
+					r.Path, err = url.Parse(attr)
+					if err != nil {
+						fmt.Fprintln(os.Stderr, err)
+						return true
+					}
 					GetRequest(r)
 				}
+				return true
 			})
 		}
 	}
@@ -70,7 +76,7 @@ func parseForms(doc *goquery.Document, r *entity.RequestStruct) {
 
 		s.Find("input").Each(func(_ int, s *goquery.Selection) {
 			f := form
-			
+
 			typ, ok := s.Attr("type")
 			if ok {
 				typ = strings.ToLower(typ)

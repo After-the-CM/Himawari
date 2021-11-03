@@ -52,7 +52,11 @@ func Crawl(c *gin.Context) {
 
 	sitemap.Reset()
 
-	url, _ := url.Parse(c.PostForm("url"))
+	url, err := url.Parse(c.PostForm("url"))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		return
+	}
 
 	// urlのバリデーション
 
