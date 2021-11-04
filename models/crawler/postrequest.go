@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"Himawari/models/entity"
+	"Himawari/models/logger"
 	"Himawari/models/sitemap"
 )
 
@@ -25,9 +26,7 @@ func PostRequest(r *entity.RequestStruct) {
 	}
 
 	req, err := http.NewRequest("POST", abs.String(), strings.NewReader(r.Param.Encode()))
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
+	logger.ErrHandle(err)
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("User-Agent", "Himawari")
@@ -40,12 +39,9 @@ func PostRequest(r *entity.RequestStruct) {
 		resp, err := client.Do(req)
 		end := time.Now()
 
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			dump, err := httputil.DumpRequestOut(req, true)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
-			}
+			logger.ErrHandle(err)
 			fmt.Fprintln(os.Stderr, string(dump))
 			return
 		}
@@ -53,18 +49,15 @@ func PostRequest(r *entity.RequestStruct) {
 		sitemap.Add(*req, (end.Sub(start)).Seconds())
 
 		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			//return
-		}
+		logger.ErrHandle(err) // return?
+
 		defer resp.Body.Close()
 
 		location := resp.Header.Get("Location")
 		if location != "" {
 			//locationのParseができないとリダイレクトができないためreturn
 			l, err := url.Parse(location)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
+			if logger.ErrHandle(err) {
 				return
 			}
 			redirect := req.URL.ResolveReference(l)

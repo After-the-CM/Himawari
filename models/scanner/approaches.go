@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 
 	"Himawari/models/entity"
+	"Himawari/models/logger"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -21,15 +21,12 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 	if len(req) == 1 {
 		var err error
 		d.originalReq, err = httputil.DumpRequestOut(req[0], true)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
+		logger.ErrHandle(err)
 	}
 
 	start := time.Now()
 	resp, err := client.Do(req[len(req)-1])
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	if logger.ErrHandle(err) {
 		return
 	}
 	end := time.Now()
@@ -38,9 +35,7 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 		dumpedResp, err := httputil.DumpResponse(resp, true)
 
 		//string()は引数がnilの場合でもnilぽエラーが出ない
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
+		logger.ErrHandle(err)
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
 			Parameter: d.parameter,
@@ -64,8 +59,7 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 
 		//locationのParseに失敗した場合リダイレクトできないのでreturn
 		l, err := url.Parse(location)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			return
 		}
 		redirect := req[len(req)-1].URL.ResolveReference(l)
@@ -74,8 +68,7 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 			if resp.StatusCode == 301 || resp.StatusCode == 302 {
 				var err error
 				redirectReq, err = createGetReq(redirect.String(), req[len(req)-1].URL.String())
-				if err != nil {
-					fmt.Fprintln(os.Stderr, err)
+				if logger.ErrHandle(err) {
 					return
 				}
 			} else {
@@ -103,14 +96,11 @@ func stringMatching(d determinant, req []*http.Request) {
 	if len(req) == 1 {
 		var err error
 		d.originalReq, err = httputil.DumpRequestOut(req[0], true)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
+		logger.ErrHandle(err)
 	}
 
 	resp, err := client.Do(req[len(req)-1])
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	if logger.ErrHandle(err) {
 		return
 	}
 
@@ -123,15 +113,11 @@ func stringMatching(d determinant, req []*http.Request) {
 
 	//ここでdumpを行わないとResponseBodyが取れない。
 	dumpedResp, err := httputil.DumpResponse(resp, true)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
+	logger.ErrHandle(err)
 
 	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		//return
-	}
+	logger.ErrHandle(err) // return?
+
 	targetResp := string(body)
 
 	var u string
@@ -166,8 +152,7 @@ func stringMatching(d determinant, req []*http.Request) {
 	if location != "" {
 		var redirectReq *http.Request
 		l, err := url.Parse(location)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			return
 		}
 		redirect := req[len(req)-1].URL.ResolveReference(l)
@@ -176,8 +161,7 @@ func stringMatching(d determinant, req []*http.Request) {
 			if resp.StatusCode == 301 || resp.StatusCode == 302 {
 				var err error
 				redirectReq, err = createGetReq(redirect.String(), req[len(req)-1].URL.String())
-				if err != nil {
-					fmt.Fprintln(os.Stderr, err)
+				if logger.ErrHandle(err) {
 					return
 				}
 			} else {
@@ -204,27 +188,20 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 	if len(req) == 1 {
 		var err error
 		d.originalReq, err = httputil.DumpRequestOut(req[0], true)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
+		logger.ErrHandle(err)
 	}
 
 	resp, err := client.Do(req[len(req)-1])
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	if logger.ErrHandle(err) {
 		return
 	}
 
 	//ここでdumpを行わないとResponseBodyが取れない。
 	dumpedResp, err := httputil.DumpResponse(resp, true)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
+	logger.ErrHandle(err)
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
+	logger.ErrHandle(err)
 
 	doc.Find("script").EachWithBreak(func(_ int, s *goquery.Selection) bool {
 		injectedPayload := s.Text()
@@ -253,8 +230,7 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 	if location != "" {
 		var redirectReq *http.Request
 		l, err := url.Parse(location)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			return
 		}
 		redirect := req[len(req)-1].URL.ResolveReference(l)
@@ -263,8 +239,7 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 			if resp.StatusCode == 301 || resp.StatusCode == 302 {
 				var err error
 				redirectReq, err = createGetReq(redirect.String(), req[len(req)-1].URL.String())
-				if err != nil {
-					fmt.Fprintln(os.Stderr, err)
+				if logger.ErrHandle(err) {
 					return
 				}
 			} else {
@@ -291,14 +266,11 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 	if len(req) == 1 {
 		var err error
 		d.originalReq, err = httputil.DumpRequestOut(req[0], true)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
+		logger.ErrHandle(err)
 	}
 
 	resp, err := client.Do(req[len(req)-1])
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	if logger.ErrHandle(err) {
 		return
 	}
 
@@ -313,27 +285,21 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 			inspectReq, err = genGetParamReq(&v, &v.GetParams)
 		}
 
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			return
 		}
 
 		inspectResp, err := client.Do(inspectReq)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			continue
 		}
 
 		//ここでdumpを行わないとResponseBodyが取れない。
 		dumpedResp, err = httputil.DumpResponse(inspectResp, true)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
+		logger.ErrHandle(err)
 
 		doc, err := goquery.NewDocumentFromReader(inspectResp.Body)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
+		logger.ErrHandle(err)
 
 		doc.Find("script").EachWithBreak(func(_ int, s *goquery.Selection) bool {
 			injectedPayload := s.Text()
@@ -369,16 +335,13 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 
 func searchRandmark(d determinant, req []*http.Request) {
 	resp, err := client.Do(req[len(req)-1])
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	if logger.ErrHandle(err) {
 		return
 	}
 
 	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		//return
-	}
+	logger.ErrHandle(err) // return?
+
 	targetResp := string(body)
 	resp.Body.Close()
 
@@ -386,8 +349,7 @@ func searchRandmark(d determinant, req []*http.Request) {
 	if location != "" {
 		var redirectReq *http.Request
 		l, err := url.Parse(location)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			return
 		}
 		redirect := req[len(req)-1].URL.ResolveReference(l)
@@ -396,8 +358,7 @@ func searchRandmark(d determinant, req []*http.Request) {
 			if resp.StatusCode == 301 || resp.StatusCode == 302 {
 				var err error
 				redirectReq, err = createGetReq(redirect.String(), req[len(req)-1].URL.String())
-				if err != nil {
-					fmt.Fprintln(os.Stderr, err)
+				if logger.ErrHandle(err) {
 					return
 				}
 			} else {
@@ -424,7 +385,7 @@ func searchRandmark(d determinant, req []*http.Request) {
 		return
 	} else {
 		// stored
-		d.patrol(entity.JsonNodes, d.randmark)
+		//d.patrol(entity.JsonNodes, d.randmark)
 	}
 }
 
@@ -434,14 +395,11 @@ func detectHTTPHeaderi(d determinant, req []*http.Request) {
 	if len(req) == 1 {
 		var err error
 		d.originalReq, err = httputil.DumpRequestOut(req[0], true)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
+		logger.ErrHandle(err)
 	}
 
 	resp, err := client.Do(req[len(req)-1])
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	if logger.ErrHandle(err) {
 		return
 	}
 
@@ -449,9 +407,7 @@ func detectHTTPHeaderi(d determinant, req []*http.Request) {
 
 	if strings.Contains(cookie, "Himawari=pwned;") {
 		dumpedResp, err := httputil.DumpResponse(resp, true)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
+		logger.ErrHandle(err)
 
 		fmt.Println(d.kind)
 		newIssue := entity.Issue{
@@ -474,8 +430,7 @@ func detectHTTPHeaderi(d determinant, req []*http.Request) {
 	if location != "" {
 		var redirectReq *http.Request
 		l, err := url.Parse(location)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			return
 		}
 		redirect := req[len(req)-1].URL.ResolveReference(l)
@@ -484,8 +439,7 @@ func detectHTTPHeaderi(d determinant, req []*http.Request) {
 			if resp.StatusCode == 301 || resp.StatusCode == 302 {
 				var err error
 				redirectReq, err = createGetReq(redirect.String(), req[len(req)-1].URL.String())
-				if err != nil {
-					fmt.Fprintln(os.Stderr, err)
+				if logger.ErrHandle(err) {
 					return
 				}
 			} else {
@@ -512,30 +466,23 @@ func detectCSRF(d determinant, req []*http.Request) {
 	if len(req) == 1 {
 		var err error
 		d.originalReq, err = httputil.DumpRequestOut(req[0], true)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
+		logger.ErrHandle(err)
 	}
 
 	resp, err := client.Do(req[len(req)-1])
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	if logger.ErrHandle(err) {
 		return
 	}
 
 	/*
 		dumpedResp, err := httputil.DumpResponse(resp, true)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
+		logger.ErrHandle(err)
 	*/
 
 	// status code 400, 500番台を排除。もう少し厳しい判定基準や検査対象を絞る必要がある。
 	if resp.StatusCode < 400 {
 		dumpedResp, err := httputil.DumpResponse(resp, true)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
+		logger.ErrHandle(err)
 
 		fmt.Println(d.kind)
 		newIssue := entity.Issue{
@@ -559,14 +506,11 @@ func detectOpenRedirect(d determinant, req []*http.Request) {
 	if len(req) == 1 {
 		var err error
 		d.originalReq, err = httputil.DumpRequestOut(req[0], true)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-		}
+		logger.ErrHandle(err)
 	}
 
 	resp, err := client.Do(req[len(req)-1])
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	if logger.ErrHandle(err) {
 		return
 	}
 
@@ -574,15 +518,13 @@ func detectOpenRedirect(d determinant, req []*http.Request) {
 
 	//locationがParseできないと検出できないと思うためreturn
 	l, err := url.Parse(location)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	if logger.ErrHandle(err) {
 		return
 	}
 
 	if l.Host == "example.com" {
 		dumpedResp, err := httputil.DumpResponse(resp, true)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			return
 		}
 
@@ -606,8 +548,7 @@ func detectOpenRedirect(d determinant, req []*http.Request) {
 	if location != "" {
 		var redirectReq *http.Request
 		l, err := url.Parse(location)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			return
 		}
 		redirect := req[len(req)-1].URL.ResolveReference(l)
@@ -616,8 +557,7 @@ func detectOpenRedirect(d determinant, req []*http.Request) {
 			if resp.StatusCode == 301 || resp.StatusCode == 302 {
 				var err error
 				redirectReq, err = createGetReq(redirect.String(), req[len(req)-1].URL.String())
-				if err != nil {
-					fmt.Fprintln(os.Stderr, err)
+				if logger.ErrHandle(err) {
 					return
 				}
 			} else {

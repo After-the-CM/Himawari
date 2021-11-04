@@ -126,8 +126,7 @@ func getSchemaPort(s string) string {
 
 func genGetParamReq(j *entity.JsonMessage, gp *url.Values) (req *http.Request, err error) {
 	req, err = createGetReq(j.URL, j.Referer)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	if logger.ErrHandle(err) {
 		return
 	}
 	req.URL.RawQuery = gp.Encode()
@@ -136,8 +135,7 @@ func genGetParamReq(j *entity.JsonMessage, gp *url.Values) (req *http.Request, e
 
 func genPostParamReq(j *entity.JsonMessage, pp *url.Values) (req *http.Request, err error) {
 	req, err = createPostReq(j.URL, j.Referer, *pp)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	if logger.ErrHandle(err) {
 		return
 	}
 	req.URL.RawQuery = j.GetParams.Encode()
@@ -194,8 +192,7 @@ func (d determinant) setKeyValues(key string, payload string, addparam bool, met
 			}
 
 			req, err := genGetParamReq(d.jsonMessage, tmpUrlValues)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
+			if logger.ErrHandle(err) {
 				return
 			}
 
@@ -211,8 +208,7 @@ func (d determinant) setKeyValues(key string, payload string, addparam bool, met
 			}
 
 			req, err := genPostParamReq(d.jsonMessage, tmpUrlValues)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
+			if logger.ErrHandle(err) {
 				return
 			}
 
@@ -228,8 +224,7 @@ func (d determinant) setHeaderDocumentRoot(payload string) {
 	d.parameter = "Path"
 	if !d.isAlreadyDetected() {
 		getPtReq, err := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			return
 		}
 		getPtReq.URL.Path = getPtReq.URL.Path + payload
@@ -245,8 +240,7 @@ func (d determinant) setGetHeader(payload string) {
 	d.parameter = "User-Agent"
 	if !d.isAlreadyDetected() {
 		getUAReq, err := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			return
 		}
 		getUAReq.Header.Set("User-Agent", getUAReq.UserAgent()+payload)
@@ -258,8 +252,7 @@ func (d determinant) setGetHeader(payload string) {
 	d.parameter = "Referer"
 	if !d.isAlreadyDetected() {
 		getRfReq, err := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			return
 		}
 		getRfReq.Header.Set("Referer", getRfReq.Referer()+payload)
@@ -275,8 +268,7 @@ func (d determinant) setPostHeader(payload string) {
 	d.parameter = "User-Agent"
 	if !d.isAlreadyDetected() {
 		postUAReq, err := createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			return
 		}
 		postUAReq.PostForm = d.jsonMessage.PostParams
@@ -290,8 +282,7 @@ func (d determinant) setPostHeader(payload string) {
 	d.parameter = "Referer"
 	if !d.isAlreadyDetected() {
 		postRfReq, err := createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			return
 		}
 		postRfReq.PostForm = d.jsonMessage.PostParams
@@ -305,8 +296,7 @@ func (d determinant) setPostHeader(payload string) {
 //fileにストリーム開く用
 func readfile(fn string) *os.File {
 	file, err := os.Open(fn)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	if logger.ErrHandle(err) {
 		os.Exit(1)
 	}
 	return file
@@ -373,19 +363,16 @@ func (d *determinant) patrol(j entity.JsonNode, randmark string) {
 			req, err = genGetParamReq(&v, &v.GetParams)
 		}
 
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			return
 		}
 
 		resp, err := client.Do(req)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			return
 		}
 		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			return
 		}
 		targetResp := string(body)
@@ -428,8 +415,7 @@ func (d determinant) setGetUA(payload string) {
 	d.parameter = "User-Agent"
 	if !d.isAlreadyDetected() {
 		getUAReq, err := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			return
 		}
 		getUAReq.Header.Set("User-Agent", getUAReq.UserAgent()+payload)
@@ -444,8 +430,7 @@ func (d determinant) setGetRef(payload string) {
 	d.parameter = "Referer"
 	if !d.isAlreadyDetected() {
 		getRfReq, err := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			return
 		}
 		getRfReq.Header.Set("Referer", getRfReq.Referer()+payload)
@@ -460,8 +445,7 @@ func (d determinant) setPostUA(payload string) {
 	d.parameter = "User-Agent"
 	if !d.isAlreadyDetected() {
 		postUAReq, err := createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			return
 		}
 		postUAReq.PostForm = d.jsonMessage.PostParams
@@ -484,8 +468,7 @@ func (d determinant) setPostRef(payload string) {
 			postRfReq, err = createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
 		}
 
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			return
 		}
 

@@ -1,11 +1,10 @@
 package scanner
 
 import (
-	"fmt"
 	"net/http"
-	"os"
 
 	"Himawari/models/entity"
+	"Himawari/models/logger"
 )
 
 func auditDirListing(j *entity.JsonNode) {
@@ -17,8 +16,7 @@ func auditDirListing(j *entity.JsonNode) {
 	}
 
 	req, err := createGetReq(j.URL, "")
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	if logger.ErrHandle(err) {
 		return
 	}
 
@@ -26,8 +24,7 @@ func auditDirListing(j *entity.JsonNode) {
 	d.approach(d, []*http.Request{req})
 
 	reqslash, err := createGetReq(j.URL+"/", "")
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	if logger.ErrHandle(err) {
 		return
 	}
 	d.approach(d, []*http.Request{reqslash})

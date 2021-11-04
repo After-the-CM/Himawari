@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"Himawari/models/entity"
+	"Himawari/models/logger"
 	"Himawari/models/sitemap"
 )
 
@@ -24,9 +25,7 @@ func GetRequest(r *entity.RequestStruct) {
 	}
 
 	req, err := http.NewRequest("GET", abs.String(), nil)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
+	logger.ErrHandle(err)
 
 	if len(r.Param) != 0 {
 		req.URL.RawQuery = r.Param.Encode()
@@ -42,12 +41,9 @@ func GetRequest(r *entity.RequestStruct) {
 		resp, err := client.Do(req)
 		end := time.Now()
 
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			dump, err := httputil.DumpRequestOut(req, true)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
-			}
+			logger.ErrHandle(err)
 			fmt.Fprintln(os.Stderr, string(dump))
 			return
 		}
@@ -55,18 +51,15 @@ func GetRequest(r *entity.RequestStruct) {
 		sitemap.Add(*req, (end.Sub(start)).Seconds())
 
 		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			//return
-		}
+		logger.ErrHandle(err) // return?
+
 		defer resp.Body.Close()
 
 		location := resp.Header.Get("Location")
 		if location != "" {
 			//locationのParseができないとリダイレクトができないためreturn
 			l, err := url.Parse(location)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
+			if logger.ErrHandle(err) {
 				return
 			}
 			redirect := req.URL.ResolveReference(l)
