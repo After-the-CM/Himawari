@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 
 	"Himawari/models/entity"
+	"Himawari/models/logger"
 )
 
 func addChild(node *entity.Node, parsedPath []string, req http.Request, time float64) {
@@ -47,8 +47,7 @@ func Add(req http.Request, time float64) {
 	// paramに `;` があるとクエリのパースでバグるため、`;` だけURLエンコード
 	req.URL.RawQuery = strings.Replace(req.URL.RawQuery, ";", "%3B", -1)
 	req.PostForm, err = url.ParseQuery(strings.Replace(req.PostForm.Encode(), ";", "%3B", -1))
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	if logger.ErrHandle(err) {
 		return
 	}
 
@@ -72,10 +71,10 @@ func IsExist(req http.Request) bool {
 	parsedPath = removeSpace(parsedPath)
 
 	var err error
-	//url.ParseQueryがerrの場合、中断するしかないため仕方なくtrueを返す。
 	req.URL.RawQuery = strings.Replace(req.URL.RawQuery, ";", "%3B", -1)
 	req.PostForm, err = url.ParseQuery(strings.Replace(req.PostForm.Encode(), ";", "%3B", -1))
-	if err != nil {
+	if logger.ErrHandle(err) {
+		//url.ParseQueryがerrの場合、中断するしかないため仕方なくtrueを返す。
 		return true
 	}
 

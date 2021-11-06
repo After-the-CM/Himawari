@@ -1,13 +1,12 @@
 package crawler
 
 import (
-	"fmt"
 	"io"
 	"net/url"
-	"os"
 	"strings"
 
 	"Himawari/models/entity"
+	"Himawari/models/logger"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -35,8 +34,7 @@ var tagUrlAttr = map[string][]string{
 
 func CollectLinks(body io.Reader, referer *url.URL) {
 	doc, err := goquery.NewDocumentFromReader(body)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	if logger.ErrHandle(err) {
 		return
 	}
 
@@ -55,8 +53,7 @@ func parseHtml(doc *goquery.Document, r *entity.RequestStruct) {
 				if b {
 					var err error
 					r.Path, err = url.Parse(attr)
-					if err != nil {
-						fmt.Fprintln(os.Stderr, err)
+					if logger.ErrHandle(err) {
 						return true
 					}
 					GetRequest(r)
