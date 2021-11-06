@@ -31,12 +31,14 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 	end := time.Now()
 
 	if compareAccessTime(d.jsonMessage.Time, (end.Sub(start)).Seconds(), d.kind) {
+		d.cookies = getCookies(req[0].Cookies())
 		dumpedResp, _ := httputil.DumpResponse(resp, true)
 
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
 			Parameter: d.parameter,
 			Kind:      d.kind,
+			Cookie:    d.cookies,
 			Getparam:  req[0].URL.Query(),
 			Postparam: req[0].PostForm,
 			Request:   string(d.originalReq),

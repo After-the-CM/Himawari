@@ -23,6 +23,7 @@ type determinant struct {
 	eachVulnIssue *[]entity.Issue
 	candidate     *[]entity.JsonMessage
 	randmark      string
+	cookies       []entity.JsonCookie
 }
 
 const (
@@ -212,6 +213,38 @@ func (d determinant) setHeaderDocumentRoot(payload string) {
 		d.approach(d, []*http.Request{getPtReq})
 	}
 
+}
+
+func (d determinant) setCookie(cookie entity.JsonCookie, payload string) {
+	d.parameter = cookie.Name
+	payload = strings.Replace(payload, " ", "%20", -1)
+
+	if !d.isAlreadyDetected() {
+		if len(d.jsonMessage.PostParams) == 0 {
+			req := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
+			req.URL.RawQuery = d.jsonMessage.GetParams.Encode()
+
+			req.AddCookie(&http.Cookie{
+				Path:  cookie.Path,
+				Name:  cookie.Name,
+				Value: cookie.Value + payload,
+			})
+
+			d.approach(d, []*http.Request{req})
+		} else {
+			req := createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
+			req.PostForm = d.jsonMessage.PostParams
+			req.URL.RawQuery = d.jsonMessage.GetParams.Encode()
+
+			req.AddCookie(&http.Cookie{
+				Path:  cookie.Path,
+				Name:  cookie.Name,
+				Value: cookie.Value + payload,
+			})
+
+			d.approach(d, []*http.Request{req})
+		}
+	}
 }
 
 func (d determinant) setGetHeader(payload string) {
@@ -434,4 +467,14 @@ func isExist(candidates *[]entity.JsonMessage, v entity.JsonMessage) bool {
 		}
 	}
 	return false
+}
+
+func getCookies(cookies []*http.Cookie) []entity.JsonCookie {
+	jsonCookies := make([]entity.JsonCookie, len(cookies))
+	for i, cookie := range cookies {
+		jsonCookies[i].Path = cookie.Path
+		jsonCookies[i].Name = cookie.Name
+		jsonCookies[i].Value = cookie.Value
+	}
+	return jsonCookies
 }
