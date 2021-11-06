@@ -49,7 +49,7 @@ func PostRequest(r *entity.RequestStruct) {
 		sitemap.Add(*req, (end.Sub(start)).Seconds())
 
 		body, err := io.ReadAll(resp.Body)
-		logger.ErrHandle(err) // return?
+		logger.ErrHandle(err)
 
 		defer resp.Body.Close()
 
