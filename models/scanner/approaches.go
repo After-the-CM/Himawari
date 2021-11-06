@@ -179,7 +179,7 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 
 	doc.Find("script").EachWithBreak(func(_ int, s *goquery.Selection) bool {
 		injectedPayload := s.Text()
-		if strings.Contains(injectedPayload, "alert(1)") {
+		if strings.Contains(injectedPayload, "alert(\""+d.randmark+"\")") {
 			fmt.Println(d.kind)
 			newIssue := entity.Issue{
 				URL:       d.jsonMessage.URL,
