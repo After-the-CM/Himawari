@@ -16,7 +16,8 @@ type Vuln struct {
 	CWE         string  `json:"CWE"`
 	Severity    string  `json:"Severity"`
 	Description string  `json:"Description"`
-	Solution    string  `json:"Solution"`
+	Mandatory   string  `json:"Mandatory"`
+	Insurance   string  `json:"Insurance"`
 	Issues      []Issue `json:"Issues"`
 }
 
@@ -85,13 +86,12 @@ var osciVuln = Vuln{
 	CWE:      "CWE-78",
 	Severity: "High",
 	Description: "OSコマンド・インジェクションは、シェルを不適切な呼び出し方をしている場合に意図しないOSコマンドの実行が可能になる脆弱性です。\n" +
-		"攻撃者が利用することで情報漏洩、任意のコマンド実行し不正なシステム操作、他システムへの攻撃の踏み台などが発生する可能性があります。\n",
-	Solution: "「必須対策」\n" +
-		"-シェルを呼び出し機能のある関数の利用を避けましょう。\n" +
-		"-シェルを呼び出し機能のある関数に外部からのパラメータを渡さないようにしましょう。\n" +
-		"「保険的対策」\n" +
-		"-シェルを呼び出し機能のある関数を利用時、その引数を構成する変数を調べ、許可した処理のみ実行するようにしましょう。\n",
-	Issues: []Issue{},
+		"OSコマンド・インジェクションの脆弱性が存在すると、攻撃者によって情報漏洩、任意のOSコマンドの実行、不正なシステム操作、他システムへの攻撃の踏み台などの攻撃を受ける可能性があります。\n",
+	Mandatory: "可能な限り、シェルを呼び出す機能のある関数の利用は避けましょう。\n" +
+		"ライブラリを使った実装に切り替えることができないかを検討してください。\n" +
+		"シェルを呼び出し機能のある関数を利用する場合は、外部からのパラメータを渡さないように実装しましょう。\n",
+	Insurance: "シェルを呼び出し機能のある関数を利用する場合は、その引数を構成する変数を調べ、許可した処理のみ実行するように実装しましょう。\n",
+	Issues:    []Issue{},
 }
 
 var dirtraversalVuln = Vuln{

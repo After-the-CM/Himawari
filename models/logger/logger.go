@@ -55,6 +55,5 @@ func (lrt LoggingRoundTripper) RoundTrip(req *http.Request) (res *http.Response,
 		log.Println(string(dumpedResp))
 		log.Printf("\n\n\n")
 	}
-
 	return
 }
