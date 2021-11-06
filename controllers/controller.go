@@ -82,5 +82,6 @@ func Sort(c *gin.Context) {
 
 func Reset(c *gin.Context) {
 	sitemap.Reset()
+	scanner.Reset()
 	c.String(http.StatusOK, "OK")
 }

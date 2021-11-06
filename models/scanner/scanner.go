@@ -20,3 +20,7 @@ func Scan(j *entity.JsonNode) {
 		}
 	}
 }
+
+func Reset() {
+	entity.WholeIssue = []entity.Issue{}
+}
