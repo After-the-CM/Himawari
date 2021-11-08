@@ -2,17 +2,16 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
-	"os"
 
 	"github.com/gin-gonic/gin"
 
 	"Himawari/models/crawler"
 	"Himawari/models/entity"
+	"Himawari/models/logger"
 	"Himawari/models/scanner"
 	"Himawari/models/sitemap"
 )
@@ -31,17 +30,11 @@ func UploadSitemap(c *gin.Context) {
 	sitemap.Reset()
 
 	file, err := c.FormFile("sitemap")
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
+	logger.ErrHandle(err)
 	f, err := file.Open()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
+	logger.ErrHandle(err)
 	data, err := io.ReadAll(f)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
+	logger.ErrHandle(err)
 	json.Unmarshal(data, &entity.JsonNodes)
 	c.String(http.StatusOK, "OK")
 }
@@ -52,7 +45,10 @@ func Crawl(c *gin.Context) {
 
 	sitemap.Reset()
 
-	url, _ := url.Parse(c.PostForm("url"))
+	url, err := url.Parse(c.PostForm("url"))
+	if logger.ErrHandle(err) {
+		return
+	}
 
 	// urlのバリデーション
 
@@ -82,6 +78,7 @@ func Sort(c *gin.Context) {
 
 func Reset(c *gin.Context) {
 	sitemap.Reset()
+	scanner.Reset()
 	c.String(http.StatusOK, "OK")
 }
 
