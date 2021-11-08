@@ -21,25 +21,18 @@ func auditXSS(j *entity.JsonNode) {
 		eachVulnIssue: &j.Issue,
 	}
 
-	var reflectedPayloads []string
-	rp := readfile("models/scanner/payload/" + r.kind + ".txt")
-	rPayloads := bufio.NewScanner(rp)
-	for rPayloads.Scan() {
-		reflectedPayloads = append(reflectedPayloads, rPayloads.Text())
-	}
-
-	var storedPayloads []string
-	sp := readfile("models/scanner/payload/" + s.kind + ".txt")
-	sPayloads := bufio.NewScanner(sp)
-	for sPayloads.Scan() {
-		storedPayloads = append(storedPayloads, sPayloads.Text())
+	var payloads []string
+	p := readfile("models/scanner/payload/" + "XSS" + ".txt")
+	xssPayloads := bufio.NewScanner(p)
+	for xssPayloads.Scan() {
+		payloads = append(payloads, xssPayloads.Text())
 	}
 
 	if j.Path == "/" {
 		for _, v := range j.Children {
 			r.jsonMessage = retrieveJsonMessage(&v)
 			if r.jsonMessage != nil {
-				for _, v := range reflectedPayloads {
+				for _, v := range payloads {
 					r.setHeaderDocumentRoot(v)
 				}
 				break
@@ -62,7 +55,7 @@ func auditXSS(j *entity.JsonNode) {
 			s.kind = storedXSS
 			s.approach = detectStoredXSS
 
-			for _, v := range storedPayloads {
+			for _, v := range payloads {
 				s.randmark = genRandmark()
 				s.setGetParam(strings.Replace(v, "[randmark]", s.randmark, 1))
 
@@ -83,14 +76,19 @@ func auditXSS(j *entity.JsonNode) {
 			// reflect
 			r.kind = reflectedXSS
 			r.approach = detectReflectedXSS
-			for _, v := range reflectedPayloads {
-				r.setGetParam(v)
-				r.setPostParam(v)
+			for _, v := range payloads {
+				r.randmark = genRandmark()
+				r.setGetParam(strings.Replace(v, "[randmark]", r.randmark, 1))
+
+				r.randmark = genRandmark()
+				r.setPostParam(strings.Replace(v, "[randmark]", r.randmark, 1))
 
 				if len(j.Messages[i].PostParams) != 0 {
-					r.setPostHeader(v)
+					r.randmark = genRandmark()
+					r.setPostHeader(strings.Replace(v, "[randmark]", r.randmark, 1))
 				} else {
-					r.setGetHeader(v)
+					r.randmark = genRandmark()
+					r.setGetHeader(strings.Replace(v, "[randmark]", r.randmark, 1))
 				}
 			}
 		}

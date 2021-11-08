@@ -61,8 +61,8 @@ func isRunSunflower() string {
 
 func openBrowser(target string) {
 	err := browser.OpenURL(target)
-	if err != nil {
-		panic(err)
+	if logger.ErrHandle(err) {
+		//		panic(err)
 	}
 }
 

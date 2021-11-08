@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"Himawari/models/entity"
+	"Himawari/models/logger"
 )
 
 func auditDirListing(j *entity.JsonNode) {
@@ -14,13 +15,18 @@ func auditDirListing(j *entity.JsonNode) {
 		eachVulnIssue: &j.Issue,
 	}
 
-	req := createGetReq(j.URL, "")
+	req, err := createGetReq(j.URL, "")
+	if logger.ErrHandle(err) {
+		return
+	}
 
 	//最初は`/`がついていないURL
 	d.approach(d, []*http.Request{req})
 
-	reqslash := createGetReq(j.URL+"/", "")
-
+	reqslash, err := createGetReq(j.URL+"/", "")
+	if logger.ErrHandle(err) {
+		return
+	}
 	d.approach(d, []*http.Request{reqslash})
 
 }
