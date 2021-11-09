@@ -23,7 +23,7 @@ type determinant struct {
 	eachVulnIssue *[]entity.Issue
 	candidate     *[]entity.JsonMessage
 	randmark      string
-	cookies       []entity.JsonCookie
+	cookie        entity.JsonCookie
 }
 
 const (
@@ -220,14 +220,19 @@ func (d determinant) setCookie(cookie entity.JsonCookie, payload string) {
 	payload = strings.Replace(payload, " ", "%20", -1)
 
 	if !d.isAlreadyDetected() {
+		d.cookie = entity.JsonCookie{
+			Path:  cookie.Path,
+			Name:  cookie.Name,
+			Value: cookie.Value + payload,
+		}
 		if len(d.jsonMessage.PostParams) == 0 {
 			req := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
 			req.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
 			req.AddCookie(&http.Cookie{
-				Path:  cookie.Path,
-				Name:  cookie.Name,
-				Value: cookie.Value + payload,
+				Path:  d.cookie.Path,
+				Name:  d.cookie.Name,
+				Value: d.cookie.Value,
 			})
 
 			d.approach(d, []*http.Request{req})
@@ -237,9 +242,9 @@ func (d determinant) setCookie(cookie entity.JsonCookie, payload string) {
 			req.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
 			req.AddCookie(&http.Cookie{
-				Path:  cookie.Path,
-				Name:  cookie.Name,
-				Value: cookie.Value + payload,
+				Path:  d.cookie.Path,
+				Name:  d.cookie.Name,
+				Value: d.cookie.Value,
 			})
 
 			d.approach(d, []*http.Request{req})
@@ -469,12 +474,24 @@ func isExist(candidates *[]entity.JsonMessage, v entity.JsonMessage) bool {
 	return false
 }
 
-func getCookies(cookies []*http.Cookie) []entity.JsonCookie {
-	jsonCookies := make([]entity.JsonCookie, len(cookies))
-	for i, cookie := range cookies {
-		jsonCookies[i].Path = cookie.Path
-		jsonCookies[i].Name = cookie.Name
-		jsonCookies[i].Value = cookie.Value
+func getCookies(cookies []*http.Cookie, parameter string) entity.JsonCookie {
+	var jsonCookie entity.JsonCookie
+	for _, cookie := range cookies {
+		if cookie.Name == parameter {
+			jsonCookie.Path = cookie.Path
+			jsonCookie.Name = cookie.Name
+			jsonCookie.Value = cookie.Value
+		}
 	}
-	return jsonCookies
+	return jsonCookie
+}
+
+func (d determinant) dripCookie(cookies []*http.Cookie) []*http.Cookie {
+	dripedCookies := make([]*http.Cookie, 0)
+	for _, cookie := range cookies {
+		if cookie.Name != d.cookie.Name {
+			dripedCookies = append(dripedCookies, cookie)
+		}
+	}
+	return dripedCookies
 }

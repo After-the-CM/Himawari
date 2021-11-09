@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/cookiejar"
 	"net/http/httputil"
 	"net/url"
 	"os"
@@ -12,16 +13,20 @@ import (
 	"time"
 
 	"Himawari/models/entity"
+	"Himawari/models/logger"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
 //リダイレクト発生時req[0]がオリジナルのリクエスト
 func timeBasedAttack(d determinant, req []*http.Request) {
-	if len(req) == 1 {
-		d.originalReq, _ = httputil.DumpRequestOut(req[0], true)
-	}
+	var jar4tmp *cookiejar.Jar
+	if d.cookie.Name != "" {
+		jar4tmp = jar
 
+		client.Jar, _ = cookiejar.New(nil)
+		client.Jar.SetCookies(req[len(req)-1].URL, d.dripCookie(jar4tmp.Cookies(req[len(req)-1].URL)))
+	}
 	start := time.Now()
 	resp, err := client.Do(req[len(req)-1])
 	if err != nil {
@@ -30,15 +35,22 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 	}
 	end := time.Now()
 
+	if jar4tmp != nil {
+		client.Jar = jar4tmp
+	}
+
+	if len(req) == 1 {
+		d.originalReq = logger.DumpedReq
+	}
+
 	if compareAccessTime(d.jsonMessage.Time, (end.Sub(start)).Seconds(), d.kind) {
-		d.cookies = getCookies(req[0].Cookies())
 		dumpedResp, _ := httputil.DumpResponse(resp, true)
 
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
 			Parameter: d.parameter,
 			Kind:      d.kind,
-			Cookie:    d.cookies,
+			Cookie:    d.cookie,
 			Getparam:  req[0].URL.Query(),
 			Postparam: req[0].PostForm,
 			Request:   string(d.originalReq),

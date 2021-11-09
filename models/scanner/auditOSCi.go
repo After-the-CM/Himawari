@@ -20,7 +20,6 @@ func auditOSCi(j *entity.JsonNode) {
 	for osciPayload.Scan() {
 		payload = append(payload, osciPayload.Text())
 	}
-
 	if j.Path == "/" {
 		//直接retrieveJsonMessageにjを渡してもよいが、`/`問題を解決するために、forで回している。
 		for _, v := range j.Children {
