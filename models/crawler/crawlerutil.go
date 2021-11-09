@@ -60,3 +60,68 @@ func JudgeMethod(r *entity.RequestStruct) {
 		return
 	}
 }
+
+var loginMsg = entity.JsonMessage{
+	URL:       "http://localhost:18080/osci/login.php",
+	Referer:   "http://localhost:18080/osci/login.php",
+	GetParams: url.Values{},
+	PostParams: url.Values{
+		"name": []string{"yoden"},
+		"pass": []string{"pass"},
+	},
+}
+
+func login(jar http.CookieJar) http.CookieJar {
+	var client4login = &http.Client{
+		Jar: jar,
+		/*
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
+		*/
+		Transport: logger.LoggingRoundTripper{
+			Proxied: http.DefaultTransport,
+		},
+	}
+
+	var req *http.Request
+	if len(loginMsg.PostParams) != 0 {
+		req = genPostParamReq(&loginMsg, &loginMsg.PostParams)
+	} else {
+		req = genGetParamReq(&loginMsg, &loginMsg.GetParams)
+	}
+
+	/*_, err :=*/
+	client.Do(req)
+	// logger.ErrHandle(err)
+	return client4login.Jar
+}
+
+func createGetReq(url string, ref string) *http.Request {
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("User-Agent", "Himawari")
+	if ref != "" {
+		req.Header.Set("Referer", ref)
+	}
+	return req
+}
+
+func createPostReq(url string, ref string, p url.Values) *http.Request {
+	req, _ := http.NewRequest("POST", url, strings.NewReader(p.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("User-Agent", "Himawari")
+	req.Header.Set("Referer", ref)
+	return req
+}
+
+func genGetParamReq(j *entity.JsonMessage, gp *url.Values) *http.Request {
+	req := createGetReq(j.URL, j.Referer)
+	req.URL.RawQuery = gp.Encode()
+	return req
+}
+
+func genPostParamReq(j *entity.JsonMessage, pp *url.Values) *http.Request {
+	req := createPostReq(j.URL, j.Referer, *pp)
+	req.URL.RawQuery = j.GetParams.Encode()
+	return req
+}

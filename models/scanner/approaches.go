@@ -20,6 +20,9 @@ import (
 
 //リダイレクト発生時req[0]がオリジナルのリクエスト
 func timeBasedAttack(d determinant, req []*http.Request) {
+	// if login
+	client.Jar = login(client.Jar)
+
 	var jar4tmp *cookiejar.Jar
 	if d.cookie.Name != "" {
 		jar4tmp = jar
@@ -354,7 +357,7 @@ func searchRandmark(d determinant, req []*http.Request) {
 		return
 	} else {
 		// stored
-		d.patrol(entity.JsonNodes, d.randmark)
+		//d.patrol(entity.JsonNodes, d.randmark)
 	}
 }
 

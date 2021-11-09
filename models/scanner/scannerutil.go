@@ -495,3 +495,39 @@ func (d determinant) dripCookie(cookies []*http.Cookie) []*http.Cookie {
 	}
 	return dripedCookies
 }
+
+var loginMsg = entity.JsonMessage{
+	URL:       "http://localhost:18080/osci/login.php",
+	Referer:   "http://localhost:18080/osci/login.php",
+	GetParams: url.Values{},
+	PostParams: url.Values{
+		"name": []string{"yoden"},
+		"pass": []string{"pass"},
+	},
+}
+
+func login(jar http.CookieJar) http.CookieJar {
+	var client4login = &http.Client{
+		Jar: jar,
+		/*
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
+		*/
+		Transport: logger.LoggingRoundTripper{
+			Proxied: http.DefaultTransport,
+		},
+	}
+
+	var req *http.Request
+	if len(loginMsg.PostParams) != 0 {
+		req = genPostParamReq(&loginMsg, &loginMsg.PostParams)
+	} else {
+		req = genGetParamReq(&loginMsg, &loginMsg.GetParams)
+	}
+
+	/*_, err :=*/
+	client.Do(req)
+	// logger.ErrHandle(err)
+	return client4login.Jar
+}
