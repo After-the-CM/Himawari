@@ -65,23 +65,27 @@ func compareAccessTime(originalTime float64, respTime float64, kind string) bool
 	return false
 }
 
-func createGetReq(url string, ref string) *http.Request {
-	req, _ := http.NewRequest("GET", url, nil)
+func createGetReq(url string, ref string) (req *http.Request, err error) {
+	req, err = http.NewRequest("GET", url, nil)
+	if err != nil {
+		return
+	}
 	req.Header.Set("User-Agent", "Himawari")
 	if ref != "" {
 		req.Header.Set("Referer", ref)
 	}
-	return req
-
+	return
 }
 
-func createPostReq(url string, ref string, p url.Values) *http.Request {
-	req, _ := http.NewRequest("POST", url, strings.NewReader(p.Encode()))
+func createPostReq(url string, ref string, p url.Values) (req *http.Request, err error) {
+	req, err = http.NewRequest("POST", url, strings.NewReader(p.Encode()))
+	if err != nil {
+		return
+	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("User-Agent", "Himawari")
 	req.Header.Set("Referer", ref)
-	return req
-
+	return
 }
 
 //jsonMessageのissueに同じパラメーターで、同じ種類の脆弱性があるか確認する
@@ -121,16 +125,22 @@ func getSchemaPort(s string) string {
 	}
 }
 
-func genGetParamReq(j *entity.JsonMessage, gp *url.Values) *http.Request {
-	req := createGetReq(j.URL, j.Referer)
+func genGetParamReq(j *entity.JsonMessage, gp *url.Values) (req *http.Request, err error) {
+	req, err = createGetReq(j.URL, j.Referer)
+	if logger.ErrHandle(err) {
+		return
+	}
 	req.URL.RawQuery = gp.Encode()
-	return req
+	return
 }
 
-func genPostParamReq(j *entity.JsonMessage, pp *url.Values) *http.Request {
-	req := createPostReq(j.URL, j.Referer, *pp)
+func genPostParamReq(j *entity.JsonMessage, pp *url.Values) (req *http.Request, err error) {
+	req, err = createPostReq(j.URL, j.Referer, *pp)
+	if logger.ErrHandle(err) {
+		return
+	}
 	req.URL.RawQuery = j.GetParams.Encode()
-	return req
+	return
 }
 
 //jsonMessageのparamをコピー
@@ -182,7 +192,11 @@ func (d determinant) setKeyValues(key string, payload string, addparam bool, met
 				tmpUrlValues.Set(key, payload)
 			}
 
-			req := genGetParamReq(d.jsonMessage, tmpUrlValues)
+			req, err := genGetParamReq(d.jsonMessage, tmpUrlValues)
+			if logger.ErrHandle(err) {
+				return
+			}
+
 			d.approach(d, []*http.Request{req})
 
 		case "POST":
@@ -194,7 +208,11 @@ func (d determinant) setKeyValues(key string, payload string, addparam bool, met
 				tmpUrlValues.Set(key, payload)
 			}
 
-			req := genPostParamReq(d.jsonMessage, tmpUrlValues)
+			req, err := genPostParamReq(d.jsonMessage, tmpUrlValues)
+			if logger.ErrHandle(err) {
+				return
+			}
+
 			req.PostForm = *tmpUrlValues
 			d.approach(d, []*http.Request{req})
 		default:
@@ -206,7 +224,10 @@ func (d determinant) setKeyValues(key string, payload string, addparam bool, met
 func (d determinant) setHeaderDocumentRoot(payload string) {
 	d.parameter = "Path"
 	if !d.isAlreadyDetected() {
-		getPtReq := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
+		getPtReq, err := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
+		if logger.ErrHandle(err) {
+			return
+		}
 		getPtReq.URL.Path = getPtReq.URL.Path + payload
 		getPtReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
@@ -226,7 +247,10 @@ func (d determinant) setCookie(cookie entity.JsonCookie, payload string) {
 			Value: cookie.Value + payload,
 		}
 		if len(d.jsonMessage.PostParams) == 0 {
-			req := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
+			req, err := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
+			if logger.ErrHandle(err) {
+				return
+			}
 			req.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
 			req.AddCookie(&http.Cookie{
@@ -237,7 +261,10 @@ func (d determinant) setCookie(cookie entity.JsonCookie, payload string) {
 
 			d.approach(d, []*http.Request{req})
 		} else {
-			req := createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
+			req, err := createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
+			if logger.ErrHandle(err) {
+				return
+			}
 			req.PostForm = d.jsonMessage.PostParams
 			req.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
@@ -256,7 +283,10 @@ func (d determinant) setGetHeader(payload string) {
 	//Header User-Agent
 	d.parameter = "User-Agent"
 	if !d.isAlreadyDetected() {
-		getUAReq := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
+		getUAReq, err := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
+		if logger.ErrHandle(err) {
+			return
+		}
 		getUAReq.Header.Set("User-Agent", getUAReq.UserAgent()+payload)
 		getUAReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
@@ -265,7 +295,10 @@ func (d determinant) setGetHeader(payload string) {
 	//Header Referer
 	d.parameter = "Referer"
 	if !d.isAlreadyDetected() {
-		getRfReq := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
+		getRfReq, err := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
+		if logger.ErrHandle(err) {
+			return
+		}
 		getRfReq.Header.Set("Referer", getRfReq.Referer()+payload)
 		getRfReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
@@ -278,7 +311,10 @@ func (d determinant) setPostHeader(payload string) {
 	//Header User-Agent
 	d.parameter = "User-Agent"
 	if !d.isAlreadyDetected() {
-		postUAReq := createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
+		postUAReq, err := createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
+		if logger.ErrHandle(err) {
+			return
+		}
 		postUAReq.PostForm = d.jsonMessage.PostParams
 		postUAReq.Header.Set("User-Agent", postUAReq.UserAgent()+payload)
 		postUAReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
@@ -289,7 +325,10 @@ func (d determinant) setPostHeader(payload string) {
 	//Header Referer
 	d.parameter = "Referer"
 	if !d.isAlreadyDetected() {
-		postRfReq := createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
+		postRfReq, err := createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
+		if logger.ErrHandle(err) {
+			return
+		}
 		postRfReq.PostForm = d.jsonMessage.PostParams
 		postRfReq.Header.Set("Referer", postRfReq.Referer()+payload)
 		postRfReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
@@ -301,8 +340,7 @@ func (d determinant) setPostHeader(payload string) {
 //fileにストリーム開く用
 func readfile(fn string) *os.File {
 	file, err := os.Open(fn)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	if logger.ErrHandle(err) {
 		os.Exit(1)
 	}
 	return file
@@ -362,18 +400,25 @@ func (d *determinant) gatherCandidates(j *entity.JsonNode) {
 func (d *determinant) patrol(j entity.JsonNode, randmark string) {
 	for _, v := range j.Messages {
 		var req *http.Request
+		var err error
 		if len(v.PostParams) != 0 {
-			req = genPostParamReq(&v, &v.PostParams)
+			req, err = genPostParamReq(&v, &v.PostParams)
 		} else {
-			req = genGetParamReq(&v, &v.GetParams)
+			req, err = genGetParamReq(&v, &v.GetParams)
+		}
+
+		if logger.ErrHandle(err) {
+			return
 		}
 
 		resp, err := client.Do(req)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+		if logger.ErrHandle(err) {
 			return
 		}
-		body, _ := io.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
+		if logger.ErrHandle(err) {
+			return
+		}
 		targetResp := string(body)
 		resp.Body.Close()
 
@@ -413,7 +458,10 @@ func (d determinant) setGetUA(payload string) {
 	//Header User-Agent
 	d.parameter = "User-Agent"
 	if !d.isAlreadyDetected() {
-		getUAReq := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
+		getUAReq, err := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
+		if logger.ErrHandle(err) {
+			return
+		}
 		getUAReq.Header.Set("User-Agent", getUAReq.UserAgent()+payload)
 		getUAReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
@@ -425,7 +473,10 @@ func (d determinant) setGetRef(payload string) {
 	//Header Referer
 	d.parameter = "Referer"
 	if !d.isAlreadyDetected() {
-		getRfReq := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
+		getRfReq, err := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
+		if logger.ErrHandle(err) {
+			return
+		}
 		getRfReq.Header.Set("Referer", getRfReq.Referer()+payload)
 		getRfReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
@@ -437,7 +488,10 @@ func (d determinant) setPostUA(payload string) {
 	//Header User-Agent
 	d.parameter = "User-Agent"
 	if !d.isAlreadyDetected() {
-		postUAReq := createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
+		postUAReq, err := createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
+		if logger.ErrHandle(err) {
+			return
+		}
 		postUAReq.PostForm = d.jsonMessage.PostParams
 		postUAReq.Header.Set("User-Agent", postUAReq.UserAgent()+payload)
 		postUAReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
@@ -451,10 +505,15 @@ func (d determinant) setPostRef(payload string) {
 	d.parameter = "Referer"
 	if !d.isAlreadyDetected() {
 		var postRfReq *http.Request
+		var err error
 		if d.kind == csrf {
-			postRfReq = createPostReq(d.jsonMessage.URL, "", d.jsonMessage.PostParams)
+			postRfReq, err = createPostReq(d.jsonMessage.URL, "", d.jsonMessage.PostParams)
 		} else {
-			postRfReq = createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
+			postRfReq, err = createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
+		}
+
+		if logger.ErrHandle(err) {
+			return
 		}
 
 		postRfReq.PostForm = d.jsonMessage.PostParams
@@ -520,14 +579,19 @@ func login(jar http.CookieJar) http.CookieJar {
 	}
 
 	var req *http.Request
+	var err error
 	if len(loginMsg.PostParams) != 0 {
-		req = genPostParamReq(&loginMsg, &loginMsg.PostParams)
+		req, err = genPostParamReq(&loginMsg, &loginMsg.PostParams)
 	} else {
-		req = genGetParamReq(&loginMsg, &loginMsg.GetParams)
+		req, err = genGetParamReq(&loginMsg, &loginMsg.GetParams)
+	}
+	if logger.ErrHandle(err) {
+		return nil
 	}
 
-	/*_, err :=*/
-	client.Do(req)
-	// logger.ErrHandle(err)
+	_, err = client.Do(req)
+	if logger.ErrHandle(err) {
+		return nil
+	}
 	return client4login.Jar
 }

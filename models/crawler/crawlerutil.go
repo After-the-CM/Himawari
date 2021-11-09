@@ -85,43 +85,60 @@ func login(jar http.CookieJar) http.CookieJar {
 	}
 
 	var req *http.Request
+	var err error
 	if len(loginMsg.PostParams) != 0 {
-		req = genPostParamReq(&loginMsg, &loginMsg.PostParams)
+		req, err = genPostParamReq(&loginMsg, &loginMsg.PostParams)
 	} else {
-		req = genGetParamReq(&loginMsg, &loginMsg.GetParams)
+		req, err = genGetParamReq(&loginMsg, &loginMsg.GetParams)
+	}
+	if logger.ErrHandle(err) {
+		return nil
 	}
 
-	/*_, err :=*/
-	client.Do(req)
-	// logger.ErrHandle(err)
+	_, err = client.Do(req)
+	if logger.ErrHandle(err) {
+		return nil
+	}
 	return client4login.Jar
 }
 
-func createGetReq(url string, ref string) *http.Request {
-	req, _ := http.NewRequest("GET", url, nil)
+func createGetReq(url string, ref string) (req *http.Request, err error) {
+	req, err = http.NewRequest("GET", url, nil)
+	if err != nil {
+		return
+	}
 	req.Header.Set("User-Agent", "Himawari")
 	if ref != "" {
 		req.Header.Set("Referer", ref)
 	}
-	return req
+	return
 }
 
-func createPostReq(url string, ref string, p url.Values) *http.Request {
-	req, _ := http.NewRequest("POST", url, strings.NewReader(p.Encode()))
+func createPostReq(url string, ref string, p url.Values) (req *http.Request, err error) {
+	req, err = http.NewRequest("POST", url, strings.NewReader(p.Encode()))
+	if err != nil {
+		return
+	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("User-Agent", "Himawari")
 	req.Header.Set("Referer", ref)
-	return req
+	return
 }
 
-func genGetParamReq(j *entity.JsonMessage, gp *url.Values) *http.Request {
-	req := createGetReq(j.URL, j.Referer)
+func genGetParamReq(j *entity.JsonMessage, gp *url.Values) (req *http.Request, err error) {
+	req, err = createGetReq(j.URL, j.Referer)
+	if logger.ErrHandle(err) {
+		return
+	}
 	req.URL.RawQuery = gp.Encode()
-	return req
+	return
 }
 
-func genPostParamReq(j *entity.JsonMessage, pp *url.Values) *http.Request {
-	req := createPostReq(j.URL, j.Referer, *pp)
+func genPostParamReq(j *entity.JsonMessage, pp *url.Values) (req *http.Request, err error) {
+	req, err = createPostReq(j.URL, j.Referer, *pp)
+	if logger.ErrHandle(err) {
+		return
+	}
 	req.URL.RawQuery = j.GetParams.Encode()
-	return req
+	return
 }

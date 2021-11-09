@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"Himawari/models/entity"
+	"Himawari/models/logger"
 	"Himawari/models/sitemap"
 )
 
@@ -27,9 +28,7 @@ func PostRequest(r *entity.RequestStruct) {
 	}
 
 	req, err := http.NewRequest("POST", abs.String(), strings.NewReader(r.Param.Encode()))
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-	}
+	logger.ErrHandle(err)
 
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("User-Agent", "Himawari")
@@ -42,16 +41,27 @@ func PostRequest(r *entity.RequestStruct) {
 		resp, err := client.Do(req)
 		end := time.Now()
 
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			dump, _ := httputil.DumpRequestOut(req, true)
+		if logger.ErrHandle(err) {
+			dump, err := httputil.DumpRequestOut(req, true)
+			logger.ErrHandle(err)
 			fmt.Fprintln(os.Stderr, string(dump))
 			return
 		}
 
+		sitemap.Add(*req, (end.Sub(start)).Seconds())
+
+		body, err := io.ReadAll(resp.Body)
+		logger.ErrHandle(err)
+
+		defer resp.Body.Close()
+
 		location := resp.Header.Get("Location")
 		if location != "" {
-			l, _ := url.Parse(location)
+			//locationのParseができないとリダイレクトができないためreturn
+			l, err := url.Parse(location)
+			if logger.ErrHandle(err) {
+				return
+			}
 			redirect := req.URL.ResolveReference(l)
 			if !isSameOrigin(r.Referer, redirect) {
 				entity.AppendOutOfOrigin(r.Referer.String(), redirect.String())
@@ -68,9 +78,6 @@ func PostRequest(r *entity.RequestStruct) {
 				}
 			}
 		}
-		sitemap.Add(*req, (end.Sub(start)).Seconds())
-		body, _ := io.ReadAll(resp.Body)
-		resp.Body.Close()
 		CollectLinks(bytes.NewBuffer(body), abs)
 	}
 }

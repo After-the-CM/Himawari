@@ -4,9 +4,10 @@ import (
 	"net/url"
 
 	"Himawari/models/entity"
+	"Himawari/models/logger"
 )
 
-var testData = map[string]string {
+var testData = map[string]string{
 	"email":    "Himawari@example.com",
 	"url":      "http://example.com",
 	"tel":      "00012345678",
@@ -18,7 +19,10 @@ var testData = map[string]string {
 
 func SetValues(form []entity.HtmlForm, r *entity.RequestStruct) {
 	r.Form.Action = form[0].Action
-	path, _ := url.Parse(form[0].Action)
+	path, err := url.Parse(form[0].Action)
+	if logger.ErrHandle(err) {
+		return
+	}
 	r.Path = path
 	r.Form.Method = form[0].Method
 

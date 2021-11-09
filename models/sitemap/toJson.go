@@ -7,6 +7,7 @@ import (
 	"sort"
 
 	"Himawari/models/entity"
+	"Himawari/models/logger"
 )
 
 func messages(node *entity.Node) []entity.JsonMessage {
@@ -27,8 +28,8 @@ func jsonAddChild(node *entity.Node, jsonNode *entity.JsonNode, url *url.URL, ja
 	if node.Children != nil {
 		for i, n := range *node.Children {
 			// url.URLをstringにしてurl.URLにパースすることで元のurlを書き換えないように
-			u, _ /*err*/ := url.Parse(url.String())
-			// logger.ErrHandle(err)
+			u, err := url.Parse(url.String())
+			logger.ErrHandle(err)
 			u.Path = path.Join(u.Path, n.Path)
 			child := &entity.JsonNode{
 				Path:     n.Path,
@@ -39,7 +40,8 @@ func jsonAddChild(node *entity.Node, jsonNode *entity.JsonNode, url *url.URL, ja
 
 			(*jsonNode).Children = append((*jsonNode).Children, *child)
 			if node.Children != nil && *node.Children != nil {
-				childURL, _ := url.Parse(child.URL)
+				childURL, err := url.Parse(child.URL)
+				logger.ErrHandle(err)
 				jsonAddChild(&(*node.Children)[i], &jsonNode.Children[i], childURL, jar)
 			}
 		}
