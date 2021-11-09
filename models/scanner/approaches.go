@@ -142,10 +142,10 @@ func stringMatching(d determinant, req []*http.Request) {
 				}
 				*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
 				entity.WholeIssue = append(entity.WholeIssue, newIssue)
-        entity.Vulnmap[d.kind].Issues = append(entity.Vulnmap[d.kind].Issues, newIssue)
+				entity.Vulnmap[d.kind].Issues = append(entity.Vulnmap[d.kind].Issues, newIssue)
 				break
-      }
-    }
+			}
+		}
 	}
 
 	resp.Body.Close()
