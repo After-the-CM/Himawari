@@ -533,26 +533,14 @@ func isExist(candidates *[]entity.JsonMessage, v entity.JsonMessage) bool {
 	return false
 }
 
-func getCookies(cookies []*http.Cookie, parameter string) entity.JsonCookie {
-	var jsonCookie entity.JsonCookie
-	for _, cookie := range cookies {
-		if cookie.Name == parameter {
-			jsonCookie.Path = cookie.Path
-			jsonCookie.Name = cookie.Name
-			jsonCookie.Value = cookie.Value
-		}
-	}
-	return jsonCookie
-}
-
-func (d determinant) dripCookie(cookies []*http.Cookie) []*http.Cookie {
-	dripedCookies := make([]*http.Cookie, 0)
+func (d determinant) extractCookie(cookies []*http.Cookie) []*http.Cookie {
+	cookieExtract := make([]*http.Cookie, 0)
 	for _, cookie := range cookies {
 		if cookie.Name != d.cookie.Name {
-			dripedCookies = append(dripedCookies, cookie)
+			cookieExtract = append(cookieExtract, cookie)
 		}
 	}
-	return dripedCookies
+	return cookieExtract
 }
 
 var loginMsg = entity.JsonMessage{

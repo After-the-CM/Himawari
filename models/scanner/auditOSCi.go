@@ -37,7 +37,6 @@ func auditOSCi(j *entity.JsonNode) {
 		for _, v := range payload {
 			d.jsonMessage = &j.Messages[i]
 			d.setParam(v)
-
 			for _, cookie := range j.Cookies {
 				d.setCookie(cookie, v)
 			}

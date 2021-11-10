@@ -62,6 +62,11 @@ func auditXSS(j *entity.JsonNode) {
 				s.randmark = genRandmark()
 				s.setPostParam(strings.Replace(v, "[randmark]", s.randmark, 1))
 
+				s.randmark = genRandmark()
+				for _, cookie := range j.Cookies {
+					s.setCookie(cookie, strings.Replace(v, "[randmark]", r.randmark, 1))
+				}
+
 				//if fullscan{}
 				//scannerutil.gatherCandidates
 				/*
@@ -82,6 +87,11 @@ func auditXSS(j *entity.JsonNode) {
 
 				r.randmark = genRandmark()
 				r.setPostParam(strings.Replace(v, "[randmark]", r.randmark, 1))
+
+				r.randmark = genRandmark()
+				for _, cookie := range j.Cookies {
+					r.setCookie(cookie, strings.Replace(v, "[randmark]", r.randmark, 1))
+				}
 
 				if len(j.Messages[i].PostParams) != 0 {
 					r.randmark = genRandmark()
