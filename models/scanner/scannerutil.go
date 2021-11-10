@@ -17,6 +17,7 @@ import (
 type determinant struct {
 	jsonMessage   *entity.JsonMessage
 	parameter     string
+	payload       string
 	kind          string
 	originalReq   []byte
 	approach      func(d determinant, req []*http.Request)
@@ -196,7 +197,7 @@ func (d determinant) setKeyValues(key string, payload string, addparam bool, met
 			if logger.ErrHandle(err) {
 				return
 			}
-
+			d.payload = payload
 			d.approach(d, []*http.Request{req})
 
 		case "POST":
@@ -214,6 +215,7 @@ func (d determinant) setKeyValues(key string, payload string, addparam bool, met
 			}
 
 			req.PostForm = *tmpUrlValues
+			d.payload = payload
 			d.approach(d, []*http.Request{req})
 		default:
 			fmt.Fprintf(os.Stderr, "No support method\n")
@@ -228,9 +230,9 @@ func (d determinant) setHeaderDocumentRoot(payload string) {
 		if logger.ErrHandle(err) {
 			return
 		}
+		d.payload = getPtReq.URL.Path + payload
 		getPtReq.URL.Path = getPtReq.URL.Path + payload
 		getPtReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
-
 		d.approach(d, []*http.Request{getPtReq})
 	}
 
@@ -239,6 +241,7 @@ func (d determinant) setHeaderDocumentRoot(payload string) {
 func (d determinant) setCookie(cookie entity.JsonCookie, payload string) {
 	d.parameter = cookie.Name
 	payload = strings.Replace(payload, " ", "%20", -1)
+	d.payload = cookie.Value + payload
 
 	if !d.isAlreadyDetected() {
 		d.cookie = entity.JsonCookie{
@@ -258,7 +261,6 @@ func (d determinant) setCookie(cookie entity.JsonCookie, payload string) {
 				Name:  d.cookie.Name,
 				Value: d.cookie.Value,
 			})
-
 			d.approach(d, []*http.Request{req})
 		} else {
 			req, err := createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
@@ -287,6 +289,7 @@ func (d determinant) setGetHeader(payload string) {
 		if logger.ErrHandle(err) {
 			return
 		}
+		d.payload = getUAReq.UserAgent() + payload
 		getUAReq.Header.Set("User-Agent", getUAReq.UserAgent()+payload)
 		getUAReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
@@ -299,6 +302,7 @@ func (d determinant) setGetHeader(payload string) {
 		if logger.ErrHandle(err) {
 			return
 		}
+		d.payload = getRfReq.Referer() + payload
 		getRfReq.Header.Set("Referer", getRfReq.Referer()+payload)
 		getRfReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
@@ -316,6 +320,7 @@ func (d determinant) setPostHeader(payload string) {
 			return
 		}
 		postUAReq.PostForm = d.jsonMessage.PostParams
+		d.payload = postUAReq.UserAgent() + payload
 		postUAReq.Header.Set("User-Agent", postUAReq.UserAgent()+payload)
 		postUAReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
@@ -330,6 +335,7 @@ func (d determinant) setPostHeader(payload string) {
 			return
 		}
 		postRfReq.PostForm = d.jsonMessage.PostParams
+		d.payload = postRfReq.Referer() + payload
 		postRfReq.Header.Set("Referer", postRfReq.Referer()+payload)
 		postRfReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
@@ -462,6 +468,7 @@ func (d determinant) setGetUA(payload string) {
 		if logger.ErrHandle(err) {
 			return
 		}
+		d.payload = getUAReq.UserAgent() + payload
 		getUAReq.Header.Set("User-Agent", getUAReq.UserAgent()+payload)
 		getUAReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
@@ -477,6 +484,7 @@ func (d determinant) setGetRef(payload string) {
 		if logger.ErrHandle(err) {
 			return
 		}
+		d.payload = getRfReq.Referer() + payload
 		getRfReq.Header.Set("Referer", getRfReq.Referer()+payload)
 		getRfReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
@@ -493,6 +501,7 @@ func (d determinant) setPostUA(payload string) {
 			return
 		}
 		postUAReq.PostForm = d.jsonMessage.PostParams
+		d.payload = postUAReq.UserAgent() + payload
 		postUAReq.Header.Set("User-Agent", postUAReq.UserAgent()+payload)
 		postUAReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
@@ -517,6 +526,7 @@ func (d determinant) setPostRef(payload string) {
 		}
 
 		postRfReq.PostForm = d.jsonMessage.PostParams
+		d.payload = postRfReq.Referer() + payload
 		postRfReq.Header.Set("Referer", postRfReq.Referer()+payload)
 		postRfReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
