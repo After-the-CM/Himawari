@@ -47,6 +47,7 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 		}
 		*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
 		entity.WholeIssue = append(entity.WholeIssue, newIssue)
+		entity.Vulnmap[d.kind].Issues = append(entity.Vulnmap[d.kind].Issues, newIssue)
 	}
 
 	io.ReadAll(resp.Body)
@@ -141,6 +142,7 @@ func stringMatching(d determinant, req []*http.Request) {
 				}
 				*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
 				entity.WholeIssue = append(entity.WholeIssue, newIssue)
+				entity.Vulnmap[d.kind].Issues = append(entity.Vulnmap[d.kind].Issues, newIssue)
 				break
 			}
 		}
@@ -347,6 +349,7 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 				}
 				*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
 				entity.WholeIssue = append(entity.WholeIssue, newIssue)
+				entity.Vulnmap[d.kind].Issues = append(entity.Vulnmap[d.kind].Issues, newIssue)
 				b = true
 				return false
 			}
@@ -454,6 +457,7 @@ func detectHTTPHeaderi(d determinant, req []*http.Request) {
 		}
 		*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
 		entity.WholeIssue = append(entity.WholeIssue, newIssue)
+		entity.Vulnmap[d.kind].Issues = append(entity.Vulnmap[d.kind].Issues, newIssue)
 	}
 
 	io.ReadAll(resp.Body)
@@ -529,6 +533,7 @@ func detectCSRF(d determinant, req []*http.Request) {
 		}
 		*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
 		entity.WholeIssue = append(entity.WholeIssue, newIssue)
+		entity.Vulnmap[d.kind].Issues = append(entity.Vulnmap[d.kind].Issues, newIssue)
 	}
 
 	io.ReadAll(resp.Body)
@@ -573,6 +578,7 @@ func detectOpenRedirect(d determinant, req []*http.Request) {
 		}
 		*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
 		entity.WholeIssue = append(entity.WholeIssue, newIssue)
+		entity.Vulnmap[d.kind].Issues = append(entity.Vulnmap[d.kind].Issues, newIssue)
 	}
 
 	io.ReadAll(resp.Body)
