@@ -218,12 +218,12 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 	if !flg {
 		doc.Find("*").EachWithBreak(func(_ int, s *goquery.Selection) bool {
 			href, _ := s.Attr("href")
-			if strings.Contains(href, "javascript:alert(\""+d.randmark+"\")") {
+			if strings.HasPrefix(href, "javascript:alert(\""+d.randmark+"\")") {
 				flg = true
 				return false
 			}
 			src, _ := s.Attr("src")
-			if strings.Contains(src, "javascript:alert(\""+d.randmark+"\")") {
+			if strings.HasPrefix(src, "javascript:alert(\""+d.randmark+"\")") {
 				flg = true
 				return false
 			}

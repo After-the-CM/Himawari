@@ -34,4 +34,5 @@
 <a href='javascript:alert("[randmark]")'>click me</a>
 <img src="x" onerror='alert("[randmark]")'>
 " onmouseover='alert("[randmark]")'
+' onmouseover='alert("[randmark]")'
 javascript:alert("[randmark]")
