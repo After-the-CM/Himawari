@@ -54,9 +54,8 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 			URL:       d.jsonMessage.URL,
 			Parameter: d.parameter,
 			Kind:      d.kind,
+			Payload:   d.payload,
 			Cookie:    d.cookie,
-			Getparam:  req[0].URL.Query(),
-			Postparam: req[0].PostForm,
 			Request:   string(d.originalReq),
 			Response:  string(dumpedResp),
 		}
@@ -162,9 +161,8 @@ func stringMatching(d determinant, req []*http.Request) {
 					URL:       u,
 					Parameter: d.parameter,
 					Kind:      d.kind,
+					Payload:   d.payload,
 					Cookie:    d.cookie,
-					Getparam:  req[0].URL.Query(),
-					Postparam: req[0].PostForm,
 					Request:   string(d.originalReq),
 					Response:  string(dumpedResp),
 				}
@@ -253,9 +251,8 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 				URL:       d.jsonMessage.URL,
 				Parameter: d.parameter,
 				Kind:      d.kind,
+				Payload:   d.payload,
 				Cookie:    d.cookie,
-				Getparam:  req[0].URL.Query(),
-				Postparam: req[0].PostForm,
 				Request:   string(d.originalReq),
 				Response:  string(dumpedResp),
 			}
@@ -365,9 +362,8 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 					URL:       d.jsonMessage.URL,
 					Parameter: d.parameter,
 					Kind:      d.kind,
+					Payload:   d.payload,
 					Cookie:    d.cookie,
-					Getparam:  req[0].URL.Query(),
-					Postparam: req[0].PostForm,
 					Request:   string(d.originalReq),
 					Response:  string(dumpedResp),
 				}
@@ -484,10 +480,10 @@ func detectHTTPHeaderi(d determinant, req []*http.Request) {
 		fmt.Println(d.kind)
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
-			Parameter: d.parameter,
 			Kind:      d.kind,
-			Getparam:  req[0].URL.Query(),
-			Postparam: req[0].PostForm,
+			Parameter: d.parameter,
+			Payload:   d.payload,
+			Cookie:    d.cookie,
 			Request:   string(d.originalReq),
 			Response:  string(dumpedResp),
 		}
@@ -568,9 +564,9 @@ func detectCSRF(d determinant, req []*http.Request) {
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
 			Parameter: d.parameter,
+			Payload:   d.payload,
 			Kind:      d.kind,
-			Getparam:  req[0].URL.Query(),
-			Postparam: req[0].PostForm,
+			Cookie:    d.cookie,
 			Request:   string(d.originalReq),
 			Response:  string(dumpedResp),
 		}
@@ -624,10 +620,10 @@ func detectOpenRedirect(d determinant, req []*http.Request) {
 		fmt.Println(d.kind)
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
-			Parameter: d.parameter,
 			Kind:      d.kind,
-			Getparam:  req[0].URL.Query(),
-			Postparam: req[0].PostForm,
+			Parameter: d.parameter,
+			Payload:   d.payload,
+			Cookie:    d.cookie,
 			Request:   string(d.originalReq),
 			Response:  string(dumpedResp),
 		}
