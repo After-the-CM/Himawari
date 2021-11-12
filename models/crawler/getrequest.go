@@ -20,7 +20,7 @@ func GetRequest(r *entity.RequestStruct) {
 		client.Jar = login(client.Jar)
 	}
 
-	abs := r.Referer.ResolveReference(r.Path)
+  abs := r.Referer.ResolveReference(r.Path)
 	if !isSameOrigin(r.Referer, abs) {
 		if abs.Scheme == "http" || abs.Scheme == "https" {
 			entity.AppendOutOfOrigin(r.Referer.String(), abs.String())

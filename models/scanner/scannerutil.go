@@ -24,7 +24,6 @@ type determinant struct {
 	eachVulnIssue *[]entity.Issue
 	candidate     *[]entity.JsonMessage
 	randmark      string
-	cookie        entity.JsonCookie
 }
 
 const (
@@ -537,55 +536,4 @@ func isExist(candidates *[]entity.JsonMessage, v entity.JsonMessage) bool {
 		}
 	}
 	return false
-}
-
-func (d determinant) extractCookie(cookies []*http.Cookie) []*http.Cookie {
-	cookieExtract := make([]*http.Cookie, 0)
-	for _, cookie := range cookies {
-		if cookie.Name != d.cookie.Name {
-			cookieExtract = append(cookieExtract, cookie)
-		}
-	}
-	return cookieExtract
-}
-
-var loginMsg = entity.JsonMessage{
-	URL:       "http://localhost:18080/osci/login.php",
-	Referer:   "http://localhost:18080/osci/login.php",
-	GetParams: url.Values{},
-	PostParams: url.Values{
-		"name": []string{"yoden"},
-		"pass": []string{"pass"},
-	},
-}
-
-func login(jar http.CookieJar) http.CookieJar {
-	var client4login = &http.Client{
-		Jar: jar,
-		/*
-			CheckRedirect: func(req *http.Request, via []*http.Request) error {
-				return http.ErrUseLastResponse
-			},
-		*/
-		Transport: logger.LoggingRoundTripper{
-			Proxied: http.DefaultTransport,
-		},
-	}
-
-	var req *http.Request
-	var err error
-	if len(loginMsg.PostParams) != 0 {
-		req, err = genPostParamReq(&loginMsg, &loginMsg.PostParams)
-	} else {
-		req, err = genGetParamReq(&loginMsg, &loginMsg.GetParams)
-	}
-	if logger.ErrHandle(err) {
-		return nil
-	}
-
-	_, err = client.Do(req)
-	if logger.ErrHandle(err) {
-		return nil
-	}
-	return client4login.Jar
 }
