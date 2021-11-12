@@ -1,8 +1,6 @@
 package scanner
 
-import (
-	"Himawari/models/entity"
-)
+import "Himawari/models/entity"
 
 func auditCSRF(j *entity.JsonNode) {
 

@@ -60,3 +60,85 @@ func JudgeMethod(r *entity.RequestStruct) {
 		return
 	}
 }
+
+var loginMsg = entity.JsonMessage{
+	URL:       "http://localhost:18080/osci/login.php",
+	Referer:   "http://localhost:18080/osci/login.php",
+	GetParams: url.Values{},
+	PostParams: url.Values{
+		"name": []string{"yoden"},
+		"pass": []string{"pass"},
+	},
+}
+
+func login(jar http.CookieJar) http.CookieJar {
+	var client4login = &http.Client{
+		Jar: jar,
+		/*
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
+		*/
+		Transport: logger.LoggingRoundTripper{
+			Proxied: http.DefaultTransport,
+		},
+	}
+
+	var req *http.Request
+	var err error
+	if len(loginMsg.PostParams) != 0 {
+		req, err = genPostParamReq(&loginMsg, &loginMsg.PostParams)
+	} else {
+		req, err = genGetParamReq(&loginMsg, &loginMsg.GetParams)
+	}
+	if logger.ErrHandle(err) {
+		return nil
+	}
+
+	_, err = client.Do(req)
+	if logger.ErrHandle(err) {
+		return nil
+	}
+	return client4login.Jar
+}
+
+func createGetReq(url string, ref string) (req *http.Request, err error) {
+	req, err = http.NewRequest("GET", url, nil)
+	if err != nil {
+		return
+	}
+	req.Header.Set("User-Agent", "Himawari")
+	if ref != "" {
+		req.Header.Set("Referer", ref)
+	}
+	return
+}
+
+func createPostReq(url string, ref string, p url.Values) (req *http.Request, err error) {
+	req, err = http.NewRequest("POST", url, strings.NewReader(p.Encode()))
+	if err != nil {
+		return
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("User-Agent", "Himawari")
+	req.Header.Set("Referer", ref)
+	return
+}
+
+func genGetParamReq(j *entity.JsonMessage, gp *url.Values) (req *http.Request, err error) {
+	req, err = createGetReq(j.URL, j.Referer)
+	if logger.ErrHandle(err) {
+		return
+	}
+	req.URL.RawQuery = gp.Encode()
+	return
+}
+
+func genPostParamReq(j *entity.JsonMessage, pp *url.Values) (req *http.Request, err error) {
+	req, err = createPostReq(j.URL, j.Referer, *pp)
+	if logger.ErrHandle(err) {
+		return
+	}
+	req.URL.RawQuery = j.GetParams.Encode()
+	return
+}
