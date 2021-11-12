@@ -55,7 +55,6 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 			Parameter: d.parameter,
 			Kind:      d.kind,
 			Payload:   d.payload,
-			Cookie:    d.cookie,
 			Request:   string(d.originalReq),
 			Response:  string(dumpedResp),
 		}
@@ -162,7 +161,6 @@ func stringMatching(d determinant, req []*http.Request) {
 					Parameter: d.parameter,
 					Kind:      d.kind,
 					Payload:   d.payload,
-					Cookie:    d.cookie,
 					Request:   string(d.originalReq),
 					Response:  string(dumpedResp),
 				}
@@ -252,7 +250,6 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 				Parameter: d.parameter,
 				Kind:      d.kind,
 				Payload:   d.payload,
-				Cookie:    d.cookie,
 				Request:   string(d.originalReq),
 				Response:  string(dumpedResp),
 			}
@@ -363,7 +360,6 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 					Parameter: d.parameter,
 					Kind:      d.kind,
 					Payload:   d.payload,
-					Cookie:    d.cookie,
 					Request:   string(d.originalReq),
 					Response:  string(dumpedResp),
 				}
@@ -483,7 +479,6 @@ func detectHTTPHeaderi(d determinant, req []*http.Request) {
 			Kind:      d.kind,
 			Parameter: d.parameter,
 			Payload:   d.payload,
-			Cookie:    d.cookie,
 			Request:   string(d.originalReq),
 			Response:  string(dumpedResp),
 		}
@@ -566,7 +561,6 @@ func detectCSRF(d determinant, req []*http.Request) {
 			Parameter: d.parameter,
 			Payload:   d.payload,
 			Kind:      d.kind,
-			Cookie:    d.cookie,
 			Request:   string(d.originalReq),
 			Response:  string(dumpedResp),
 		}
@@ -623,7 +617,6 @@ func detectOpenRedirect(d determinant, req []*http.Request) {
 			Kind:      d.kind,
 			Parameter: d.parameter,
 			Payload:   d.payload,
-			Cookie:    d.cookie,
 			Request:   string(d.originalReq),
 			Response:  string(dumpedResp),
 		}
