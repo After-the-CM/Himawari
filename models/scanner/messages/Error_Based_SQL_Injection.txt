@@ -147,4 +147,3 @@ Zend_Db_Statement_Oracle_Exception
 oracle.jdbc
 macromedia.jdbc.oracle
 unterminated quoted string at or near
-HTTP Status 500
