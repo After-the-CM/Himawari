@@ -47,6 +47,7 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 		}
 		*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
 		entity.WholeIssue = append(entity.WholeIssue, newIssue)
+		entity.Vulnmap[d.kind].Issues = append(entity.Vulnmap[d.kind].Issues, newIssue)
 	}
 
 	io.ReadAll(resp.Body)
@@ -141,6 +142,7 @@ func stringMatching(d determinant, req []*http.Request) {
 				}
 				*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
 				entity.WholeIssue = append(entity.WholeIssue, newIssue)
+				entity.Vulnmap[d.kind].Issues = append(entity.Vulnmap[d.kind].Issues, newIssue)
 				break
 			}
 		}
@@ -203,25 +205,56 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	logger.ErrHandle(err)
 
+	var flg bool
 	doc.Find("script").EachWithBreak(func(_ int, s *goquery.Selection) bool {
 		injectedPayload := s.Text()
 		if strings.Contains(injectedPayload, "alert(\""+d.randmark+"\")") {
-			fmt.Println(d.kind)
-			newIssue := entity.Issue{
-				URL:       d.jsonMessage.URL,
-				Parameter: d.parameter,
-				Kind:      d.kind,
-				Getparam:  req[0].URL.Query(),
-				Postparam: req[0].PostForm,
-				Request:   string(d.originalReq),
-				Response:  string(dumpedResp),
-			}
-			*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
-			entity.WholeIssue = append(entity.WholeIssue, newIssue)
+			flg = true
 			return false
 		}
 		return true
 	})
+
+	if !flg {
+		doc.Find("*").EachWithBreak(func(_ int, s *goquery.Selection) bool {
+			href, _ := s.Attr("href")
+			if strings.HasPrefix(href, "javascript:alert(\""+d.randmark+"\")") {
+				flg = true
+				return false
+			}
+			src, _ := s.Attr("src")
+			if strings.HasPrefix(src, "javascript:alert(\""+d.randmark+"\")") {
+				flg = true
+				return false
+			}
+			onmouseover, _ := s.Attr("onmouseover")
+			if strings.Contains(onmouseover, "alert(\""+d.randmark+"\")") {
+				flg = true
+				return false
+			}
+			onerror, _ := s.Attr("onerror")
+			if strings.Contains(onerror, "alert(\""+d.randmark+"\")") {
+				flg = true
+				return false
+			}
+			return true
+		})
+	}
+
+	if flg {
+		fmt.Println(d.kind)
+		newIssue := entity.Issue{
+			URL:       d.jsonMessage.URL,
+			Parameter: d.parameter,
+			Kind:      d.kind,
+			Getparam:  req[0].URL.Query(),
+			Postparam: req[0].PostForm,
+			Request:   string(d.originalReq),
+			Response:  string(dumpedResp),
+		}
+		*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
+		entity.WholeIssue = append(entity.WholeIssue, newIssue)
+	}
 
 	io.ReadAll(resp.Body)
 	resp.Body.Close()
@@ -301,26 +334,58 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 		doc, err := goquery.NewDocumentFromReader(inspectResp.Body)
 		logger.ErrHandle(err)
 
+		var flg bool
 		doc.Find("script").EachWithBreak(func(_ int, s *goquery.Selection) bool {
 			injectedPayload := s.Text()
 			if strings.Contains(injectedPayload, "alert(\""+d.randmark+"\")") {
-				fmt.Println(d.kind)
-				newIssue := entity.Issue{
-					URL:       d.jsonMessage.URL,
-					Parameter: d.parameter,
-					Kind:      d.kind,
-					Getparam:  req[0].URL.Query(),
-					Postparam: req[0].PostForm,
-					Request:   string(d.originalReq),
-					Response:  string(dumpedResp),
-				}
-				*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
-				entity.WholeIssue = append(entity.WholeIssue, newIssue)
-				b = true
+				flg = true
 				return false
 			}
 			return true
 		})
+
+		if !flg {
+			doc.Find("*").EachWithBreak(func(_ int, s *goquery.Selection) bool {
+				href, _ := s.Attr("href")
+				if strings.HasPrefix(href, "javascript:alert(\""+d.randmark+"\")") {
+					flg = true
+					return false
+				}
+				src, _ := s.Attr("src")
+				if strings.HasPrefix(src, "javascript:alert(\""+d.randmark+"\")") {
+					flg = true
+					return false
+				}
+				onmouseover, _ := s.Attr("onmouseover")
+				if strings.Contains(onmouseover, "alert(\""+d.randmark+"\")") {
+					flg = true
+					return false
+				}
+				onerror, _ := s.Attr("onerror")
+				if strings.Contains(onerror, "alert(\""+d.randmark+"\")") {
+					flg = true
+					return false
+				}
+				return true
+			})
+		}
+
+		if flg {
+			fmt.Println(d.kind)
+			newIssue := entity.Issue{
+				URL:       d.jsonMessage.URL,
+				Parameter: d.parameter,
+				Kind:      d.kind,
+				Getparam:  req[0].URL.Query(),
+				Postparam: req[0].PostForm,
+				Request:   string(d.originalReq),
+				Response:  string(dumpedResp),
+			}
+			*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
+			entity.WholeIssue = append(entity.WholeIssue, newIssue)
+			entity.Vulnmap[d.kind].Issues = append(entity.Vulnmap[d.kind].Issues, newIssue)
+			b = true
+		}
 
 		io.ReadAll(inspectResp.Body)
 		inspectResp.Body.Close()
@@ -423,6 +488,7 @@ func detectHTTPHeaderi(d determinant, req []*http.Request) {
 		}
 		*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
 		entity.WholeIssue = append(entity.WholeIssue, newIssue)
+		entity.Vulnmap[d.kind].Issues = append(entity.Vulnmap[d.kind].Issues, newIssue)
 	}
 
 	io.ReadAll(resp.Body)
@@ -498,6 +564,7 @@ func detectCSRF(d determinant, req []*http.Request) {
 		}
 		*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
 		entity.WholeIssue = append(entity.WholeIssue, newIssue)
+		entity.Vulnmap[d.kind].Issues = append(entity.Vulnmap[d.kind].Issues, newIssue)
 	}
 
 	io.ReadAll(resp.Body)
@@ -542,6 +609,7 @@ func detectOpenRedirect(d determinant, req []*http.Request) {
 		}
 		*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
 		entity.WholeIssue = append(entity.WholeIssue, newIssue)
+		entity.Vulnmap[d.kind].Issues = append(entity.Vulnmap[d.kind].Issues, newIssue)
 	}
 
 	io.ReadAll(resp.Body)

@@ -81,3 +81,7 @@ func Reset(c *gin.Context) {
 	scanner.Reset()
 	c.String(http.StatusOK, "OK")
 }
+
+func Readvulns(c *gin.Context) {
+	c.JSON(http.StatusOK, entity.Vulnmap)
+}
