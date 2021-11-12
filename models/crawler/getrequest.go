@@ -16,7 +16,9 @@ import (
 )
 
 func GetRequest(r *entity.RequestStruct) {
-	client.Jar = login(client.Jar)
+	if loginMsg.URL != "" {
+		client.Jar = login(client.Jar)
+	}
 
 	abs := r.Referer.ResolveReference(r.Path)
 	if !isSameOrigin(r.Referer, abs) {
