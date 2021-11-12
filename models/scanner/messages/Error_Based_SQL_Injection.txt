@@ -55,6 +55,7 @@ PostgreSQL query failed: ERROR: parser: parse error
 SQL Server Driver][SQL Server
 SQL command not properly ended
 SQLException
+MySQLSyntaxErrorException
 Supplied argument is not a valid PostgreSQL result
 Syntax error in query expression
 The error occurred in
