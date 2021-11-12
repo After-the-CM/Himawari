@@ -149,3 +149,4 @@ SLEEP(3)/*' or SLEEP(3) or '" or SLEEP(3) or "*/
 */ pg_SLEEP(3)
 */ pg_SLEEP(3)--
 */ pg_SLEEP(3)#
+' + sleep(3)#
