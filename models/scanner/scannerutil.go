@@ -244,11 +244,7 @@ func (d determinant) setCookie(cookie entity.JsonCookie, payload string) {
 	d.payload = cookie.Value + payload
 
 	if !d.isAlreadyDetected() {
-		d.cookie = entity.JsonCookie{
-			Path:  cookie.Path,
-			Name:  cookie.Name,
-			Value: cookie.Value + payload,
-		}
+
 		if len(d.jsonMessage.PostParams) == 0 {
 			req, err := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
 			if logger.ErrHandle(err) {
@@ -257,9 +253,9 @@ func (d determinant) setCookie(cookie entity.JsonCookie, payload string) {
 			req.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
 			req.AddCookie(&http.Cookie{
-				Path:  d.cookie.Path,
-				Name:  d.cookie.Name,
-				Value: d.cookie.Value,
+				Path:  cookie.Path,
+				Name:  cookie.Name,
+				Value: cookie.Value + payload,
 			})
 			d.approach(d, []*http.Request{req})
 		} else {
@@ -271,9 +267,9 @@ func (d determinant) setCookie(cookie entity.JsonCookie, payload string) {
 			req.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
 			req.AddCookie(&http.Cookie{
-				Path:  d.cookie.Path,
-				Name:  d.cookie.Name,
-				Value: d.cookie.Value,
+				Path:  cookie.Path,
+				Name:  cookie.Name,
+				Value: cookie.Value + payload,
 			})
 
 			d.approach(d, []*http.Request{req})

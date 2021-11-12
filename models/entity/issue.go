@@ -5,7 +5,6 @@ type Issue struct {
 	Kind      string
 	Parameter string
 	Payload   string
-	Cookie    JsonCookie
 	Request   string
 	Response  string
 }
