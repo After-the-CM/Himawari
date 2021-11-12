@@ -1,9 +1,13 @@
 package sitemap
 
 import (
+	"net/http/cookiejar"
+	"net/url"
+	"path"
 	"sort"
 
 	"Himawari/models/entity"
+	"Himawari/models/logger"
 )
 
 func messages(node *entity.Node) []entity.JsonMessage {
@@ -20,32 +24,49 @@ func messages(node *entity.Node) []entity.JsonMessage {
 	return msg
 }
 
-func jsonAddChild(node *entity.Node, jsonNode *entity.JsonNode, url string) {
+func jsonAddChild(node *entity.Node, jsonNode *entity.JsonNode, url *url.URL, jar *cookiejar.Jar) {
 	if node.Children != nil {
 		for i, n := range *node.Children {
-
+			// url.URLをstringにしてurl.URLにパースすることで元のurlを書き換えないように
+			u, err := url.Parse(url.String())
+			logger.ErrHandle(err)
+			u.Path = path.Join(u.Path, n.Path)
 			child := &entity.JsonNode{
-				// path.Joinだと`http://`の`/`が消えてしまう
-				URL:      url + "/" + n.Path,
 				Path:     n.Path,
+				Cookies:  getCookies(u, jar),
 				Messages: messages(&n),
+				URL:      u.String(),
 			}
 
 			(*jsonNode).Children = append((*jsonNode).Children, *child)
 			if node.Children != nil && *node.Children != nil {
-				jsonAddChild(&(*node.Children)[i], &jsonNode.Children[i], child.URL)
+				childURL, err := url.Parse(child.URL)
+				logger.ErrHandle(err)
+				jsonAddChild(&(*node.Children)[i], &jsonNode.Children[i], childURL, jar)
 			}
 		}
 	}
 }
 
-func Merge(url string) {
+func Merge(url *url.URL, jar *cookiejar.Jar) {
 	entity.JsonNodes = entity.JsonNode{
-		URL:      url,
 		Path:     entity.Nodes.Path,
+		Cookies:  getCookies(url, jar),
 		Messages: messages(&entity.Nodes),
+		URL:      url.Scheme + "://" + url.Host,
 	}
-	jsonAddChild(&entity.Nodes, &entity.JsonNodes, url)
+	jsonAddChild(&entity.Nodes, &entity.JsonNodes, url, jar)
+}
+
+func getCookies(url *url.URL, jar *cookiejar.Jar) []entity.JsonCookie {
+	jarcookies := jar.Cookies(url)
+	cookies := make([]entity.JsonCookie, len(jarcookies))
+	for i, jarcookie := range jarcookies {
+		cookies[i].Path = jarcookie.Path
+		cookies[i].Name = jarcookie.Name
+		cookies[i].Value = jarcookie.Value
+	}
+	return cookies
 }
 
 func SortJson() {

@@ -19,12 +19,19 @@ type Message struct {
 
 type JsonNode struct {
 	Path     string        `json:"path"`
+	Cookies  []JsonCookie  `json:"cookies"`
 	Messages []JsonMessage `json:"messages"`
 	Children []JsonNode    `json:"children"`
 	Issue    []Issue       `json:"issue"`
 
 	// Directory Listing scanのためのフィールド。末尾"/"がないのでそのままは使えません。
 	URL string `json:"url"`
+}
+
+type JsonCookie struct {
+	Path  string `json:"path"`
+	Name  string `json:"name"`
+	Value string `json:"value"`
 }
 
 type JsonMessage struct {

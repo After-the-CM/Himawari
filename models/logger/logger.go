@@ -15,6 +15,8 @@ type LoggingRoundTripper struct {
 	Proxied http.RoundTripper
 }
 
+var DumpedReq []byte
+
 func LoggingSetting() {
 	layout := "2006-01-02_15:04:05"
 	dirName := "log"
@@ -45,6 +47,7 @@ func (lrt LoggingRoundTripper) RoundTrip(req *http.Request) (res *http.Response,
 	log.Println(req.URL.Scheme + "://" + req.URL.Host)
 	log.SetFlags(log.Flags() &^ log.LstdFlags)
 	log.Println(string(dumpedReq))
+	DumpedReq = dumpedReq
 	log.Printf("\n\n\n")
 
 	res, e = lrt.Proxied.RoundTrip(req)

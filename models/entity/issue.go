@@ -1,13 +1,11 @@
 package entity
 
-import "net/url"
-
 type Issue struct {
 	URL       string
 	Kind      string
 	Parameter string
-	Getparam  url.Values
-	Postparam url.Values
+	Payload   string
+	Cookie    JsonCookie
 	Request   string
 	Response  string
 }
