@@ -17,6 +17,10 @@ import (
 )
 
 func PostRequest(r *entity.RequestStruct) {
+	if loginMsg.URL != "" {
+		client.Jar = login(client.Jar)
+	}
+
 	abs := r.Referer.ResolveReference(r.Path)
 	if !isSameOrigin(r.Referer, abs) {
 		if abs.Scheme == "http" || abs.Scheme == "https" {
