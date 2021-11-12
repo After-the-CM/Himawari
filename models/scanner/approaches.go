@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/http/cookiejar"
 	"net/http/httputil"
 	"net/url"
 	"strings"
@@ -19,15 +18,10 @@ import (
 
 //リダイレクト発生時req[0]がオリジナルのリクエスト
 func timeBasedAttack(d determinant, req []*http.Request) {
-	if loginMsg.URL != "" {
-		client.Jar = login(client.Jar)
-	}
-
-	var jar4tmp *cookiejar.Jar
-	if d.cookie.Name != "" {
-		jar4tmp = jar
-		client.Jar, _ = cookiejar.New(nil)
-		client.Jar.SetCookies(req[len(req)-1].URL, d.extractCookie(jar4tmp.Cookies(req[len(req)-1].URL)))
+	if len(req) == 1 {
+		var err error
+		d.originalReq, err = httputil.DumpRequestOut(req[0], true)
+		logger.ErrHandle(err)
 	}
 
 	start := time.Now()
@@ -36,14 +30,6 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 		return
 	}
 	end := time.Now()
-
-	if jar4tmp != nil {
-		client.Jar = jar4tmp
-	}
-
-	if len(req) == 1 {
-		d.originalReq = logger.DumpedReq
-	}
 
 	if compareAccessTime(d.jsonMessage.Time, (end.Sub(start)).Seconds(), d.kind) {
 		dumpedResp, err := httputil.DumpResponse(resp, true)
@@ -54,8 +40,8 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 			URL:       d.jsonMessage.URL,
 			Parameter: d.parameter,
 			Kind:      d.kind,
-			Payload:   d.payload,
-			Cookie:    d.cookie,
+			Getparam:  req[0].URL.Query(),
+			Postparam: req[0].PostForm,
 			Request:   string(d.originalReq),
 			Response:  string(dumpedResp),
 		}
@@ -108,15 +94,10 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 }
 
 func stringMatching(d determinant, req []*http.Request) {
-	if loginMsg.URL != "" {
-		client.Jar = login(client.Jar)
-	}
-
-	var jar4tmp *cookiejar.Jar
-	if d.cookie.Name != "" {
-		jar4tmp = jar
-		client.Jar, _ = cookiejar.New(nil)
-		client.Jar.SetCookies(req[len(req)-1].URL, d.extractCookie(jar4tmp.Cookies(req[len(req)-1].URL)))
+	if len(req) == 1 {
+		var err error
+		d.originalReq, err = httputil.DumpRequestOut(req[0], true)
+		logger.ErrHandle(err)
 	}
 
 	resp, err := client.Do(req[len(req)-1])
@@ -134,14 +115,6 @@ func stringMatching(d determinant, req []*http.Request) {
 	//ここでdumpを行わないとResponseBodyが取れない。
 	dumpedResp, err := httputil.DumpResponse(resp, true)
 	logger.ErrHandle(err)
-
-	if jar4tmp != nil {
-		client.Jar = jar4tmp
-	}
-
-	if len(req) == 1 {
-		d.originalReq = logger.DumpedReq
-	}
 
 	body, err := io.ReadAll(resp.Body)
 	if !logger.ErrHandle(err) {
@@ -162,8 +135,8 @@ func stringMatching(d determinant, req []*http.Request) {
 					URL:       u,
 					Parameter: d.parameter,
 					Kind:      d.kind,
-					Payload:   d.payload,
-					Cookie:    d.cookie,
+					Getparam:  req[0].URL.Query(),
+					Postparam: req[0].PostForm,
 					Request:   string(d.originalReq),
 					Response:  string(dumpedResp),
 				}
@@ -214,28 +187,15 @@ func stringMatching(d determinant, req []*http.Request) {
 }
 
 func detectReflectedXSS(d determinant, req []*http.Request) {
-	if loginMsg.URL != "" {
-		client.Jar = login(client.Jar)
-	}
-
-	var jar4tmp *cookiejar.Jar
-	if d.cookie.Name != "" {
-		jar4tmp = jar
-		client.Jar, _ = cookiejar.New(nil)
-		client.Jar.SetCookies(req[len(req)-1].URL, d.extractCookie(jar4tmp.Cookies(req[len(req)-1].URL)))
+	if len(req) == 1 {
+		var err error
+		d.originalReq, err = httputil.DumpRequestOut(req[0], true)
+		logger.ErrHandle(err)
 	}
 
 	resp, err := client.Do(req[len(req)-1])
 	if logger.ErrHandle(err) {
 		return
-	}
-
-	if jar4tmp != nil {
-		client.Jar = jar4tmp
-	}
-
-	if len(req) == 1 {
-		d.originalReq = logger.DumpedReq
 	}
 
 	//ここでdumpを行わないとResponseBodyが取れない。
@@ -285,10 +245,10 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 		fmt.Println(d.kind)
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
-			Kind:      d.kind,
 			Parameter: d.parameter,
-			Payload:   d.payload,
-			Cookie:    d.cookie,
+			Kind:      d.kind,
+			Getparam:  req[0].URL.Query(),
+			Postparam: req[0].PostForm,
 			Request:   string(d.originalReq),
 			Response:  string(dumpedResp),
 		}
@@ -336,28 +296,15 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 }
 
 func detectStoredXSS(d determinant, req []*http.Request) {
-	if loginMsg.URL != "" {
-		client.Jar = login(client.Jar)
-	}
-
-	var jar4tmp *cookiejar.Jar
-	if d.cookie.Name != "" {
-		jar4tmp = jar
-		client.Jar, _ = cookiejar.New(nil)
-		client.Jar.SetCookies(req[len(req)-1].URL, d.extractCookie(jar4tmp.Cookies(req[len(req)-1].URL)))
+	if len(req) == 1 {
+		var err error
+		d.originalReq, err = httputil.DumpRequestOut(req[0], true)
+		logger.ErrHandle(err)
 	}
 
 	resp, err := client.Do(req[len(req)-1])
 	if logger.ErrHandle(err) {
 		return
-	}
-
-	if jar4tmp != nil {
-		client.Jar = jar4tmp
-	}
-
-	if len(req) == 1 {
-		d.originalReq = logger.DumpedReq
 	}
 
 	var dumpedResp []byte
@@ -429,7 +376,8 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 				URL:       d.jsonMessage.URL,
 				Parameter: d.parameter,
 				Kind:      d.kind,
-				Payload:   d.payload,
+				Getparam:  req[0].URL.Query(),
+				Postparam: req[0].PostForm,
 				Request:   string(d.originalReq),
 				Response:  string(dumpedResp),
 			}
@@ -511,28 +459,15 @@ func searchRandmark(d determinant, req []*http.Request) {
 func detectHTTPHeaderi(d determinant, req []*http.Request) {
 	req[len(req)-1].URL.RawQuery = strings.Replace(req[len(req)-1].URL.RawQuery, "%25", "%", -1)
 
-	if loginMsg.URL != "" {
-		client.Jar = login(client.Jar)
-	}
-
-	var jar4tmp *cookiejar.Jar
-	if d.cookie.Name != "" {
-		jar4tmp = jar
-		client.Jar, _ = cookiejar.New(nil)
-		client.Jar.SetCookies(req[len(req)-1].URL, d.extractCookie(jar4tmp.Cookies(req[len(req)-1].URL)))
+	if len(req) == 1 {
+		var err error
+		d.originalReq, err = httputil.DumpRequestOut(req[0], true)
+		logger.ErrHandle(err)
 	}
 
 	resp, err := client.Do(req[len(req)-1])
 	if logger.ErrHandle(err) {
 		return
-	}
-
-	if jar4tmp != nil {
-		client.Jar = jar4tmp
-	}
-
-	if len(req) == 1 {
-		d.originalReq = logger.DumpedReq
 	}
 
 	cookie := resp.Header.Get("Set-Cookie")
@@ -544,10 +479,10 @@ func detectHTTPHeaderi(d determinant, req []*http.Request) {
 		fmt.Println(d.kind)
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
-			Kind:      d.kind,
 			Parameter: d.parameter,
-			Payload:   d.payload,
-			Cookie:    d.cookie,
+			Kind:      d.kind,
+			Getparam:  req[0].URL.Query(),
+			Postparam: req[0].PostForm,
 			Request:   string(d.originalReq),
 			Response:  string(dumpedResp),
 		}
@@ -596,15 +531,10 @@ func detectHTTPHeaderi(d determinant, req []*http.Request) {
 }
 
 func detectCSRF(d determinant, req []*http.Request) {
-	if loginMsg.URL != "" {
-		client.Jar = login(client.Jar)
-	}
-
-	var jar4tmp *cookiejar.Jar
-	if d.cookie.Name != "" {
-		jar4tmp = jar
-		client.Jar, _ = cookiejar.New(nil)
-		client.Jar.SetCookies(req[len(req)-1].URL, d.extractCookie(jar4tmp.Cookies(req[len(req)-1].URL)))
+	if len(req) == 1 {
+		var err error
+		d.originalReq, err = httputil.DumpRequestOut(req[0], true)
+		logger.ErrHandle(err)
 	}
 
 	resp, err := client.Do(req[len(req)-1])
@@ -612,13 +542,10 @@ func detectCSRF(d determinant, req []*http.Request) {
 		return
 	}
 
-	if jar4tmp != nil {
-		client.Jar = jar4tmp
-	}
-
-	if len(req) == 1 {
-		d.originalReq = logger.DumpedReq
-	}
+	/*
+		dumpedResp, err := httputil.DumpResponse(resp, true)
+		logger.ErrHandle(err)
+	*/
 
 	// status code 400, 500番台を排除。もう少し厳しい判定基準や検査対象を絞る必要がある。
 	if resp.StatusCode < 400 {
@@ -628,10 +555,10 @@ func detectCSRF(d determinant, req []*http.Request) {
 		fmt.Println(d.kind)
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
-			Kind:      d.kind,
 			Parameter: d.parameter,
-			Payload:   d.payload,
-			Cookie:    d.cookie,
+			Kind:      d.kind,
+			Getparam:  req[0].URL.Query(),
+			Postparam: req[0].PostForm,
 			Request:   string(d.originalReq),
 			Response:  string(dumpedResp),
 		}
@@ -645,28 +572,15 @@ func detectCSRF(d determinant, req []*http.Request) {
 }
 
 func detectOpenRedirect(d determinant, req []*http.Request) {
-	if loginMsg.URL != "" {
-		client.Jar = login(client.Jar)
-	}
-
-	var jar4tmp *cookiejar.Jar
-	if d.cookie.Name != "" {
-		jar4tmp = jar
-		client.Jar, _ = cookiejar.New(nil)
-		client.Jar.SetCookies(req[len(req)-1].URL, d.extractCookie(jar4tmp.Cookies(req[len(req)-1].URL)))
+	if len(req) == 1 {
+		var err error
+		d.originalReq, err = httputil.DumpRequestOut(req[0], true)
+		logger.ErrHandle(err)
 	}
 
 	resp, err := client.Do(req[len(req)-1])
 	if logger.ErrHandle(err) {
 		return
-	}
-
-	if jar4tmp != nil {
-		client.Jar = jar4tmp
-	}
-
-	if len(req) == 1 {
-		d.originalReq = logger.DumpedReq
 	}
 
 	location := resp.Header.Get("Location")
@@ -686,10 +600,10 @@ func detectOpenRedirect(d determinant, req []*http.Request) {
 		fmt.Println(d.kind)
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
-			Kind:      d.kind,
 			Parameter: d.parameter,
-			Payload:   d.payload,
-			Cookie:    d.cookie,
+			Kind:      d.kind,
+			Getparam:  req[0].URL.Query(),
+			Postparam: req[0].PostForm,
 			Request:   string(d.originalReq),
 			Response:  string(dumpedResp),
 		}

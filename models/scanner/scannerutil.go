@@ -17,14 +17,12 @@ import (
 type determinant struct {
 	jsonMessage   *entity.JsonMessage
 	parameter     string
-	payload       string
 	kind          string
 	originalReq   []byte
 	approach      func(d determinant, req []*http.Request)
 	eachVulnIssue *[]entity.Issue
 	candidate     *[]entity.JsonMessage
 	randmark      string
-	cookie        entity.JsonCookie
 }
 
 const (
@@ -197,7 +195,7 @@ func (d determinant) setKeyValues(key string, payload string, addparam bool, met
 			if logger.ErrHandle(err) {
 				return
 			}
-			d.payload = payload
+
 			d.approach(d, []*http.Request{req})
 
 		case "POST":
@@ -215,7 +213,6 @@ func (d determinant) setKeyValues(key string, payload string, addparam bool, met
 			}
 
 			req.PostForm = *tmpUrlValues
-			d.payload = payload
 			d.approach(d, []*http.Request{req})
 		default:
 			fmt.Fprintf(os.Stderr, "No support method\n")
@@ -230,55 +227,12 @@ func (d determinant) setHeaderDocumentRoot(payload string) {
 		if logger.ErrHandle(err) {
 			return
 		}
-		d.payload = getPtReq.URL.Path + payload
 		getPtReq.URL.Path = getPtReq.URL.Path + payload
 		getPtReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
+
 		d.approach(d, []*http.Request{getPtReq})
 	}
 
-}
-
-func (d determinant) setCookie(cookie entity.JsonCookie, payload string) {
-	d.parameter = cookie.Name
-	payload = strings.Replace(payload, " ", "%20", -1)
-	d.payload = cookie.Value + payload
-
-	if !d.isAlreadyDetected() {
-		d.cookie = entity.JsonCookie{
-			Path:  cookie.Path,
-			Name:  cookie.Name,
-			Value: cookie.Value + payload,
-		}
-		if len(d.jsonMessage.PostParams) == 0 {
-			req, err := createGetReq(d.jsonMessage.URL, d.jsonMessage.Referer)
-			if logger.ErrHandle(err) {
-				return
-			}
-			req.URL.RawQuery = d.jsonMessage.GetParams.Encode()
-
-			req.AddCookie(&http.Cookie{
-				Path:  d.cookie.Path,
-				Name:  d.cookie.Name,
-				Value: d.cookie.Value,
-			})
-			d.approach(d, []*http.Request{req})
-		} else {
-			req, err := createPostReq(d.jsonMessage.URL, d.jsonMessage.Referer, d.jsonMessage.PostParams)
-			if logger.ErrHandle(err) {
-				return
-			}
-			req.PostForm = d.jsonMessage.PostParams
-			req.URL.RawQuery = d.jsonMessage.GetParams.Encode()
-
-			req.AddCookie(&http.Cookie{
-				Path:  d.cookie.Path,
-				Name:  d.cookie.Name,
-				Value: d.cookie.Value,
-			})
-
-			d.approach(d, []*http.Request{req})
-		}
-	}
 }
 
 func (d determinant) setGetHeader(payload string) {
@@ -289,7 +243,6 @@ func (d determinant) setGetHeader(payload string) {
 		if logger.ErrHandle(err) {
 			return
 		}
-		d.payload = getUAReq.UserAgent() + payload
 		getUAReq.Header.Set("User-Agent", getUAReq.UserAgent()+payload)
 		getUAReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
@@ -302,7 +255,6 @@ func (d determinant) setGetHeader(payload string) {
 		if logger.ErrHandle(err) {
 			return
 		}
-		d.payload = getRfReq.Referer() + payload
 		getRfReq.Header.Set("Referer", getRfReq.Referer()+payload)
 		getRfReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
@@ -320,7 +272,6 @@ func (d determinant) setPostHeader(payload string) {
 			return
 		}
 		postUAReq.PostForm = d.jsonMessage.PostParams
-		d.payload = postUAReq.UserAgent() + payload
 		postUAReq.Header.Set("User-Agent", postUAReq.UserAgent()+payload)
 		postUAReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
@@ -335,7 +286,6 @@ func (d determinant) setPostHeader(payload string) {
 			return
 		}
 		postRfReq.PostForm = d.jsonMessage.PostParams
-		d.payload = postRfReq.Referer() + payload
 		postRfReq.Header.Set("Referer", postRfReq.Referer()+payload)
 		postRfReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
@@ -468,7 +418,6 @@ func (d determinant) setGetUA(payload string) {
 		if logger.ErrHandle(err) {
 			return
 		}
-		d.payload = getUAReq.UserAgent() + payload
 		getUAReq.Header.Set("User-Agent", getUAReq.UserAgent()+payload)
 		getUAReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
@@ -484,7 +433,6 @@ func (d determinant) setGetRef(payload string) {
 		if logger.ErrHandle(err) {
 			return
 		}
-		d.payload = getRfReq.Referer() + payload
 		getRfReq.Header.Set("Referer", getRfReq.Referer()+payload)
 		getRfReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
@@ -501,7 +449,6 @@ func (d determinant) setPostUA(payload string) {
 			return
 		}
 		postUAReq.PostForm = d.jsonMessage.PostParams
-		d.payload = postUAReq.UserAgent() + payload
 		postUAReq.Header.Set("User-Agent", postUAReq.UserAgent()+payload)
 		postUAReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
@@ -526,7 +473,6 @@ func (d determinant) setPostRef(payload string) {
 		}
 
 		postRfReq.PostForm = d.jsonMessage.PostParams
-		d.payload = postRfReq.Referer() + payload
 		postRfReq.Header.Set("Referer", postRfReq.Referer()+payload)
 		postRfReq.URL.RawQuery = d.jsonMessage.GetParams.Encode()
 
@@ -541,55 +487,4 @@ func isExist(candidates *[]entity.JsonMessage, v entity.JsonMessage) bool {
 		}
 	}
 	return false
-}
-
-func (d determinant) extractCookie(cookies []*http.Cookie) []*http.Cookie {
-	cookieExtract := make([]*http.Cookie, 0)
-	for _, cookie := range cookies {
-		if cookie.Name != d.cookie.Name {
-			cookieExtract = append(cookieExtract, cookie)
-		}
-	}
-	return cookieExtract
-}
-
-var loginMsg = entity.JsonMessage{
-	URL:       "http://localhost:18080/osci/login.php",
-	Referer:   "http://localhost:18080/osci/login.php",
-	GetParams: url.Values{},
-	PostParams: url.Values{
-		"name": []string{"yoden"},
-		"pass": []string{"pass"},
-	},
-}
-
-func login(jar http.CookieJar) http.CookieJar {
-	var client4login = &http.Client{
-		Jar: jar,
-		/*
-			CheckRedirect: func(req *http.Request, via []*http.Request) error {
-				return http.ErrUseLastResponse
-			},
-		*/
-		Transport: logger.LoggingRoundTripper{
-			Proxied: http.DefaultTransport,
-		},
-	}
-
-	var req *http.Request
-	var err error
-	if len(loginMsg.PostParams) != 0 {
-		req, err = genPostParamReq(&loginMsg, &loginMsg.PostParams)
-	} else {
-		req, err = genGetParamReq(&loginMsg, &loginMsg.GetParams)
-	}
-	if logger.ErrHandle(err) {
-		return nil
-	}
-
-	_, err = client.Do(req)
-	if logger.ErrHandle(err) {
-		return nil
-	}
-	return client4login.Jar
 }

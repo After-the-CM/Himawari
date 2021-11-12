@@ -52,6 +52,8 @@ func Crawl(c *gin.Context) {
 
 	// urlのバリデーション
 
+	// HTMLが崩れてる場合にpanicで終わってしまってもマージさせたいのでdefer。
+	defer sitemap.Merge(url.Scheme + "://" + url.Host)
 	crawler.Crawl(url)
 	//sitemap.PrintMap()
 	c.String(http.StatusOK, "OK")

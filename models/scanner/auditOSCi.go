@@ -20,6 +20,7 @@ func auditOSCi(j *entity.JsonNode) {
 	for osciPayload.Scan() {
 		payload = append(payload, osciPayload.Text())
 	}
+
 	if j.Path == "/" {
 		//直接retrieveJsonMessageにjを渡してもよいが、`/`問題を解決するために、forで回している。
 		for _, v := range j.Children {
@@ -37,9 +38,6 @@ func auditOSCi(j *entity.JsonNode) {
 		for _, v := range payload {
 			d.jsonMessage = &j.Messages[i]
 			d.setParam(v)
-			for _, cookie := range j.Cookies {
-				d.setCookie(cookie, v)
-			}
 			if len(j.Messages[i].PostParams) != 0 {
 				d.setPostHeader(v)
 			} else {
