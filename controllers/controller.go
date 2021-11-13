@@ -45,6 +45,14 @@ func Crawl(c *gin.Context) {
 
 	sitemap.Reset()
 
+	var formdata entity.InputFormData
+	c.Bind(&formdata)
+
+	crawler.SetApplydata(formdata.Name, formdata.Value)
+	if formdata.LoginURL != "" {
+		crawler.SetLoginData(formdata.LoginURL, formdata.LoginReferer, formdata.LoginKey, formdata.LoginValue, formdata.LoginMethod)
+	}
+
 	url, err := url.Parse(c.PostForm("url"))
 	if logger.ErrHandle(err) {
 		return

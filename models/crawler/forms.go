@@ -7,14 +7,16 @@ import (
 	"Himawari/models/logger"
 )
 
-var testData = map[string]string{
-	"email":    "Himawari@example.com",
-	"url":      "http://example.com",
-	"tel":      "00012345678",
-	"date":     "2020-12-16",
-	"text":     "Himawari",
-	"textarea": "Himawari",
-	"input":    "I am Himawari",
+var applyData = map[string]string{
+	/*
+		"email":    "Himawari@example.com",
+		"url":      "http://example.com",
+		"tel":      "00012345678",
+		"date":     "2020-12-16",
+		"text":     "Himawari",
+		"textarea": "Himawari",
+		"input":    "I am Himawari",
+	*/
 }
 
 func SetValues(form []entity.HtmlForm, r *entity.RequestStruct) {
@@ -40,7 +42,7 @@ func SetValues(form []entity.HtmlForm, r *entity.RequestStruct) {
 				if v.Placeholder != nil {
 					values.Set(*v.Name, *v.Placeholder)
 				} else if v.Value == nil {
-					values.Set(*v.Name, testData[*v.Name])
+					values.Set(*v.Name, applyData[*v.Name])
 				} else {
 					values.Set(*v.Name, *v.Value)
 				}

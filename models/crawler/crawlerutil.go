@@ -23,6 +23,15 @@ var client = &http.Client{
 	},
 }
 
+func SetApplydata(name []string, value []string) {
+	fmt.Println(name)
+	fmt.Println(value)
+
+	for i := 0; len(name) > i; i++ {
+		applyData[name[i]] = value[i]
+	}
+}
+
 func isSameOrigin(ref *url.URL, loc *url.URL) bool {
 	rport, lport := ref.Port(), loc.Port()
 	if rport == "" {
@@ -62,13 +71,33 @@ func JudgeMethod(r *entity.RequestStruct) {
 }
 
 var loginMsg = entity.JsonMessage{
-	URL:       "http://localhost:18080/osci/login.php",
-	Referer:   "http://localhost:18080/osci/login.php",
-	GetParams: url.Values{},
-	PostParams: url.Values{
-		"name": []string{"yoden"},
-		"pass": []string{"pass"},
-	},
+	GetParams:  url.Values{},
+	PostParams: url.Values{},
+	/*
+		URL:       "http://localhost:18080/osci/login.php",
+		Referer:   "http://localhost:18080/osci/login.php",
+		GetParams: url.Values{},
+		PostParams: url.Values{
+			"name": []string{"yoden"},
+			"pass": []string{"pass"},
+		},
+	*/
+}
+
+func SetLoginData(url string, ref string, keys []string, values []string, methods []string) {
+
+	loginMsg.URL = url
+	loginMsg.Referer = ref
+
+	for i := 0; len(keys) > i; i++ {
+		if methods[i] == "GET" {
+			loginMsg.GetParams.Set(keys[i], values[i])
+		} else {
+			loginMsg.PostParams.Set(keys[i], values[i])
+		}
+	}
+
+	fmt.Println("LoginMsg", loginMsg)
 }
 
 func login(jar http.CookieJar) http.CookieJar {
