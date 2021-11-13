@@ -52,8 +52,8 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 		logger.ErrHandle(err)
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
-			Parameter: d.parameter,
 			Kind:      d.kind,
+			Parameter: d.parameter,
 			Payload:   d.payload,
 			Request:   string(d.originalReq),
 			Response:  string(dumpedResp),
@@ -159,8 +159,8 @@ func stringMatching(d determinant, req []*http.Request) {
 				fmt.Println(d.kind)
 				newIssue := entity.Issue{
 					URL:       u,
-					Parameter: d.parameter,
 					Kind:      d.kind,
+					Parameter: d.parameter,
 					Payload:   d.payload,
 					Request:   string(d.originalReq),
 					Response:  string(dumpedResp),

