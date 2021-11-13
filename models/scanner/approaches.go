@@ -55,6 +55,7 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 			Kind:      d.kind,
 			Parameter: d.parameter,
 			Payload:   d.payload,
+			Evidence:  "Response delay: " + fmt.Sprint(end.Sub(start)),
 			Request:   string(d.originalReq),
 			Response:  string(dumpedResp),
 		}
@@ -162,6 +163,7 @@ func stringMatching(d determinant, req []*http.Request) {
 					Kind:      d.kind,
 					Parameter: d.parameter,
 					Payload:   d.payload,
+					Evidence:  "Text match: " + msg,
 					Request:   string(d.originalReq),
 					Response:  string(dumpedResp),
 				}
@@ -244,9 +246,11 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 	logger.ErrHandle(err)
 
 	var flg bool
+	var evidense string
 	doc.Find("script").EachWithBreak(func(_ int, s *goquery.Selection) bool {
 		injectedPayload := s.Text()
 		if strings.Contains(injectedPayload, "alert(\""+d.randmark+"\")") {
+			evidense = "alert(\"" + d.randmark + "\")"
 			flg = true
 			return false
 		}
@@ -257,23 +261,27 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 		doc.Find("*").EachWithBreak(func(_ int, s *goquery.Selection) bool {
 			href, _ := s.Attr("href")
 			if strings.HasPrefix(href, "javascript:alert(\""+d.randmark+"\")") {
+				evidense = "javascript:alert(\"" + d.randmark + "\")"
 				flg = true
 				return false
 			}
 			src, _ := s.Attr("src")
 			if strings.HasPrefix(src, "javascript:alert(\""+d.randmark+"\")") {
+				evidense = "javascript:alert(\"" + d.randmark + "\")"
 				flg = true
 				return false
 			}
 			if src == "x" {
 				onerror, _ := s.Attr("onerror")
 				if strings.Contains(onerror, "alert(\""+d.randmark+"\")") {
+					evidense = "alert(\"" + d.randmark + "\")"
 					flg = true
 					return false
 				}
 			}
 			onmouseover, _ := s.Attr("onmouseover")
 			if strings.Contains(onmouseover, "alert(\""+d.randmark+"\")") {
+				evidense = "alert(\"" + d.randmark + "\")"
 				flg = true
 				return false
 			}
@@ -288,6 +296,7 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 			Kind:      d.kind,
 			Parameter: d.parameter,
 			Payload:   d.payload,
+			Evidence:  "Find script: " + evidense,
 			Request:   string(d.originalReq),
 			Response:  string(dumpedResp),
 		}
@@ -388,9 +397,11 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 		logger.ErrHandle(err)
 
 		var flg bool
+		var evidense string
 		doc.Find("script").EachWithBreak(func(_ int, s *goquery.Selection) bool {
 			injectedPayload := s.Text()
 			if strings.Contains(injectedPayload, "alert(\""+d.randmark+"\")") {
+				evidense = "alert(\"" + d.randmark + "\")"
 				flg = true
 				return false
 			}
@@ -401,23 +412,27 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 			doc.Find("*").EachWithBreak(func(_ int, s *goquery.Selection) bool {
 				href, _ := s.Attr("href")
 				if strings.HasPrefix(href, "javascript:alert(\""+d.randmark+"\")") {
+					evidense = "javascript:alert(\"" + d.randmark + "\")"
 					flg = true
 					return false
 				}
 				src, _ := s.Attr("src")
 				if strings.HasPrefix(src, "javascript:alert(\""+d.randmark+"\")") {
+					evidense = "javascript:alert(\"" + d.randmark + "\")"
 					flg = true
 					return false
 				}
 				if src == "x" {
 					onerror, _ := s.Attr("onerror")
 					if strings.Contains(onerror, "alert(\""+d.randmark+"\")") {
+						evidense = "alert(\"" + d.randmark + "\")"
 						flg = true
 						return false
 					}
 				}
 				onmouseover, _ := s.Attr("onmouseover")
 				if strings.Contains(onmouseover, "alert(\""+d.randmark+"\")") {
+					evidense = "alert(\"" + d.randmark + "\")"
 					flg = true
 					return false
 				}
@@ -432,6 +447,7 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 				Kind:      d.kind,
 				Parameter: d.parameter,
 				Payload:   d.payload,
+				Evidence:  "Find stored script: " + evidense,
 				Request:   string(d.originalReq),
 				Response:  string(dumpedResp),
 			}
@@ -549,6 +565,7 @@ func detectHTTPHeaderi(d determinant, req []*http.Request) {
 			Kind:      d.kind,
 			Parameter: d.parameter,
 			Payload:   d.payload,
+			Evidence:  "Response Header: " + cookie,
 			Request:   string(d.originalReq),
 			Response:  string(dumpedResp),
 		}
@@ -629,9 +646,10 @@ func detectCSRF(d determinant, req []*http.Request) {
 		fmt.Println(d.kind)
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
+			Kind:      d.kind,
 			Parameter: d.parameter,
 			Payload:   d.payload,
-			Kind:      d.kind,
+			Evidence:  "Status code: " + resp.Status,
 			Request:   string(d.originalReq),
 			Response:  string(dumpedResp),
 		}
@@ -689,6 +707,7 @@ func detectOpenRedirect(d determinant, req []*http.Request) {
 			Kind:      d.kind,
 			Parameter: d.parameter,
 			Payload:   d.payload,
+			Evidence:  "Response header: " + location,
 			Request:   string(d.originalReq),
 			Response:  string(dumpedResp),
 		}

@@ -5,6 +5,7 @@ type Issue struct {
 	Kind      string
 	Parameter string
 	Payload   string
+	Evidence  string
 	Request   string
 	Response  string
 }
