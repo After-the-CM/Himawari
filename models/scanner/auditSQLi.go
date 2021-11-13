@@ -58,6 +58,9 @@ func auditSQLi(j *entity.JsonNode) {
 		for _, v := range errSQLiPayloads {
 			e.jsonMessage = &j.Messages[i]
 			e.setParam(v)
+			for _, cookie := range j.Cookies {
+				e.setCookie(cookie, v)
+			}
 			if len(j.Messages[i].PostParams) != 0 {
 				e.setPostHeader(v)
 			} else {
@@ -72,6 +75,9 @@ func auditSQLi(j *entity.JsonNode) {
 		for _, v := range timeSQLiPayloads {
 			t.jsonMessage = &j.Messages[i]
 			t.setParam(v)
+			for _, cookie := range j.Cookies {
+				t.setCookie(cookie, v)
+			}
 			if len(j.Messages[i].PostParams) != 0 {
 				t.setPostHeader(v)
 			} else {

