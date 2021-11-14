@@ -26,6 +26,13 @@ func DownloadSitemap(c *gin.Context) {
 	c.JSON(http.StatusOK, entity.JsonNodes)
 }
 
+func DownloadMarkdown(c *gin.Context) {
+	c.Header("Content-Disposition", "attachment; filename=Himawari_Report.md")
+	c.Header("Content-Type", "text/markdown; charset=UTF-8")
+	md := scanner.MarkDown()
+	c.String(http.StatusOK, md)
+}
+
 func UploadSitemap(c *gin.Context) {
 	sitemap.Reset()
 

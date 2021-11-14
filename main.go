@@ -86,6 +86,7 @@ func main() {
 	}
 	//	router.POST("/api/deletePath", controller.DeletePath)
 	router.GET("/download", controllers.DownloadSitemap)
+	router.GET("/markdown", controllers.DownloadMarkdown)
 	router.POST("/upload", controllers.UploadSitemap)
 
 	router.GET("/", func(c *gin.Context) {
