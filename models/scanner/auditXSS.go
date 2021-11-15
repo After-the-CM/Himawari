@@ -46,7 +46,9 @@ func auditXSS(j *entity.JsonNode) {
 		s.approach = searchRandmark
 		tmpCandidate := make([]entity.JsonMessage, 0)
 		s.candidate = &tmpCandidate
-		s.gatherCandidates(&entity.JsonNodes)
+		if !QuickScan {
+			s.gatherCandidates(&entity.JsonNodes)
+		}
 
 		fmt.Println(j.Path, *s.candidate)
 
@@ -67,15 +69,11 @@ func auditXSS(j *entity.JsonNode) {
 					s.setCookie(cookie, strings.Replace(v, "[randmark]", r.randmark, 1))
 				}
 
-				//if fullscan{}
-				//scannerutil.gatherCandidates
-				/*
-					if len(j.Messages[i].PostParams) != 0 {
-						s.setPostHeader(v)
-					} else {
-						s.setGetHeader(v)
-					}
-				*/
+				if len(j.Messages[i].PostParams) != 0 {
+					s.setPostHeader(v)
+				} else {
+					s.setGetHeader(v)
+				}
 			}
 		} else {
 			// reflect

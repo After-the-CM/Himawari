@@ -522,7 +522,9 @@ func searchRandmark(d determinant, req []*http.Request) {
 		return
 	} else {
 		// stored
-		//d.patrol(entity.JsonNodes, d.randmark)
+		if !QuickScan {
+			d.patrol(entity.JsonNodes, d.randmark)
+		}
 	}
 }
 
