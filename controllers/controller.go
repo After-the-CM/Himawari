@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -45,7 +46,7 @@ func Crawl(c *gin.Context) {
 
 	sitemap.Reset()
 
-	var formdata entity.InputFormData
+	var formdata entity.CrawlFormData
 	c.Bind(&formdata)
 
 	crawler.SetApplydata(formdata.Name, formdata.Value)
@@ -71,10 +72,40 @@ func ExportOutOfOrigin(c *gin.Context) {
 }
 
 func Scan(c *gin.Context) {
+	scanflag = "scanning"
 	log.Println("===============     START SCANNING     ===============")
 	log.Printf("\n")
+
+	var formdata entity.ScanFormData
+	c.Bind(&formdata)
+
+	fmt.Println("scanner.QuickScan is ", scanner.QuickScan)
+	fmt.Println(formdata)
+	if formdata.ScanOption == "Quick Scan" {
+		scanner.QuickScan = true
+		fmt.Println("scanner.QuickScan is ", scanner.QuickScan)
+	}
+
+	if formdata.LoginURL != "" {
+		scanner.SetLoginData(formdata.LoginURL, formdata.LoginReferer, formdata.LoginKey, formdata.LoginValue, formdata.LoginMethod)
+	}
+
+	fmt.Println("form.Randmarrrrrrk", formdata.RandmarkNumber)
+	if formdata.RandmarkNumber != 0 {
+		scanner.SetGenRandmark(formdata.RandmarkNumber)
+		fmt.Println("form.Randmarrrrrrk", formdata.RandmarkNumber)
+	}
+
 	scanner.Scan(&entity.JsonNodes)
-	c.JSON(http.StatusOK, entity.WholeIssue)
+	//c.JSON(http.StatusOK, entity.WholeIssue)
+	scanflag = "finished"
+	c.String(http.StatusOK, "OK")
+}
+
+var scanflag string = ""
+
+func Scanflag(c *gin.Context) {
+	c.String(http.StatusOK, scanflag)
 }
 
 func Sort(c *gin.Context) {

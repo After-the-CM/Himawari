@@ -81,8 +81,9 @@ func main() {
 		api.GET("/outoforigin", controllers.ExportOutOfOrigin)
 		api.GET("/sort", controllers.Sort)
 		api.GET("/reset", controllers.Reset)
-		api.GET("/scan", controllers.Scan)
+		api.POST("/scan", controllers.Scan)
 		api.GET("/vuln", controllers.Readvulns)
+		api.GET("/scanflag", controllers.Scanflag)
 	}
 	//	router.POST("/api/deletePath", controller.DeletePath)
 	router.GET("/download", controllers.DownloadSitemap)
