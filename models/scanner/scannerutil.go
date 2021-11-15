@@ -54,7 +54,14 @@ var client = &http.Client{
 	},
 }
 
+var QuickScan bool = false
+
 var genRandmark = initRandmark(0)
+
+func SetGenRandmark(n uint32) {
+	genRandmark = initRandmark(n)
+
+}
 
 //sleep時間は3秒で実行。誤差を考えるなら2.5秒くらい？
 
@@ -366,7 +373,8 @@ func retrieveJsonMessage(j *entity.JsonNode) *entity.JsonMessage {
 	return nil
 }
 
-func initRandmark(n int) func() string {
+// func initRandmark(n int) func() string {
+func initRandmark(n uint32) func() string {
 	cnt := n
 	return func() string {
 		cnt++
@@ -375,28 +383,25 @@ func initRandmark(n int) func() string {
 }
 
 func (d *determinant) gatherCandidates(j *entity.JsonNode) {
-	//for _, v := range j.Messages {
-	for i := 0; len(j.Messages) > i; i++ {
+	for _, v := range j.Messages {
+		//for i := 0; len(j.Messages) > i; i++ {
 
 		d.randmark = genRandmark()
 		d.setGetParam(d.randmark)
 		d.randmark = genRandmark()
 		d.setPostParam(d.randmark)
 
-		//if fullscan{}
-		/*
-			if len(v.PostParams) != 0 {
-				d.randmark = genRandmark()
-				d.setPostUA(d.randmark)
-				d.randmark = genRandmark()
-				d.setPostRef(d.randmark)
-			} else {
-				d.randmark = genRandmark()
-				d.setGetUA(d.randmark)
-				d.randmark = genRandmark()
-				d.setGetRef(d.randmark)
-			}
-		*/
+		if len(v.PostParams) != 0 {
+			d.randmark = genRandmark()
+			d.setPostUA(d.randmark)
+			d.randmark = genRandmark()
+			d.setPostRef(d.randmark)
+		} else {
+			d.randmark = genRandmark()
+			d.setGetUA(d.randmark)
+			d.randmark = genRandmark()
+			d.setGetRef(d.randmark)
+		}
 	}
 
 	for _, v := range j.Children {
@@ -556,13 +561,35 @@ func (d determinant) extractCookie(cookies []*http.Cookie) []*http.Cookie {
 }
 
 var loginMsg = entity.JsonMessage{
-	URL:       "http://localhost:18080/osci/login.php",
-	Referer:   "http://localhost:18080/osci/login.php",
-	GetParams: url.Values{},
-	PostParams: url.Values{
-		"name": []string{"yoden"},
-		"pass": []string{"pass"},
-	},
+
+	GetParams:  url.Values{},
+	PostParams: url.Values{},
+
+	/*
+		URL:       "http://localhost:18080/osci/login.php",
+		Referer:   "http://localhost:18080/osci/login.php",
+		GetParams: url.Values{},
+		PostParams: url.Values{
+			"name": []string{"yoden"},
+			"pass": []string{"pass"},
+		},
+	*/
+}
+
+func SetLoginData(url string, ref string, keys []string, values []string, methods []string) {
+
+	loginMsg.URL = url
+	loginMsg.Referer = ref
+
+	for i := 0; len(keys) > i; i++ {
+		if methods[i] == "GET" {
+			loginMsg.GetParams.Set(keys[i], values[i])
+		} else {
+			loginMsg.PostParams.Set(keys[i], values[i])
+		}
+	}
+
+	fmt.Println("LoginMsg", loginMsg)
 }
 
 func login(jar http.CookieJar) http.CookieJar {
