@@ -23,7 +23,7 @@ type determinant struct {
 	approach      func(d determinant, req []*http.Request)
 	eachVulnIssue *[]entity.Issue
 	candidate     *[]entity.JsonMessage
-	randmark      string
+	landmark      string
 	cookie        entity.JsonCookie
 }
 
@@ -54,7 +54,7 @@ var client = &http.Client{
 	},
 }
 
-var genRandmark = initRandmark(0)
+var genLandmark = initLandmark(0)
 
 //sleep時間は3秒で実行。誤差を考えるなら2.5秒くらい？
 
@@ -366,7 +366,7 @@ func retrieveJsonMessage(j *entity.JsonNode) *entity.JsonMessage {
 	return nil
 }
 
-func initRandmark(n int) func() string {
+func initLandmark(n int) func() string {
 	cnt := n
 	return func() string {
 		cnt++
@@ -378,23 +378,23 @@ func (d *determinant) gatherCandidates(j *entity.JsonNode) {
 	//for _, v := range j.Messages {
 	for i := 0; len(j.Messages) > i; i++ {
 
-		d.randmark = genRandmark()
-		d.setGetParam(d.randmark)
-		d.randmark = genRandmark()
-		d.setPostParam(d.randmark)
+		d.landmark = genLandmark()
+		d.setGetParam(d.landmark)
+		d.landmark = genLandmark()
+		d.setPostParam(d.landmark)
 
 		//if fullscan{}
 		/*
 			if len(v.PostParams) != 0 {
-				d.randmark = genRandmark()
-				d.setPostUA(d.randmark)
-				d.randmark = genRandmark()
-				d.setPostRef(d.randmark)
+				d.landmark = genLandmark()
+				d.setPostUA(d.landmark)
+				d.landmark = genLandmark()
+				d.setPostRef(d.landmark)
 			} else {
-				d.randmark = genRandmark()
-				d.setGetUA(d.randmark)
-				d.randmark = genRandmark()
-				d.setGetRef(d.randmark)
+				d.landmark = genLandmark()
+				d.setGetUA(d.landmark)
+				d.landmark = genLandmark()
+				d.setGetRef(d.landmark)
 			}
 		*/
 	}
@@ -405,7 +405,7 @@ func (d *determinant) gatherCandidates(j *entity.JsonNode) {
 }
 
 // candidateの収集を行う
-func (d *determinant) patrol(j entity.JsonNode, randmark string) {
+func (d *determinant) patrol(j entity.JsonNode, landmark string) {
 	for _, v := range j.Messages {
 		var req *http.Request
 		var err error
@@ -430,7 +430,7 @@ func (d *determinant) patrol(j entity.JsonNode, randmark string) {
 		targetResp := string(body)
 		resp.Body.Close()
 
-		if strings.Contains(targetResp, randmark) {
+		if strings.Contains(targetResp, landmark) {
 			if !isExist(d.candidate, v) {
 				*d.candidate = append(*d.candidate, v)
 			}
@@ -439,7 +439,7 @@ func (d *determinant) patrol(j entity.JsonNode, randmark string) {
 		//通常のredirectならcrawl時に発見できているはず
 	}
 	for _, v := range j.Children {
-		d.patrol(v, randmark)
+		d.patrol(v, landmark)
 	}
 }
 

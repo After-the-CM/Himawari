@@ -249,8 +249,8 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 	var evidense string
 	doc.Find("script").EachWithBreak(func(_ int, s *goquery.Selection) bool {
 		injectedPayload := s.Text()
-		if strings.Contains(injectedPayload, "alert(\""+d.randmark+"\")") {
-			evidense = "alert(\"" + d.randmark + "\")"
+		if strings.Contains(injectedPayload, "alert(\""+d.landmark+"\")") {
+			evidense = "alert(\"" + d.landmark + "\")"
 			flg = true
 			return false
 		}
@@ -260,28 +260,28 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 	if !flg {
 		doc.Find("*").EachWithBreak(func(_ int, s *goquery.Selection) bool {
 			href, _ := s.Attr("href")
-			if strings.HasPrefix(href, "javascript:alert(\""+d.randmark+"\")") {
-				evidense = "javascript:alert(\"" + d.randmark + "\")"
+			if strings.HasPrefix(href, "javascript:alert(\""+d.landmark+"\")") {
+				evidense = "javascript:alert(\"" + d.landmark + "\")"
 				flg = true
 				return false
 			}
 			src, _ := s.Attr("src")
-			if strings.HasPrefix(src, "javascript:alert(\""+d.randmark+"\")") {
-				evidense = "javascript:alert(\"" + d.randmark + "\")"
+			if strings.HasPrefix(src, "javascript:alert(\""+d.landmark+"\")") {
+				evidense = "javascript:alert(\"" + d.landmark + "\")"
 				flg = true
 				return false
 			}
 			if src == "x" {
 				onerror, _ := s.Attr("onerror")
-				if strings.Contains(onerror, "alert(\""+d.randmark+"\")") {
-					evidense = "alert(\"" + d.randmark + "\")"
+				if strings.Contains(onerror, "alert(\""+d.landmark+"\")") {
+					evidense = "alert(\"" + d.landmark + "\")"
 					flg = true
 					return false
 				}
 			}
 			onmouseover, _ := s.Attr("onmouseover")
-			if strings.Contains(onmouseover, "alert(\""+d.randmark+"\")") {
-				evidense = "alert(\"" + d.randmark + "\")"
+			if strings.Contains(onmouseover, "alert(\""+d.landmark+"\")") {
+				evidense = "alert(\"" + d.landmark + "\")"
 				flg = true
 				return false
 			}
@@ -400,8 +400,8 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 		var evidense string
 		doc.Find("script").EachWithBreak(func(_ int, s *goquery.Selection) bool {
 			injectedPayload := s.Text()
-			if strings.Contains(injectedPayload, "alert(\""+d.randmark+"\")") {
-				evidense = "alert(\"" + d.randmark + "\")"
+			if strings.Contains(injectedPayload, "alert(\""+d.landmark+"\")") {
+				evidense = "alert(\"" + d.landmark + "\")"
 				flg = true
 				return false
 			}
@@ -411,28 +411,28 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 		if !flg {
 			doc.Find("*").EachWithBreak(func(_ int, s *goquery.Selection) bool {
 				href, _ := s.Attr("href")
-				if strings.HasPrefix(href, "javascript:alert(\""+d.randmark+"\")") {
-					evidense = "javascript:alert(\"" + d.randmark + "\")"
+				if strings.HasPrefix(href, "javascript:alert(\""+d.landmark+"\")") {
+					evidense = "javascript:alert(\"" + d.landmark + "\")"
 					flg = true
 					return false
 				}
 				src, _ := s.Attr("src")
-				if strings.HasPrefix(src, "javascript:alert(\""+d.randmark+"\")") {
-					evidense = "javascript:alert(\"" + d.randmark + "\")"
+				if strings.HasPrefix(src, "javascript:alert(\""+d.landmark+"\")") {
+					evidense = "javascript:alert(\"" + d.landmark + "\")"
 					flg = true
 					return false
 				}
 				if src == "x" {
 					onerror, _ := s.Attr("onerror")
-					if strings.Contains(onerror, "alert(\""+d.randmark+"\")") {
-						evidense = "alert(\"" + d.randmark + "\")"
+					if strings.Contains(onerror, "alert(\""+d.landmark+"\")") {
+						evidense = "alert(\"" + d.landmark + "\")"
 						flg = true
 						return false
 					}
 				}
 				onmouseover, _ := s.Attr("onmouseover")
-				if strings.Contains(onmouseover, "alert(\""+d.randmark+"\")") {
-					evidense = "alert(\"" + d.randmark + "\")"
+				if strings.Contains(onmouseover, "alert(\""+d.landmark+"\")") {
+					evidense = "alert(\"" + d.landmark + "\")"
 					flg = true
 					return false
 				}
@@ -468,7 +468,7 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 	resp.Body.Close()
 }
 
-func searchRandmark(d determinant, req []*http.Request) {
+func searchLandmark(d determinant, req []*http.Request) {
 	resp, err := client.Do(req[len(req)-1])
 	if logger.ErrHandle(err) {
 		return
@@ -514,15 +514,15 @@ func searchRandmark(d determinant, req []*http.Request) {
 			return
 		}
 		req = append(req, redirectReq)
-		searchRandmark(d, req)
+		searchLandmark(d, req)
 	}
 
-	if strings.Contains(targetResp, d.randmark) {
+	if strings.Contains(targetResp, d.landmark) {
 		// reflect
 		return
 	} else {
 		// stored
-		//d.patrol(entity.JsonNodes, d.randmark)
+		//d.patrol(entity.JsonNodes, d.landmark)
 	}
 }
 
