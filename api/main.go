@@ -62,13 +62,13 @@ func isRunSunflower() string {
 func openBrowser(target string) {
 	err := browser.OpenURL(target)
 	if logger.ErrHandle(err) {
-		//		panic(err)
+		panic(err)
 	}
 }
 
 func main() {
-	target := isRunSunflower()
-	go openBrowser(target)
+	go openBrowser(isRunSunflower())
+	go openBrowser("http://localhost:3000/")
 	router := gin.Default()
 	router.Static("/views", "./views")
 
