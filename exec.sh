@@ -3,5 +3,5 @@ trap "echo 'Himawari is Stopping...'; kill \`pgrep -f Himawari\`; rm -rf ../nohu
 
 nohup ./api/Himawari &
 cd ./webui/
-# 完成版では、npm run startに変更が入ります。
+# 完成版では、npm commandに変更が入ります。
 npm run dev 
