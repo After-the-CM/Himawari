@@ -72,7 +72,6 @@ Warning: mysql_fetch_array
 Warning: pg_connect: Unable to connect to PostgreSQL server: FATAL
 <b>Warning</b>:  PDO::query(): SQLSTATE
 <b>Warning</b>:  PDOStatement
-<b>Warning</b>:  Cannot modify header information - headers already sent
 <b>Warning</b>:  Supplied argument is not a valid File-Handle resource in
 <b>Warning</b>:  mysql_query
 <b>Warning</b>:  mysql_fetch_array
