@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net"
 
 	"net/http"
 
@@ -49,16 +48,6 @@ func init() {
 	logger.LoggingSetting()
 }
 
-func isRunSunflower() string {
-	sunflower := "localhost:18080"
-	_, err := net.Dial("tcp", sunflower)
-	if err != nil {
-		return "http://localhost:8080/"
-	} else {
-		return "http://localhost:8080/Himawari/?url=http%3A%2F%2Flocalhost%3A18080%2F"
-	}
-}
-
 func openBrowser(target string) {
 	err := browser.OpenURL(target)
 	if logger.ErrHandle(err) {
@@ -67,10 +56,8 @@ func openBrowser(target string) {
 }
 
 func main() {
-	go openBrowser(isRunSunflower())
 	go openBrowser("http://localhost:3000/")
 	router := gin.Default()
-	router.Static("/views", "./views")
 
 	router.StaticFS("/Himawari", http.Dir("./views/static"))
 
