@@ -43,7 +43,7 @@ func auditXSS(j *entity.JsonNode) {
 	for i := 0; i < len(j.Messages); i++ {
 		r.jsonMessage = &j.Messages[i]
 		s.jsonMessage = &j.Messages[i]
-		s.approach = searchRandmark
+		s.approach = searchLandmark
 		tmpCandidate := make([]entity.JsonMessage, 0)
 		s.candidate = &tmpCandidate
 		if !QuickScan {
@@ -58,15 +58,21 @@ func auditXSS(j *entity.JsonNode) {
 			s.approach = detectStoredXSS
 
 			for _, v := range payloads {
-				s.randmark = genRandmark()
-				s.setGetParam(strings.Replace(v, "[randmark]", s.randmark, 1))
+				s.landmark = genLandmark()
+				s.setGetParam(strings.Replace(v, "[landmark]", s.landmark, 1))
 
-				s.randmark = genRandmark()
-				s.setPostParam(strings.Replace(v, "[randmark]", s.randmark, 1))
+				s.landmark = genLandmark()
+				s.setPostParam(strings.Replace(v, "[landmark]", s.landmark, 1))
 
 				for _, cookie := range j.Cookies {
-					s.randmark = genRandmark()
-					s.setCookie(cookie, strings.Replace(v, "[randmark]", r.randmark, 1))
+					s.landmark = genLandmark()
+					s.setCookie(cookie, strings.Replace(v, "[landmark]", r.landmark, 1))
+				}
+
+				if len(j.Messages[i].PostParams) != 0 {
+					s.setPostHeader(v)
+				} else {
+					s.setGetHeader(v)
 				}
 
 				if len(j.Messages[i].PostParams) != 0 {
@@ -80,23 +86,23 @@ func auditXSS(j *entity.JsonNode) {
 			r.kind = reflectedXSS
 			r.approach = detectReflectedXSS
 			for _, v := range payloads {
-				r.randmark = genRandmark()
-				r.setGetParam(strings.Replace(v, "[randmark]", r.randmark, 1))
+				r.landmark = genLandmark()
+				r.setGetParam(strings.Replace(v, "[landmark]", r.landmark, 1))
 
-				r.randmark = genRandmark()
-				r.setPostParam(strings.Replace(v, "[randmark]", r.randmark, 1))
+				r.landmark = genLandmark()
+				r.setPostParam(strings.Replace(v, "[landmark]", r.landmark, 1))
 
 				for _, cookie := range j.Cookies {
-					s.randmark = genRandmark()
-					s.setCookie(cookie, strings.Replace(v, "[randmark]", r.randmark, 1))
+					s.landmark = genLandmark()
+					s.setCookie(cookie, strings.Replace(v, "[landmark]", r.landmark, 1))
 				}
 
 				if len(j.Messages[i].PostParams) != 0 {
-					r.randmark = genRandmark()
-					r.setPostHeader(strings.Replace(v, "[randmark]", r.randmark, 1))
+					r.landmark = genLandmark()
+					r.setPostHeader(strings.Replace(v, "[landmark]", r.landmark, 1))
 				} else {
-					r.randmark = genRandmark()
-					r.setGetHeader(strings.Replace(v, "[randmark]", r.randmark, 1))
+					r.landmark = genLandmark()
+					r.setGetHeader(strings.Replace(v, "[landmark]", r.landmark, 1))
 				}
 			}
 		}
