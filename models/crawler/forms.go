@@ -7,17 +7,7 @@ import (
 	"Himawari/models/logger"
 )
 
-var applyData = map[string]string{
-	/*
-		"email":    "Himawari@example.com",
-		"url":      "http://example.com",
-		"tel":      "00012345678",
-		"date":     "2020-12-16",
-		"text":     "Himawari",
-		"textarea": "Himawari",
-		"input":    "I am Himawari",
-	*/
-}
+var applyData = map[string]string{}
 
 func SetValues(form []entity.HtmlForm, r *entity.RequestStruct) {
 	r.Form.Action = form[0].Action

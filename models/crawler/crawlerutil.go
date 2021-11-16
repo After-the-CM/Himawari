@@ -24,9 +24,6 @@ var client = &http.Client{
 }
 
 func SetApplydata(name []string, value []string) {
-	fmt.Println(name)
-	fmt.Println(value)
-
 	for i := 0; len(name) > i; i++ {
 		applyData[name[i]] = value[i]
 	}
@@ -73,15 +70,6 @@ func JudgeMethod(r *entity.RequestStruct) {
 var loginMsg = entity.JsonMessage{
 	GetParams:  url.Values{},
 	PostParams: url.Values{},
-	/*
-		URL:       "http://localhost:18080/osci/login.php",
-		Referer:   "http://localhost:18080/osci/login.php",
-		GetParams: url.Values{},
-		PostParams: url.Values{
-			"name": []string{"yoden"},
-			"pass": []string{"pass"},
-		},
-	*/
 }
 
 func SetLoginData(url string, ref string, keys []string, values []string, methods []string) {
@@ -97,7 +85,6 @@ func SetLoginData(url string, ref string, keys []string, values []string, method
 		}
 	}
 
-	fmt.Println("LoginMsg", loginMsg)
 }
 
 func login(jar http.CookieJar) http.CookieJar {

@@ -373,7 +373,6 @@ func retrieveJsonMessage(j *entity.JsonNode) *entity.JsonMessage {
 	return nil
 }
 
-// func initRandmark(n int) func() string {
 func initRandmark(n uint32) func() string {
 	cnt := n
 	return func() string {
@@ -384,7 +383,6 @@ func initRandmark(n uint32) func() string {
 
 func (d *determinant) gatherCandidates(j *entity.JsonNode) {
 	for _, v := range j.Messages {
-		//for i := 0; len(j.Messages) > i; i++ {
 
 		d.randmark = genRandmark()
 		d.setGetParam(d.randmark)
@@ -561,19 +559,8 @@ func (d determinant) extractCookie(cookies []*http.Cookie) []*http.Cookie {
 }
 
 var loginMsg = entity.JsonMessage{
-
 	GetParams:  url.Values{},
 	PostParams: url.Values{},
-
-	/*
-		URL:       "http://localhost:18080/osci/login.php",
-		Referer:   "http://localhost:18080/osci/login.php",
-		GetParams: url.Values{},
-		PostParams: url.Values{
-			"name": []string{"yoden"},
-			"pass": []string{"pass"},
-		},
-	*/
 }
 
 func SetLoginData(url string, ref string, keys []string, values []string, methods []string) {
@@ -589,7 +576,6 @@ func SetLoginData(url string, ref string, keys []string, values []string, method
 		}
 	}
 
-	fmt.Println("LoginMsg", loginMsg)
 }
 
 func login(jar http.CookieJar) http.CookieJar {
