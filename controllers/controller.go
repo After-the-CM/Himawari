@@ -54,6 +54,14 @@ func Crawl(c *gin.Context) {
 
 	sitemap.Reset()
 
+	var formdata entity.CrawlFormData
+	c.Bind(&formdata)
+
+	crawler.SetApplydata(formdata.Name, formdata.Value)
+	if formdata.LoginURL != "" {
+		crawler.SetLoginData(formdata.LoginURL, formdata.LoginReferer, formdata.LoginKey, formdata.LoginValue, formdata.LoginMethod)
+	}
+
 	url, err := url.Parse(c.PostForm("url"))
 	if logger.ErrHandle(err) {
 		return
@@ -71,11 +79,35 @@ func ExportOutOfOrigin(c *gin.Context) {
 	c.JSON(http.StatusOK, f)
 }
 
+var scanflag string = ""
+
 func Scan(c *gin.Context) {
+	scanflag = "scanning"
 	log.Println("===============     START SCANNING     ===============")
 	log.Printf("\n")
+
+	var formdata entity.ScanFormData
+	c.Bind(&formdata)
+
+	if formdata.ScanOption == "Quick Scan" {
+		scanner.QuickScan = true
+	}
+
+	if formdata.LoginURL != "" {
+		scanner.SetLoginData(formdata.LoginURL, formdata.LoginReferer, formdata.LoginKey, formdata.LoginValue, formdata.LoginMethod)
+	}
+
+	if formdata.LandmarkNumber != 0 {
+		scanner.SetGenLandmark(formdata.LandmarkNumber)
+	}
+
 	scanner.Scan(&entity.JsonNodes)
-	c.JSON(http.StatusOK, entity.WholeIssue)
+	scanflag = "finished"
+	c.String(http.StatusOK, "OK")
+}
+
+func Scanflag(c *gin.Context) {
+	c.String(http.StatusOK, scanflag)
 }
 
 func Sort(c *gin.Context) {

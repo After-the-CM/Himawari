@@ -79,10 +79,11 @@ func main() {
 		api.POST("/crawl", controllers.Crawl)
 		api.GET("/outoforigin", controllers.ExportOutOfOrigin)
 		api.GET("/reset", controllers.Reset)
-		api.GET("/scan", controllers.Scan)
+		api.POST("/scan", controllers.Scan)
 		api.GET("/sitemap", controllers.ReadSitemap)
 		api.GET("/sort", controllers.Sort)
 		api.GET("/vuln", controllers.Readvulns)
+		api.GET("/scanflag", controllers.Scanflag)
 	}
 	//	router.POST("/api/deletePath", controller.DeletePath)
 	sitemap := router.Group("/sitemap")

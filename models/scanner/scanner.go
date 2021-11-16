@@ -22,5 +22,7 @@ func Scan(j *entity.JsonNode) {
 }
 
 func Reset() {
+	entity.InitVulnmap()
 	entity.WholeIssue = []entity.Issue{}
+	entity.OutOfOrigin = map[string][]string{}
 }

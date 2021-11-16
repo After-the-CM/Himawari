@@ -23,7 +23,7 @@ type determinant struct {
 	approach      func(d determinant, req []*http.Request)
 	eachVulnIssue *[]entity.Issue
 	candidate     *[]entity.JsonMessage
-	randmark      string
+	landmark      string
 	cookie        entity.JsonCookie
 }
 
@@ -54,7 +54,13 @@ var client = &http.Client{
 	},
 }
 
-var genRandmark = initRandmark(0)
+var QuickScan bool = false
+
+var genLandmark = initLandmark(0)
+
+func SetGenLandmark(n int) {
+	genLandmark = initLandmark(n)
+}
 
 //sleep時間は3秒で実行。誤差を考えるなら2.5秒くらい？
 
@@ -366,7 +372,7 @@ func retrieveJsonMessage(j *entity.JsonNode) *entity.JsonMessage {
 	return nil
 }
 
-func initRandmark(n int) func() string {
+func initLandmark(n int) func() string {
 	cnt := n
 	return func() string {
 		cnt++
@@ -375,28 +381,24 @@ func initRandmark(n int) func() string {
 }
 
 func (d *determinant) gatherCandidates(j *entity.JsonNode) {
-	//for _, v := range j.Messages {
-	for i := 0; len(j.Messages) > i; i++ {
+	for _, v := range j.Messages {
 
-		d.randmark = genRandmark()
-		d.setGetParam(d.randmark)
-		d.randmark = genRandmark()
-		d.setPostParam(d.randmark)
+		d.landmark = genLandmark()
+		d.setGetParam(d.landmark)
+		d.landmark = genLandmark()
+		d.setPostParam(d.landmark)
 
-		//if fullscan{}
-		/*
-			if len(v.PostParams) != 0 {
-				d.randmark = genRandmark()
-				d.setPostUA(d.randmark)
-				d.randmark = genRandmark()
-				d.setPostRef(d.randmark)
-			} else {
-				d.randmark = genRandmark()
-				d.setGetUA(d.randmark)
-				d.randmark = genRandmark()
-				d.setGetRef(d.randmark)
-			}
-		*/
+		if len(v.PostParams) != 0 {
+			d.landmark = genLandmark()
+			d.setPostUA(d.landmark)
+			d.landmark = genLandmark()
+			d.setPostRef(d.landmark)
+		} else {
+			d.landmark = genLandmark()
+			d.setGetUA(d.landmark)
+			d.landmark = genLandmark()
+			d.setGetRef(d.landmark)
+		}
 	}
 
 	for _, v := range j.Children {
@@ -405,7 +407,7 @@ func (d *determinant) gatherCandidates(j *entity.JsonNode) {
 }
 
 // candidateの収集を行う
-func (d *determinant) patrol(j entity.JsonNode, randmark string) {
+func (d *determinant) patrol(j entity.JsonNode, landmark string) {
 	for _, v := range j.Messages {
 		var req *http.Request
 		var err error
@@ -430,7 +432,7 @@ func (d *determinant) patrol(j entity.JsonNode, randmark string) {
 		targetResp := string(body)
 		resp.Body.Close()
 
-		if strings.Contains(targetResp, randmark) {
+		if strings.Contains(targetResp, landmark) {
 			if !isExist(d.candidate, v) {
 				*d.candidate = append(*d.candidate, v)
 			}
@@ -439,7 +441,7 @@ func (d *determinant) patrol(j entity.JsonNode, randmark string) {
 		//通常のredirectならcrawl時に発見できているはず
 	}
 	for _, v := range j.Children {
-		d.patrol(v, randmark)
+		d.patrol(v, landmark)
 	}
 }
 
@@ -556,13 +558,23 @@ func (d determinant) extractCookie(cookies []*http.Cookie) []*http.Cookie {
 }
 
 var loginMsg = entity.JsonMessage{
-	URL:       "http://localhost:18080/osci/login.php",
-	Referer:   "http://localhost:18080/osci/login.php",
-	GetParams: url.Values{},
-	PostParams: url.Values{
-		"name": []string{"yoden"},
-		"pass": []string{"pass"},
-	},
+	GetParams:  url.Values{},
+	PostParams: url.Values{},
+}
+
+func SetLoginData(url string, ref string, keys []string, values []string, methods []string) {
+
+	loginMsg.URL = url
+	loginMsg.Referer = ref
+
+	for i := 0; len(keys) > i; i++ {
+		if methods[i] == "GET" {
+			loginMsg.GetParams.Set(keys[i], values[i])
+		} else {
+			loginMsg.PostParams.Set(keys[i], values[i])
+		}
+	}
+
 }
 
 func login(jar http.CookieJar) http.CookieJar {
