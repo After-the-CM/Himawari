@@ -72,7 +72,7 @@ var tree = new Vue({
         doUpload() {
             let data = new FormData;
             data.append('sitemap', this.file)
-            axios.post('/upload', data)
+            axios.post('/sitemap/upload', data)
                 .then(response => {
                     if (response.status != 200) {
                         throw new Error('something error');
