@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -24,6 +25,14 @@ func DownloadSitemap(c *gin.Context) {
 	c.Header("Content-Disposition", "attachment; filename=sitemap.json")
 	c.Header("Content-Type", "application/json; charset=UTF-8")
 	c.JSON(http.StatusOK, entity.JsonNodes)
+}
+
+func DownloadMarkdown(c *gin.Context) {
+	t := time.Now()
+	c.Header("Content-Disposition", "attachment; filename=Himawari_Report_"+t.Format("2006-01-02")+".md")
+	c.Header("Content-Type", "text/markdown; charset=UTF-8")
+	md := scanner.MarkDown()
+	c.String(http.StatusOK, md)
 }
 
 func UploadSitemap(c *gin.Context) {

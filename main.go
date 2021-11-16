@@ -76,18 +76,26 @@ func main() {
 
 	api := router.Group("/api")
 	{
-		api.GET("/sitemap", controllers.ReadSitemap)
 		api.POST("/crawl", controllers.Crawl)
 		api.GET("/outoforigin", controllers.ExportOutOfOrigin)
-		api.GET("/sort", controllers.Sort)
 		api.GET("/reset", controllers.Reset)
 		api.POST("/scan", controllers.Scan)
+		api.GET("/sitemap", controllers.ReadSitemap)
+		api.GET("/sort", controllers.Sort)
 		api.GET("/vuln", controllers.Readvulns)
 		api.GET("/scanflag", controllers.Scanflag)
 	}
 	//	router.POST("/api/deletePath", controller.DeletePath)
-	router.GET("/download", controllers.DownloadSitemap)
-	router.POST("/upload", controllers.UploadSitemap)
+	sitemap := router.Group("/sitemap")
+	{
+		sitemap.GET("/download", controllers.DownloadSitemap)
+		sitemap.POST("/upload", controllers.UploadSitemap)
+	}
+
+	report := router.Group("report")
+	{
+		report.GET("/markdown", controllers.DownloadMarkdown)
+	}
 
 	router.GET("/", func(c *gin.Context) {
 		c.Redirect(301, "/Himawari")
