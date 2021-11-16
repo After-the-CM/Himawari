@@ -11,6 +11,8 @@ git clone https://github.com/futabato/Himawari.git
 cd Himawari/api/
 make setup
 go build
+cd ../
+npm install
 ```
 
 ## API Server
@@ -33,7 +35,7 @@ npm run dev
 
 以下のコマンドを実行すると、API ServerとWebUIが起動します。  
 実行にはHimawariのバイナリが必要なので、`api`ディレクトリで`make setup`で`go build`コマンドを実行してください。
-apiのコードに変更があった場合は、Himawariのバイナリを更新する必要があります。  
+**apiのコードに変更があった場合は、Himawariのバイナリを更新する必要があります。**  
 
 ```txt
 bash exec.sh
