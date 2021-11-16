@@ -11,8 +11,10 @@ git clone https://github.com/futabato/Himawari.git
 cd Himawari/api/
 make setup
 go build
-cd ../
+cd ../webui
 npm install
+cd ../
+chmod +x exec.sh
 ```
 
 ## API Server
