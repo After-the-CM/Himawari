@@ -55,5 +55,5 @@ type ScanFormData struct {
 	LoginKey       []string `form:"loginKey[]"`
 	LoginValue     []string `form:"loginValue[]"`
 	LoginMethod    []string `form:"loginMethod[]"`
-	RandmarkNumber uint32   `form:"RandmarkNumber"`
+	LandmarkNumber uint32   `form:"LandmarkNumber"`
 }

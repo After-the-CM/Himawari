@@ -97,8 +97,8 @@ func Scan(c *gin.Context) {
 		scanner.SetLoginData(formdata.LoginURL, formdata.LoginReferer, formdata.LoginKey, formdata.LoginValue, formdata.LoginMethod)
 	}
 
-	if formdata.RandmarkNumber != 0 {
-		scanner.SetGenRandmark(formdata.RandmarkNumber)
+	if formdata.LandmarkNumber != 0 {
+		scanner.SetGenLandmark(formdata.LandmarkNumber)
 	}
 
 	scanner.Scan(&entity.JsonNodes)
