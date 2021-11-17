@@ -39,7 +39,6 @@ func SetValues(form []entity.HtmlForm, r *entity.RequestStruct) {
 				} else if v.Value != nil {
 					values.Set(*v.Name, *v.Value)
 				}
-
 			}
 		}
 		if len(values) != 0 {
