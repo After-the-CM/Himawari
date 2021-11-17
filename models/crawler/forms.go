@@ -38,6 +38,8 @@ func SetValues(form []entity.HtmlForm, r *entity.RequestStruct) {
 					values.Set(*v.Name, *v.Placeholder)
 				} else if v.Value != nil {
 					values.Set(*v.Name, *v.Value)
+				} else {
+					values.Set(*v.Name, applyData["*"])
 				}
 			}
 		}
