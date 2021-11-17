@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 
-	"net/http"
-
 	"Himawari/controllers"
 	"Himawari/models/logger"
 
@@ -59,8 +57,6 @@ func main() {
 	go openBrowser("http://localhost:3000/")
 	router := gin.Default()
 
-	router.StaticFS("/Himawari", http.Dir("./views/static"))
-
 	api := router.Group("/api")
 	{
 		api.POST("/crawl", controllers.Crawl)
@@ -84,8 +80,5 @@ func main() {
 		report.GET("/markdown", controllers.DownloadMarkdown)
 	}
 
-	router.GET("/", func(c *gin.Context) {
-		c.Redirect(301, "/Himawari")
-	})
 	router.Run(":8080")
 }
