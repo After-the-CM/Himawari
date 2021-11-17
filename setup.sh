@@ -5,4 +5,4 @@ make build
 
 cd ../webui/
 npm install
-npm build
+npm run build
