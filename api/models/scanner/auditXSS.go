@@ -33,7 +33,8 @@ func auditXSS(j *entity.JsonNode) {
 			r.jsonMessage = retrieveJsonMessage(&v)
 			if r.jsonMessage != nil {
 				for _, v := range payloads {
-					r.setHeaderDocumentRoot(v)
+					s.landmark = genLandmark()
+					r.setHeaderDocumentRoot(strings.Replace(v, "[landmark]", s.landmark, 1))
 				}
 				break
 			}
@@ -70,15 +71,11 @@ func auditXSS(j *entity.JsonNode) {
 				}
 
 				if len(j.Messages[i].PostParams) != 0 {
-					s.setPostHeader(v)
+					s.landmark = genLandmark()
+					s.setPostHeader(strings.Replace(v, "[landmark]", r.landmark, 1))
 				} else {
-					s.setGetHeader(v)
-				}
-
-				if len(j.Messages[i].PostParams) != 0 {
-					s.setPostHeader(v)
-				} else {
-					s.setGetHeader(v)
+					s.landmark = genLandmark()
+					s.setGetHeader(strings.Replace(v, "[landmark]", r.landmark, 1))
 				}
 			}
 		} else {
