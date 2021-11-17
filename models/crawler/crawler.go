@@ -18,3 +18,7 @@ func Crawl(url *url.URL) {
 	}
 	GetRequest(&req)
 }
+
+func Reset() {
+	applyData = map[string]string{}
+}

@@ -28,14 +28,18 @@ func SetValues(form []entity.HtmlForm, r *entity.RequestStruct) {
 				} else {
 					values.Set(*v.Name, v.Options[1])
 				}
+
 			case v.Type != "":
+				if data, ok := applyData[*v.Name]; ok {
+					values.Set(*v.Name, data)
+					break
+				}
 				if v.Placeholder != nil {
 					values.Set(*v.Name, *v.Placeholder)
-				} else if v.Value == nil {
-					values.Set(*v.Name, applyData[*v.Name])
-				} else {
+				} else if v.Value != nil {
 					values.Set(*v.Name, *v.Value)
 				}
+
 			}
 		}
 		if len(values) != 0 {
