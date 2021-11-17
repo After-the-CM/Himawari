@@ -4,18 +4,23 @@
 
 ## setup
 
-クローンしてセットアップ
-
 ```txt
 git clone https://github.com/futabato/Himawari.git
-cd Himawari/api/
-make setup
-go build
-cd ../webui
-npm install
-cd ../
-chmod +x exec.sh
+cd Himawari/
+bash setup.sh
 ```
+
+## execute
+
+以下のコマンドを実行すると、API ServerとWebUIが起動します。  
+実行にはHimawariのバイナリが必要なので、`api`ディレクトリで`make setup`で`go build`コマンドを実行してください。
+**apiのコードに変更があった場合は、Himawariのバイナリを更新する必要があります。**  
+
+```txt
+bash exec.sh
+```
+
+Ctrl + Cを押すとapi serverのprocessもkillされます。   
 
 ## API Server
 
@@ -32,15 +37,3 @@ make run
 ```txt
 npm run dev
 ```
-
-## exec.sh
-
-以下のコマンドを実行すると、API ServerとWebUIが起動します。  
-実行にはHimawariのバイナリが必要なので、`api`ディレクトリで`make setup`で`go build`コマンドを実行してください。
-**apiのコードに変更があった場合は、Himawariのバイナリを更新する必要があります。**  
-
-```txt
-bash exec.sh
-```
-
-Ctrl + Cを押すとapi serverのprocessもkillされます。 
