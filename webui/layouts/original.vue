@@ -55,8 +55,8 @@ export default {
       drawer: false,
       items: [
         { text: 'TopPage', link: '/' },
-        { text: 'Crawler', link: '/crawler' },
-        { text: 'Scanner', link: '/scanner' },
+        { text: 'Crawl', link: '/crawl' },
+        { text: 'Scan', link: '/scan' },
       ],
     }
   },

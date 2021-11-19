@@ -159,7 +159,7 @@ export default {
         })
     },
     transitionsitemap() {
-      this.$router.push('/Report')
+      this.$router.push('/report')
     },
   },
 }
