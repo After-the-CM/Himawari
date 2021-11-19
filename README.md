@@ -2,6 +2,12 @@
 
 🌻🌻🌻Web Vulnerability Scanner🌻🌻🌻
 
+## 動作保証環境
+
+Ubuntu-20.04  
+Go 1.17  
+Node.js 14.17.5
+
 ## setup
 
 ```txt
@@ -12,31 +18,13 @@ bash setup.sh
 
 ## execute
 
-以下のコマンドを実行すると、API ServerとWebUIが起動します。  
-実行にはHimawariのバイナリが必要なので、`api`ディレクトリで`make setup`で`go build`コマンドを実行してください。
-**apiのコードに変更があった場合は、Himawariのバイナリを更新する必要があります。**  
-(`api`ディレクトリに移り、`make setup`コマンド実行することで`go build`コマンドが実行され、Himawariのバイナリが更新されます。)
+以下のコマンドを実行すると、API Server と WebUI が起動します。  
+実行には Himawari のバイナリが必要なので、`api`ディレクトリで`make setup`で`go build`コマンドを実行してください。  
+**api のコードに変更があった場合は、Himawari のバイナリを更新する必要があります。**  
+(`api`ディレクトリに移り、`make setup`コマンド実行することで`go build`コマンドが実行され、Himawari のバイナリが更新されます。)
 
 ```txt
 bash exec.sh
 ```
 
-Ctrl + Cを押すとapi serverのprocessもkillされます。 
-
-## API Server
-
-以下のコマンドを実行すると<http://localhost:8080> にAPI Serverが起動します。
-
-```txt
-cd api/
-make run
-```
-
-## WebUI
-
-以下のコマンドを実行すると<http://localhost:3000>にWebUIが起動します。
-
-```txt
-cd webui/
-npm run dev
-```
+Ctrl + C を押すと api server の process も kill されます。

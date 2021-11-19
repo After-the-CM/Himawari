@@ -2,3 +2,4 @@ go.sum
 go.mod
 Himawari
 log/
+nohup.out
