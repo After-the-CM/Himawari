@@ -12,7 +12,7 @@
           <div class="text-center">
             <div>許可なく他者のサーバーに使用しないでください。</div>
             <div>違法行為となり、罰せられる可能性があります。</div>
-            <div>製作者一同は一切の責任を取りません。</div>
+            <div>製作者一同は一切の責任を負いません。</div>
           </div>
         </v-card-text>
         <v-card-actions>
