@@ -12,8 +12,11 @@
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.13.6",
+    "cookie-universal-nuxt": "^2.1.5",
     "core-js": "^3.15.1",
+    "lodash": "^4.17.21",
     "nuxt": "^2.15.7",
+    "vue-lodash": "^2.1.2",
     "vuetify": "^2.5.5"
   },
   "devDependencies": {

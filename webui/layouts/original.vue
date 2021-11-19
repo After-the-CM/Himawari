@@ -1,22 +1,11 @@
 <template>
   <v-app>
-    <v-navigation-drawer
-      v-model="drawer"
-      :clipped="clipped"
-      fixed
-      app
-      temporary
-    >
+    <v-navigation-drawer v-model="drawer" app fixed temporary>
+      <!--  -->
       <v-list-item-group>
-        <v-list-item
-          v-for="(item, i) in items"
-          :key="i"
-          :to="item.to"
-          router
-          exact
-        >
+        <v-list-item v-for="(item, i) in items" :key="i" :to="item.link">
           <v-list-item-content>
-            <v-list-item-title v-text="item.title" />
+            <v-list-item-title v-text="item.text"></v-list-item-title>
           </v-list-item-content>
         </v-list-item>
         <a
@@ -32,29 +21,29 @@
           </v-list-item>
         </a>
       </v-list-item-group>
-
       <v-switch
         v-model="theme"
         class="ml-5"
         style="position: absolute; bottom: 0px"
       ></v-switch>
     </v-navigation-drawer>
-    <v-app-bar :clipped-left="clipped" fixed app>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
+
+    <v-app-bar app>
+      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title>
         <v-btn class="text-capitalize" text plain to="/"> Himawari </v-btn>
       </v-toolbar-title>
-      <v-spacer />
     </v-app-bar>
+
     <v-main>
-      <Nuxt />
+      <!--  -->
+      <nuxt />
     </v-main>
-    <v-footer>
-      <span
-        >&copy; {{ new Date().getFullYear() }} After_the_CM
-        <img src="favicon.ico" width="24px" height="24px"
-      /></span>
-    </v-footer>
+
+    <span
+      >&copy; {{ new Date().getFullYear() }} After_the_CM
+      <img src="favicon.ico" width="24px" height="24px"
+    /></span>
   </v-app>
 </template>
 
@@ -63,14 +52,11 @@ export default {
   data() {
     return {
       theme: this.$store.state.theme,
-      clipped: false,
       drawer: false,
-      fixed: true,
       items: [
-        {
-          title: 'Top Page',
-          to: '/',
-        },
+        { text: 'TopPage', link: '/' },
+        { text: 'Crawler', link: '/crawler' },
+        { text: 'Scanner', link: '/scanner' },
       ],
     }
   },
