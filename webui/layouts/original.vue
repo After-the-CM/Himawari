@@ -8,6 +8,18 @@
             <v-list-item-title v-text="item.text"></v-list-item-title>
           </v-list-item-content>
         </v-list-item>
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="/Operation_manual.pdf"
+          style="text-decoration: none; color: #000000"
+        >
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>操作手順書</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </a>
       </v-list-item-group>
       <v-switch
         v-model="theme"

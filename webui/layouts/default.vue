@@ -7,7 +7,7 @@
       app
       temporary
     >
-      <v-list>
+      <v-list-item-group>
         <v-list-item
           v-for="(item, i) in items"
           :key="i"
@@ -19,7 +19,20 @@
             <v-list-item-title v-text="item.title" />
           </v-list-item-content>
         </v-list-item>
-      </v-list>
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="/Operation_manual.pdf"
+          style="text-decoration: none; color: #000000"
+        >
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>操作手順書</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </a>
+      </v-list-item-group>
+
       <v-switch
         v-model="theme"
         class="ml-5"
@@ -57,10 +70,6 @@ export default {
         {
           title: 'Top Page',
           to: '/',
-        },
-        {
-          title: 'Document',
-          to: '/document',
         },
       ],
     }
