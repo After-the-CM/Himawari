@@ -2,6 +2,10 @@
 
 🌻🌻🌻Web Vulnerability Scanner🌻🌻🌻
 
+![Himawari_Gopher.png](Himawari_Gopher.png)
+
+The Gopher character is based on the Go mascot designed by Renée French.
+
 ## 動作保証環境
 
 Ubuntu-20.04  
