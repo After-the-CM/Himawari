@@ -33,8 +33,8 @@ func auditXSS(j *entity.JsonNode) {
 			r.jsonMessage = retrieveJsonMessage(&v)
 			if r.jsonMessage != nil {
 				for _, v := range payloads {
-					s.landmark = genLandmark()
-					r.setHeaderDocumentRoot(strings.Replace(v, "[landmark]", s.landmark, 1))
+					r.landmark = genLandmark()
+					r.setHeaderDocumentRoot(strings.Replace(v, "[landmark]", r.landmark, 1))
 				}
 				break
 			}
@@ -67,15 +67,15 @@ func auditXSS(j *entity.JsonNode) {
 
 				for _, cookie := range j.Cookies {
 					s.landmark = genLandmark()
-					s.setCookie(cookie, strings.Replace(v, "[landmark]", r.landmark, 1))
+					s.setCookie(cookie, strings.Replace(v, "[landmark]", s.landmark, 1))
 				}
 
 				if len(j.Messages[i].PostParams) != 0 {
 					s.landmark = genLandmark()
-					s.setPostHeader(strings.Replace(v, "[landmark]", r.landmark, 1))
+					s.setPostHeader(strings.Replace(v, "[landmark]", s.landmark, 1))
 				} else {
 					s.landmark = genLandmark()
-					s.setGetHeader(strings.Replace(v, "[landmark]", r.landmark, 1))
+					s.setGetHeader(strings.Replace(v, "[landmark]", s.landmark, 1))
 				}
 			}
 		} else {
@@ -90,8 +90,8 @@ func auditXSS(j *entity.JsonNode) {
 				r.setPostParam(strings.Replace(v, "[landmark]", r.landmark, 1))
 
 				for _, cookie := range j.Cookies {
-					s.landmark = genLandmark()
-					s.setCookie(cookie, strings.Replace(v, "[landmark]", r.landmark, 1))
+					r.landmark = genLandmark()
+					r.setCookie(cookie, strings.Replace(v, "[landmark]", r.landmark, 1))
 				}
 
 				if len(j.Messages[i].PostParams) != 0 {
