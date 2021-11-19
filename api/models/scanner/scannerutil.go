@@ -7,6 +7,7 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 
@@ -351,9 +352,12 @@ func (d determinant) setPostHeader(payload string) {
 	}
 }
 
+var exe, _ = os.Executable()
+var dir = filepath.Dir(exe)
+
 //fileにストリーム開く用
 func readfile(fn string) *os.File {
-	file, err := os.Open(fn)
+	file, err := os.Open(dir + "/" + fn)
 	if logger.ErrHandle(err) {
 		os.Exit(1)
 	}
