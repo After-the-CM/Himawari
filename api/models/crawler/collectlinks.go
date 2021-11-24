@@ -78,6 +78,8 @@ func parseForms(doc *goquery.Document, r *entity.RequestStruct) {
 			if ok {
 				typ = strings.ToLower(typ)
 				f.Type = typ
+			} else {
+				f.Type = "text"
 			}
 
 			nameAttr, ok := s.Attr("name")
