@@ -21,17 +21,27 @@
                 :btnSetting="btnSetting"
                 class="ml-5"
               />
+              <v-col cols="2">
+                <input-number
+                  v-model="delay"
+                  labelText="delay(ms)"
+                  :inputRule="delayRule"
+                  textId="delay"
+                />
+              </v-col>
               <login-option-switch v-model="loginflag" />
               <div v-if="loginflag">
                 <input-text
                   v-model.trim="loginReferer"
                   labelText="LoginフォームがあるURL"
                   textId="url"
+                  textClass="mx-5"
                 />
                 <input-text
                   v-model.trim="loginURL"
                   labelText="Loginリクエストの送信先"
                   textId="url"
+                  textClass="mx-5"
                 />
                 <login-option
                   v-model="loginOptions"
@@ -69,6 +79,7 @@
             justify="end"
             class="my-auto ma-auto mb-2 text-capitalize"
             @click="doScan(), transitionsitemap()"
+            :disabled="delay === '' || delay < 0"
             >Start Scan</v-btn
           >
         </v-row>
@@ -82,11 +93,20 @@
 
 <script>
 import { cloneDeep } from 'lodash'
+import InputText from '~/components/InputText.vue'
 import LoginOption from '~/components/LoginOption.vue'
 import LoginOptionSwitch from '~/components/LoginOptionSwitch.vue'
 import OutOfScope from '~/components/OutOfScope.vue'
+import InputNumber from '~/components/InputNumber.vue'
+
 export default {
-  components: { LoginOptionSwitch, LoginOption, OutOfScope },
+  components: {
+    LoginOptionSwitch,
+    LoginOption,
+    OutOfScope,
+    InputText,
+    InputNumber,
+  },
   layout: 'original',
   middleware({ $cookies, redirect }) {
     if ($cookies.get('agree') !== 'Agree') {
@@ -95,6 +115,9 @@ export default {
   },
   data() {
     return {
+      delay: null,
+      delayRule: [(value) => Number(value) > 0 || '0以上を入力してください'],
+
       loginflag: false,
       loginReferer: null,
       loginURL: null,
@@ -111,6 +134,8 @@ export default {
     }
   },
   created() {
+    this.delay = this.$store.state.delay.delay
+
     this.loginReferer = this.$store.state.loginPath.loginRef
     this.loginURL = this.$store.state.loginPath.loginURL
     this.loginOptions = cloneDeep(this.$store.state.loginParams.loginParams)
@@ -128,8 +153,11 @@ export default {
   },
   methods: {
     doScan() {
+      this.$store.commit('delay/changeDelay', this.delay)
+
       const forms = new FormData()
 
+      forms.append('delay', this.delay)
       forms.append('scanOption', this.scanOption)
       forms.append('RandmarkNumber', this.randmarkNumber)
 
