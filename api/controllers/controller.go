@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -57,6 +58,12 @@ func Crawl(c *gin.Context) {
 	var formdata entity.CrawlFormData
 	c.Bind(&formdata)
 
+	delay, err := strconv.Atoi(formdata.Delay)
+	if logger.ErrHandle(err) {
+		delay = 0
+	}
+	entity.RequestDelay = time.Duration(delay) * time.Millisecond
+
 	crawler.SetApplydata(formdata.Name, formdata.Value)
 	if formdata.LoginURL != "" {
 		crawler.SetLoginData(formdata.LoginURL, formdata.LoginReferer, formdata.LoginKey, formdata.LoginValue, formdata.LoginMethod)
@@ -88,6 +95,12 @@ func Scan(c *gin.Context) {
 
 	var formdata entity.ScanFormData
 	c.Bind(&formdata)
+
+	delay, err := strconv.Atoi(formdata.Delay)
+	if logger.ErrHandle(err) {
+		delay = 0
+	}
+	entity.RequestDelay = time.Duration(delay) * time.Millisecond
 
 	if formdata.ScanOption == "Quick Scan" {
 		scanner.QuickScan = true
