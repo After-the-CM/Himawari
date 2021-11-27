@@ -33,14 +33,14 @@
               <div v-if="loginflag">
                 <input-text
                   v-model.trim="loginReferer"
-                  labelText="LoginフォームがあるURL"
-                  textId="url"
+                  labelText="LoginフォームがあるURL(Referer)"
+                  textId="loginref"
                   textClass="mx-5"
                 />
                 <input-text
                   v-model.trim="loginURL"
                   labelText="Loginリクエストの送信先"
-                  textId="url"
+                  textId="loginurl"
                   textClass="mx-5"
                 />
                 <login-option
