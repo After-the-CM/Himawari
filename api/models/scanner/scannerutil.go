@@ -404,10 +404,6 @@ func (d *determinant) gatherCandidates(j *entity.JsonNode) {
 			d.setGetRef(d.landmark)
 		}
 	}
-
-	for _, v := range j.Children {
-		d.gatherCandidates(&v)
-	}
 }
 
 // candidateの収集を行う
