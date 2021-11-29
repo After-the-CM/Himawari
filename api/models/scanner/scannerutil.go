@@ -384,25 +384,22 @@ func initLandmark(n int) func() string {
 	}
 }
 
-func (d *determinant) gatherCandidates(j *entity.JsonNode) {
-	for _, v := range j.Messages {
+func (d *determinant) gatherCandidates() {
+	d.landmark = genLandmark()
+	d.setGetParam(d.landmark)
+	d.landmark = genLandmark()
+	d.setPostParam(d.landmark)
 
+	if len(d.jsonMessage.PostParams) != 0 {
 		d.landmark = genLandmark()
-		d.setGetParam(d.landmark)
+		d.setPostUA(d.landmark)
 		d.landmark = genLandmark()
-		d.setPostParam(d.landmark)
-
-		if len(v.PostParams) != 0 {
-			d.landmark = genLandmark()
-			d.setPostUA(d.landmark)
-			d.landmark = genLandmark()
-			d.setPostRef(d.landmark)
-		} else {
-			d.landmark = genLandmark()
-			d.setGetUA(d.landmark)
-			d.landmark = genLandmark()
-			d.setGetRef(d.landmark)
-		}
+		d.setPostRef(d.landmark)
+	} else {
+		d.landmark = genLandmark()
+		d.setGetUA(d.landmark)
+		d.landmark = genLandmark()
+		d.setGetRef(d.landmark)
 	}
 }
 

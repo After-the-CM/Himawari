@@ -48,7 +48,7 @@ func auditXSS(j *entity.JsonNode) {
 		tmpCandidate := make([]entity.JsonMessage, 0)
 		s.candidate = &tmpCandidate
 		if !QuickScan {
-			s.gatherCandidates(&entity.JsonNodes)
+			s.gatherCandidates()
 		}
 
 		fmt.Println(j.Path, *s.candidate)
