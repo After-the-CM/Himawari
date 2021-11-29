@@ -23,7 +23,6 @@ type determinant struct {
 	originalReq   []byte
 	approach      func(d determinant, req []*http.Request)
 	eachVulnIssue *[]entity.Issue
-	candidate     *[]entity.JsonMessage
 	landmark      string
 	cookie        entity.JsonCookie
 }
@@ -430,8 +429,8 @@ func (d *determinant) patrol(j entity.JsonNode, landmark string) {
 		resp.Body.Close()
 
 		if strings.Contains(targetResp, landmark) {
-			if !isExist(d.candidate, v) {
-				*d.candidate = append(*d.candidate, v)
+			if !isExist(&d.jsonMessage.Candidate, v) {
+				d.jsonMessage.Candidate = append(d.jsonMessage.Candidate, v)
 			}
 		}
 

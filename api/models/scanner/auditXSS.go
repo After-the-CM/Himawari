@@ -45,15 +45,12 @@ func auditXSS(j *entity.JsonNode) {
 		r.jsonMessage = &j.Messages[i]
 		s.jsonMessage = &j.Messages[i]
 		s.approach = searchLandmark
-		tmpCandidate := make([]entity.JsonMessage, 0)
-		s.candidate = &tmpCandidate
 		if !QuickScan {
+			fmt.Println("GatherCandidateeeeeeeeeee")
 			s.gatherCandidates()
 		}
 
-		fmt.Println(j.Path, *s.candidate)
-
-		if len(*s.candidate) != 0 {
+		if len(s.jsonMessage.Candidate) != 0 {
 			// stored
 			s.kind = storedXSS
 			s.approach = detectStoredXSS
