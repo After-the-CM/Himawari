@@ -104,6 +104,8 @@ func Scan(c *gin.Context) {
 
 	if formdata.ScanOption == "Quick Scan" {
 		scanner.QuickScan = true
+	} else {
+		scanner.QuickScan = false
 	}
 
 	if formdata.LoginURL != "" {
