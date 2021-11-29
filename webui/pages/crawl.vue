@@ -24,12 +24,26 @@
       <v-tabs-items v-model="tab">
         <v-tab-item v-for="(item, i) in items" :key="i">
           <v-card flat v-if="isflag">
-            <input-text
-              v-model="url"
-              labelText="URL"
-              :inputRule="crawlURLRule"
-              textId="url"
-            />
+            <v-row>
+              <v-col cols="9">
+                <input-text
+                  v-model="url"
+                  labelText="URL"
+                  :inputRule="crawlURLRule"
+                  textId="url"
+                  textClass="mx-5"
+                />
+              </v-col>
+              <v-col cols="3">
+                <input-number
+                  v-model="delay"
+                  labelText="delay(ms)"
+                  :inputRule="delayRule"
+                  textId="delay"
+                  textClass="mx-5"
+                />
+              </v-col>
+            </v-row>
 
             <login-option-switch v-model="loginflag" />
             <v-card v-if="loginflag">
@@ -38,11 +52,13 @@
                 v-model="loginReferer"
                 labelText="LoginフォームがあるURL(Referer)"
                 textId="loginref"
+                textClass="mx-5"
               />
               <input-text
                 v-model="loginURL"
                 labelText="Loginリクエストの送信先"
                 textId="loginurl"
+                textClass="mx-5"
               />
               <v-list>
                 <v-row>
@@ -110,7 +126,7 @@
       </v-tabs-items>
       <v-btn
         v-if="isflag"
-        :disabled="url === ''"
+        :disabled="url === '' || delay === '' || delay < 0"
         rounded
         absolute
         right
@@ -137,8 +153,11 @@
 
 <script>
 import { cloneDeep } from 'lodash'
+import InputText from '~/components/InputText.vue'
+import InputNumber from '~/components/InputNumber.vue'
 
 export default {
+  components: { InputText, InputNumber },
   layout: 'original',
   middleware({ $cookies, redirect }) {
     if ($cookies.get('agree') !== 'Agree') {
@@ -153,6 +172,8 @@ export default {
       isURL: false,
       url: '',
       crawlURLRule: [(value) => !!value || '必須項目です'],
+      delay: null,
+      delayRule: [(value) => Number(value) > 0 || '0以上を入力してください'],
 
       formdatas: null,
       file: null,
@@ -172,6 +193,7 @@ export default {
   created() {
     this.formdatas = cloneDeep(this.$store.state.crawlParams.crawlParams)
     this.url = this.$store.state.crawlURL.crawlURL
+    this.delay = this.$store.state.delay.delay
 
     this.loginReferer = this.$store.state.loginPath.loginRef
     this.loginURL = this.$store.state.loginPath.loginURL
@@ -194,10 +216,12 @@ export default {
     doCrawl() {
       this.$store.commit('crawlParams/changecrawlParams', this.formdatas)
       this.$store.commit('crawlURL/changecrawlURL', this.url)
+      this.$store.commit('delay/changeDelay', this.delay)
 
       const forms = new FormData()
 
       forms.append('url', this.url)
+      forms.append('delay', this.delay)
 
       if (this.loginflag) {
         forms.append('loginReferer', this.loginReferer)

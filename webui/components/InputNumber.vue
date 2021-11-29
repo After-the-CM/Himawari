@@ -2,10 +2,12 @@
   <div>
     <v-text-field
       :label="labelText"
-      v-model="inputtext"
+      v-model="inputnum"
       :rules="inputRule"
+      class="align-right"
       :class="textClass"
       :id="textId"
+      type="number"
     ></v-text-field>
   </div>
 </template>
@@ -21,7 +23,7 @@ export default {
     textClass: String,
   },
   computed: {
-    inputtext: {
+    inputnum: {
       get() {
         return this.propinput
       },
@@ -33,4 +35,8 @@ export default {
 }
 </script>
 
-<style></style>
+<style>
+.align-right input {
+  text-align: right;
+}
+</style>

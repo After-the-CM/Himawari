@@ -39,6 +39,8 @@ func PostRequest(r *entity.RequestStruct) {
 	req.PostForm = r.Param
 
 	if !sitemap.IsExist(*req) {
+		time.Sleep(entity.RequestDelay)
+
 		start := time.Now()
 		resp, err := client.Do(req)
 		end := time.Now()

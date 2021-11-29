@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	"Himawari/models/entity"
 	"Himawari/models/logger"
@@ -110,6 +111,8 @@ func login(jar http.CookieJar) http.CookieJar {
 	if logger.ErrHandle(err) {
 		return nil
 	}
+
+	time.Sleep(entity.RequestDelay)
 
 	_, err = client.Do(req)
 	if logger.ErrHandle(err) {
