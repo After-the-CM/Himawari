@@ -46,6 +46,7 @@ type CrawlFormData struct {
 	LoginKey     []string `form:"loginKey[]"`
 	LoginValue   []string `form:"loginValue[]"`
 	LoginMethod  []string `form:"loginMethod[]"`
+	ExclusionURL []string `form:"exclusionURL[]"`
 }
 
 type ScanFormData struct {

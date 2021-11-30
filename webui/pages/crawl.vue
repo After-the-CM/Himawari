@@ -93,6 +93,39 @@
                 </v-expansion-panel-content>
               </v-expansion-panel>
             </v-expansion-panels>
+            <v-expansion-panels>
+              <v-expansion-panel>
+                <v-expansion-panel-header>
+                  除外URLの入力はこちら
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <v-list>
+                    <v-list-item
+                      v-for="(u, index) in exclusionURL"
+                      :key="index"
+                      style="position: relative"
+                    >
+                      <v-text-field
+                        v-model="u.url"
+                        label="除外URL"
+                        id="url"
+                      ></v-text-field>
+
+                      <delete-form-btn
+                        :deleteform="exclusionURL"
+                        btnText="削除"
+                        :i="index"
+                      />
+                    </v-list-item>
+                  </v-list>
+                  <add-form-btn
+                    :addform="exclusionURL"
+                    btnText="除外URL追加"
+                    :adddata="{ url: '' }"
+                  />
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
           </v-card>
           <v-card flat v-else>
             <v-file-input
@@ -137,8 +170,10 @@
 
 <script>
 import { cloneDeep } from 'lodash'
+import AddFormBtn from '~/components/AddFormBtn.vue'
 
 export default {
+  components: { AddFormBtn },
   layout: 'original',
   middleware({ $cookies, redirect }) {
     if ($cookies.get('agree') !== 'Agree') {
@@ -152,11 +187,11 @@ export default {
       isflag: true,
       isURL: false,
       url: '',
+      exclusionURL: [],
       crawlURLRule: [(value) => !!value || '必須項目です'],
 
       formdatas: null,
       file: null,
-      checkedScanOption: [],
 
       loginflag: false,
       loginReferer: '',
@@ -198,6 +233,10 @@ export default {
       const forms = new FormData()
 
       forms.append('url', this.url)
+
+      for (const i in this.exclusionURL) {
+        forms.append('exclusionURL[]', this.exclusionURL[i].url)
+      }
 
       if (this.loginflag) {
         forms.append('loginReferer', this.loginReferer)

@@ -23,13 +23,25 @@ var client = &http.Client{
 	},
 }
 
+var ExclusionURLs []string
+
 func SetApplydata(name []string, value []string) {
 	for i := 0; len(name) > i; i++ {
 		applyData[name[i]] = value[i]
 	}
 }
 
-func isSameOrigin(ref *url.URL, loc *url.URL) bool {
+func shouldCrawl(ref *url.URL, loc *url.URL) bool {
+	for _, exclusionURL := range ExclusionURLs {
+		u, err := url.Parse(exclusionURL)
+		logger.ErrHandle(err)
+
+		if u.Path == loc.Path {
+			return false
+		}
+
+	}
+
 	rport, lport := ref.Port(), loc.Port()
 	if rport == "" {
 		rport = getSchemaPort(ref.Scheme)
