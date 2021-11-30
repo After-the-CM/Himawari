@@ -8,7 +8,7 @@
         dark
         dismissible
         style="position: fixed; width: 100%; z-index: 1000"
-        ><div class="font-weight-bold">Something error.</div></v-alert
+        ><div class="font-weight-bold">Something error occurred</div></v-alert
       >
     </div>
     <v-card width="50%" class="mx-auto mt-5 mb-12" style="position: relative">
