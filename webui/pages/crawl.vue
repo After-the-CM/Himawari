@@ -1,5 +1,16 @@
 <template>
   <v-app>
+    <scaning-progress-bar :flag="crawlingFlag" />
+    <div v-if="alertFlag">
+      <v-alert
+        color="pink darken-1"
+        border="bottom"
+        dark
+        dismissible
+        style="position: fixed; width: 100%; z-index: 1000"
+        ><div class="font-weight-bold">Something error.</div></v-alert
+      >
+    </div>
     <v-card width="50%" class="mx-auto mt-5 mb-12" style="position: relative">
       <v-toolbar color="gray" dark flat>
         <v-toolbar-title>Crawler</v-toolbar-title>
@@ -188,6 +199,9 @@ export default {
 
       inputfileflag: false,
       fileUploadFlag: true,
+
+      crawlingFlag: false,
+      alertFlag: false,
     }
   },
   created() {
@@ -214,6 +228,7 @@ export default {
       console.log('ok')
     },
     doCrawl() {
+      this.crawlingFlag = true
       this.$store.commit('crawlParams/changecrawlParams', this.formdatas)
       this.$store.commit('crawlURL/changecrawlURL', this.url)
       this.$store.commit('delay/changeDelay', this.delay)
@@ -255,7 +270,8 @@ export default {
           this.transitionsitemap()
         })
         .catch((err) => {
-          console.log('err:', err)
+          this.alertFlag = true
+          console.log(err)
         })
       // const params = new URLSearchParams()
     },
