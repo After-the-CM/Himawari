@@ -21,4 +21,5 @@ func Crawl(url *url.URL) {
 
 func Reset() {
 	applyData = map[string]string{}
+	ExclusiveURLs = make([]url.URL, 0)
 }

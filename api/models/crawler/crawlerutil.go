@@ -23,7 +23,7 @@ var client = &http.Client{
 	},
 }
 
-var ExclusiveURLs []string
+var ExclusiveURLs []url.URL
 
 func SetApplydata(name []string, value []string) {
 	for i := 0; len(name) > i; i++ {
@@ -33,13 +33,9 @@ func SetApplydata(name []string, value []string) {
 
 func shouldCrawl(ref *url.URL, loc *url.URL) bool {
 	for _, exclusiveURL := range ExclusiveURLs {
-		u, err := url.Parse(exclusiveURL)
-		logger.ErrHandle(err)
-
-		if u.Path == loc.Path {
+		if exclusiveURL.Path == loc.Path {
 			return false
 		}
-
 	}
 
 	rport, lport := ref.Port(), loc.Port()
