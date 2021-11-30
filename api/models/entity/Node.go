@@ -57,13 +57,5 @@ func EmptySitemapIssue(node *JsonNode) {
 	for i := 0; len(node.Children) > i; i++ {
 		EmptySitemapIssue(&node.Children[i])
 	}
-
 	node.Issue = nil
-	/*
-		for i, _ := range node.Children {
-			EmptySitemapIssue(&node.Children[i])
-		}
-		node.Issue = nil
-	*/
-
 }

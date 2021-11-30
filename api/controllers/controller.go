@@ -25,7 +25,6 @@ func ReadSitemap(c *gin.Context) {
 func DownloadSitemap(c *gin.Context) {
 	c.Header("Content-Disposition", "attachment; filename=sitemap.json")
 	c.Header("Content-Type", "application/json; charset=UTF-8")
-	entity.EmptySitemapIssue(&entity.JsonNodes)
 	c.JSON(http.StatusOK, entity.JsonNodes)
 }
 
@@ -47,6 +46,7 @@ func UploadSitemap(c *gin.Context) {
 	data, err := io.ReadAll(f)
 	logger.ErrHandle(err)
 	json.Unmarshal(data, &entity.JsonNodes)
+	entity.EmptySitemapIssue(&entity.JsonNodes)
 	c.String(http.StatusOK, "OK")
 }
 
