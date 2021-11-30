@@ -59,7 +59,7 @@ func Crawl(c *gin.Context) {
 	var formdata entity.CrawlFormData
 	c.Bind(&formdata)
 
-	crawler.ExclusionURLs = formdata.ExclusionURL
+	crawler.ExclusiveURLs = formdata.ExclusiveURL
 
 	crawler.SetApplydata(formdata.Name, formdata.Value)
 	if formdata.LoginURL != "" {

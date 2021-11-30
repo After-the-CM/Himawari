@@ -101,7 +101,7 @@
                 <v-expansion-panel-content>
                   <v-list>
                     <v-list-item
-                      v-for="(u, index) in exclusionURL"
+                      v-for="(u, index) in exclusiveURL"
                       :key="index"
                       style="position: relative"
                     >
@@ -112,14 +112,14 @@
                       ></v-text-field>
 
                       <delete-form-btn
-                        :deleteform="exclusionURL"
+                        :deleteform="exclusiveURL"
                         btnText="削除"
                         :i="index"
                       />
                     </v-list-item>
                   </v-list>
                   <add-form-btn
-                    :addform="exclusionURL"
+                    :addform="exclusiveURL"
                     btnText="除外URL追加"
                     :adddata="{ url: '' }"
                   />
@@ -187,7 +187,7 @@ export default {
       isflag: true,
       isURL: false,
       url: '',
-      exclusionURL: [],
+      exclusiveURL: [],
       crawlURLRule: [(value) => !!value || '必須項目です'],
 
       formdatas: null,
@@ -234,8 +234,8 @@ export default {
 
       forms.append('url', this.url)
 
-      for (const i in this.exclusionURL) {
-        forms.append('exclusionURL[]', this.exclusionURL[i].url)
+      for (const i in this.exclusiveURL) {
+        forms.append('exclusiveURL[]', this.exclusiveURL[i].url)
       }
 
       if (this.loginflag) {
