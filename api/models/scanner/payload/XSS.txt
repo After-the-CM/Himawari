@@ -41,3 +41,5 @@
 \" onmouseover='alert("[landmark]")'
 \' onmouseover='alert("[landmark]")'
 javascript:alert("[landmark]")
+%253Cscript%253Ealert%28%2522[landmark]%2522%29%253C%252Fscript%253E
+%3Cscript%3Ealert(%22[landmark]%22)%3C%2Fscript%3E
