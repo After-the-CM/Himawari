@@ -30,6 +30,8 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 		client.Jar.SetCookies(req[len(req)-1].URL, d.extractCookie(jar4tmp.Cookies(req[len(req)-1].URL)))
 	}
 
+	time.Sleep(entity.RequestDelay)
+
 	start := time.Now()
 	resp, err := client.Do(req[len(req)-1])
 	if logger.ErrHandle(err) {
@@ -118,6 +120,8 @@ func stringMatching(d determinant, req []*http.Request) {
 		client.Jar, _ = cookiejar.New(nil)
 		client.Jar.SetCookies(req[len(req)-1].URL, d.extractCookie(jar4tmp.Cookies(req[len(req)-1].URL)))
 	}
+
+	time.Sleep(entity.RequestDelay)
 
 	resp, err := client.Do(req[len(req)-1])
 	if logger.ErrHandle(err) {
@@ -224,6 +228,8 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 		client.Jar, _ = cookiejar.New(nil)
 		client.Jar.SetCookies(req[len(req)-1].URL, d.extractCookie(jar4tmp.Cookies(req[len(req)-1].URL)))
 	}
+
+	time.Sleep(entity.RequestDelay)
 
 	resp, err := client.Do(req[len(req)-1])
 	if logger.ErrHandle(err) {
@@ -356,6 +362,8 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 		client.Jar.SetCookies(req[len(req)-1].URL, d.extractCookie(jar4tmp.Cookies(req[len(req)-1].URL)))
 	}
 
+	time.Sleep(entity.RequestDelay)
+
 	resp, err := client.Do(req[len(req)-1])
 	if logger.ErrHandle(err) {
 		return
@@ -383,6 +391,8 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 		if logger.ErrHandle(err) {
 			return
 		}
+
+		time.Sleep(entity.RequestDelay)
 
 		inspectResp, err := client.Do(inspectReq)
 		if logger.ErrHandle(err) {
@@ -469,6 +479,8 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 }
 
 func searchLandmark(d determinant, req []*http.Request) {
+	time.Sleep(entity.RequestDelay)
+
 	resp, err := client.Do(req[len(req)-1])
 	if logger.ErrHandle(err) {
 		return
@@ -541,6 +553,8 @@ func detectHTTPHeaderi(d determinant, req []*http.Request) {
 		client.Jar, _ = cookiejar.New(nil)
 		client.Jar.SetCookies(req[len(req)-1].URL, d.extractCookie(jar4tmp.Cookies(req[len(req)-1].URL)))
 	}
+
+	time.Sleep(entity.RequestDelay)
 
 	resp, err := client.Do(req[len(req)-1])
 	if logger.ErrHandle(err) {
@@ -627,6 +641,8 @@ func detectCSRF(d determinant, req []*http.Request) {
 		client.Jar.SetCookies(req[len(req)-1].URL, d.extractCookie(jar4tmp.Cookies(req[len(req)-1].URL)))
 	}
 
+	time.Sleep(entity.RequestDelay)
+
 	resp, err := client.Do(req[len(req)-1])
 	if logger.ErrHandle(err) {
 		return
@@ -675,6 +691,8 @@ func detectOpenRedirect(d determinant, req []*http.Request) {
 		client.Jar, _ = cookiejar.New(nil)
 		client.Jar.SetCookies(req[len(req)-1].URL, d.extractCookie(jar4tmp.Cookies(req[len(req)-1].URL)))
 	}
+
+	time.Sleep(entity.RequestDelay)
 
 	resp, err := client.Do(req[len(req)-1])
 	if logger.ErrHandle(err) {

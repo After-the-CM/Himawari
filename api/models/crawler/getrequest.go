@@ -41,6 +41,8 @@ func GetRequest(r *entity.RequestStruct) {
 	req.Header.Set("Referer", r.Referer.String())
 
 	if !sitemap.IsExist(*req) {
+		time.Sleep(entity.RequestDelay)
+
 		start := time.Now()
 		resp, err := client.Do(req)
 		end := time.Now()

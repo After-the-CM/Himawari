@@ -2,6 +2,7 @@ package entity
 
 import (
 	"net/url"
+	"time"
 )
 
 type RequestStruct struct {
@@ -38,6 +39,8 @@ func AppendOutOfOrigin(page string, externalLink string) {
 	OutOfOrigin[page] = append(OutOfOrigin[page], externalLink)
 }
 
+var RequestDelay time.Duration = 0
+
 type CrawlFormData struct {
 	Name         []string `form:"name[]"`
 	Value        []string `form:"value[]"`
@@ -47,6 +50,7 @@ type CrawlFormData struct {
 	LoginValue   []string `form:"loginValue[]"`
 	LoginMethod  []string `form:"loginMethod[]"`
 	ExclusiveURL []string `form:"exclusiveURL[]"`
+	Delay        string   `form:"delay"`
 }
 
 type ScanFormData struct {
@@ -57,4 +61,5 @@ type ScanFormData struct {
 	LoginValue     []string `form:"loginValue[]"`
 	LoginMethod    []string `form:"loginMethod[]"`
 	LandmarkNumber int      `form:"LandmarkNumber"`
+	Delay          string   `form:"delay"`
 }

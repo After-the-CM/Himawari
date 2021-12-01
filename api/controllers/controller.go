@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -65,6 +66,11 @@ func Crawl(c *gin.Context) {
 
 		crawler.ExclusiveURLs = append(crawler.ExclusiveURLs, *u)
 	}
+	delay, err := strconv.Atoi(formdata.Delay)
+	if logger.ErrHandle(err) {
+		delay = 0
+	}
+	entity.RequestDelay = time.Duration(delay) * time.Millisecond
 
 	crawler.SetApplydata(formdata.Name, formdata.Value)
 	if formdata.LoginURL != "" {
@@ -97,6 +103,12 @@ func Scan(c *gin.Context) {
 
 	var formdata entity.ScanFormData
 	c.Bind(&formdata)
+
+	delay, err := strconv.Atoi(formdata.Delay)
+	if logger.ErrHandle(err) {
+		delay = 0
+	}
+	entity.RequestDelay = time.Duration(delay) * time.Millisecond
 
 	if formdata.ScanOption == "Quick Scan" {
 		scanner.QuickScan = true

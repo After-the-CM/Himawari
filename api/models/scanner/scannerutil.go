@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+	"time"
 
 	"Himawari/models/entity"
 	"Himawari/models/logger"
@@ -417,6 +418,8 @@ func (d *determinant) patrol(j entity.JsonNode, landmark string) {
 			return
 		}
 
+		time.Sleep(entity.RequestDelay)
+
 		resp, err := client.Do(req)
 		if logger.ErrHandle(err) {
 			return
@@ -596,6 +599,8 @@ func login(jar http.CookieJar) http.CookieJar {
 	if logger.ErrHandle(err) {
 		return nil
 	}
+
+	time.Sleep(entity.RequestDelay)
 
 	_, err = client.Do(req)
 	if logger.ErrHandle(err) {
