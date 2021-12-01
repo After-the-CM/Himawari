@@ -19,14 +19,7 @@
           <v-tabs v-model="tab" centered>
             <v-tabs-slider color="yellow"></v-tabs-slider>
 
-            <v-tab
-              v-for="item in items"
-              :key="item"
-              @click="
-                flagOn(item)
-                printFlag()
-              "
-            >
+            <v-tab v-for="item in items" :key="item" @click="flagOn(item)">
               {{ item }}
             </v-tab>
           </v-tabs>
@@ -254,9 +247,7 @@ export default {
         this.loginflag = false
       }
     },
-    printFlag() {
-      console.log('ok')
-    },
+
     doCrawl() {
       this.crawlingFlag = true
       this.$store.commit('crawlParams/changecrawlParams', this.formdatas)
@@ -283,7 +274,6 @@ export default {
 
         for (const i in this.loginOptions) {
           forms.append('loginKey[]', this.loginOptions[i].key)
-          console.log(this.loginOptions[i].key)
           forms.append('loginValue[]', this.loginOptions[i].value)
           forms.append('loginMethod[]', this.loginOptions[i].method)
         }
@@ -298,9 +288,6 @@ export default {
       this.$axios
         .$post('/api/crawl', forms)
         .then((response) => {
-          console.log(this.url)
-          console.log(response)
-
           this.transitionsitemap()
         })
         .catch((err) => {
@@ -319,8 +306,6 @@ export default {
       this.$axios
         .$post('/sitemap/upload', data)
         .then((response) => {
-          console.log(this.url)
-          console.log(response)
           this.transitionsitemap()
         })
         .catch((err) => {
