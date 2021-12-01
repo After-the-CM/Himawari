@@ -46,7 +46,7 @@ func UploadSitemap(c *gin.Context) {
 	data, err := io.ReadAll(f)
 	logger.ErrHandle(err)
 	json.Unmarshal(data, &entity.JsonNodes)
-	entity.EmptySitemapIssue(&entity.JsonNodes)
+	sitemap.CleanSitemapIssue(&entity.JsonNodes)
 	c.String(http.StatusOK, "OK")
 }
 
