@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -45,6 +46,7 @@ func UploadSitemap(c *gin.Context) {
 	data, err := io.ReadAll(f)
 	logger.ErrHandle(err)
 	json.Unmarshal(data, &entity.JsonNodes)
+	entity.EmptySitemapIssue(&entity.JsonNodes)
 	c.String(http.StatusOK, "OK")
 }
 
@@ -91,7 +93,10 @@ func Scan(c *gin.Context) {
 
 	if formdata.ScanOption == "Quick Scan" {
 		scanner.QuickScan = true
+	} else {
+		scanner.QuickScan = false
 	}
+	fmt.Println("QuickScan : ", scanner.QuickScan)
 
 	if formdata.LoginURL != "" {
 		scanner.SetLoginData(formdata.LoginURL, formdata.LoginReferer, formdata.LoginKey, formdata.LoginValue, formdata.LoginMethod)
