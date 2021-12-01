@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -96,7 +95,6 @@ func Scan(c *gin.Context) {
 	} else {
 		scanner.QuickScan = false
 	}
-	fmt.Println("QuickScan : ", scanner.QuickScan)
 
 	if formdata.LoginURL != "" {
 		scanner.SetLoginData(formdata.LoginURL, formdata.LoginReferer, formdata.LoginKey, formdata.LoginValue, formdata.LoginMethod)

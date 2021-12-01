@@ -2,7 +2,6 @@ package scanner
 
 import (
 	"bufio"
-	"fmt"
 	"strings"
 
 	"Himawari/models/entity"
@@ -46,7 +45,6 @@ func auditXSS(j *entity.JsonNode) {
 		s.jsonMessage = &j.Messages[i]
 		s.approach = searchLandmark
 		if !QuickScan {
-			fmt.Println("GatherCandidateeeeeeeeeee")
 			s.gatherCandidates()
 		}
 
