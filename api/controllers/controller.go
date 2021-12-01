@@ -58,6 +58,14 @@ func Crawl(c *gin.Context) {
 	var formdata entity.CrawlFormData
 	c.Bind(&formdata)
 
+	exclusiveURLs := formdata.ExclusiveURL
+	for _, exclusiveURL := range exclusiveURLs {
+		u, err := url.Parse(exclusiveURL)
+		logger.ErrHandle(err)
+
+		crawler.ExclusiveURLs = append(crawler.ExclusiveURLs, *u)
+	}
+
 	crawler.SetApplydata(formdata.Name, formdata.Value)
 	if formdata.LoginURL != "" {
 		crawler.SetLoginData(formdata.LoginURL, formdata.LoginReferer, formdata.LoginKey, formdata.LoginValue, formdata.LoginMethod)
