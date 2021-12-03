@@ -54,10 +54,10 @@
                   :adddata="{ key: '', value: '', method: 'POST' }"
                 />
               </div>
-              <div v-if="randmarkFlag">
+              <div v-if="landmarkFlag">
                 <v-text-field
-                  v-model="randmarkNumber"
-                  label="RandMark(default : 0)"
+                  v-model="landmarkNumber"
+                  label="LandMark(default : 0)"
                   type="number"
                 />
               </div>
@@ -117,8 +117,8 @@ export default {
       ],
       scanOption: 'Full Scan',
       debugParam: null,
-      randmarkFlag: false,
-      randmarkNumber: 0,
+      landmarkFlag: false,
+      landmarkNumber: 0,
     }
   },
   created() {
@@ -136,7 +136,7 @@ export default {
       window.location.search.substring(1)
     ).get('debug')
     if (this.debugParam !== null) {
-      this.randmarkFlag = true
+      this.landmarkFlag = true
     }
   },
   methods: {
@@ -147,7 +147,7 @@ export default {
 
       forms.append('delay', this.delay)
       forms.append('scanOption', this.scanOption)
-      forms.append('RandmarkNumber', this.randmarkNumber)
+      forms.append('LandmarkNumber', this.landmarkNumber)
 
       if (this.loginflag) {
         forms.append('loginReferer', this.loginReferer)
