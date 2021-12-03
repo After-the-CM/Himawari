@@ -53,6 +53,9 @@ func parseHtml(doc *goquery.Document, r *entity.RequestStruct) {
 				if b {
 					var err error
 					r.Path, err = url.Parse(attr)
+					if logger.ErrHandle(err) {
+						return true
+					}
 					for key, _ := range r.Path.Query() {
 						for n, v := range applyData {
 							if key == n {
@@ -63,9 +66,6 @@ func parseHtml(doc *goquery.Document, r *entity.RequestStruct) {
 							}
 						}
 
-					}
-					if logger.ErrHandle(err) {
-						return true
 					}
 					GetRequest(r)
 				}
