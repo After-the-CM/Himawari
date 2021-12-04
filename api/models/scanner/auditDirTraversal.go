@@ -7,6 +7,8 @@ import (
 
 func auditDirTraversal(j *entity.JsonNode) {
 
+	print("Scan DirTraversal\n")
+
 	d := determinant{
 		kind:          dirTraversal,
 		approach:      stringMatching,

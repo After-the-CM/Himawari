@@ -9,6 +9,9 @@ import (
 )
 
 func auditXSS(j *entity.JsonNode) {
+
+	print("Scan XSS\n")
+
 	r := determinant{
 		kind:          reflectedXSS,
 		approach:      detectReflectedXSS,

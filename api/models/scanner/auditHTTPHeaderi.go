@@ -6,6 +6,9 @@ import (
 )
 
 func auditHTTPHeaderi(j *entity.JsonNode) {
+
+	print("Scan HTTPHeaderinjection\n")
+
 	d := determinant{
 		kind:          httpHeaderi,
 		approach:      detectHTTPHeaderi,

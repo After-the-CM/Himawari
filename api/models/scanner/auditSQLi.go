@@ -7,6 +7,9 @@ import (
 )
 
 func auditSQLi(j *entity.JsonNode) {
+
+	print("Scan SQLi\n")
+
 	e := determinant{
 		kind:          errBasedSQLi,
 		approach:      stringMatching,

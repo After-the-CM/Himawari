@@ -5,7 +5,7 @@ import (
 )
 
 func auditCSRF(j *entity.JsonNode) {
-
+	print("Scan CSRF\n")
 	d := determinant{
 		kind:          csrf,
 		approach:      detectCSRF,

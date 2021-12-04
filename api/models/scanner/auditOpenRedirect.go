@@ -8,6 +8,8 @@ import (
 
 func auditOpenRedirect(j *entity.JsonNode) {
 
+	print("Scan OpenRedirect\n")
+
 	d := determinant{
 		kind:          openRedirect,
 		approach:      detectOpenRedirect,

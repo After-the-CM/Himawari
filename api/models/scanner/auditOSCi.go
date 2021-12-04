@@ -8,6 +8,8 @@ import (
 
 func auditOSCi(j *entity.JsonNode) {
 
+	print("Scan OSCI\n")
+
 	d := determinant{
 		kind:          osci,
 		approach:      timeBasedAttack, //ここでapproachを変えられる

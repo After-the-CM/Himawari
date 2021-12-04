@@ -9,6 +9,8 @@ import (
 
 func auditDirListing(j *entity.JsonNode) {
 
+	print("Scan DirListing\n")
+
 	d := determinant{
 		kind:          dirListing,
 		approach:      stringMatching,
