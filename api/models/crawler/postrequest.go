@@ -22,7 +22,7 @@ func PostRequest(r *entity.RequestStruct) {
 	}
 
 	abs := r.Referer.ResolveReference(r.Path)
-	if !isSameOrigin(r.Referer, abs) {
+	if !shouldCrawl(r.Referer, abs) {
 		if abs.Scheme == "http" || abs.Scheme == "https" {
 			entity.AppendOutOfOrigin(r.Referer.String(), abs.String())
 		}
@@ -67,7 +67,7 @@ func PostRequest(r *entity.RequestStruct) {
 				return
 			}
 			redirect := req.URL.ResolveReference(l)
-			if !isSameOrigin(r.Referer, redirect) {
+			if !shouldCrawl(r.Referer, redirect) {
 				entity.AppendOutOfOrigin(r.Referer.String(), redirect.String())
 				return
 			} else {

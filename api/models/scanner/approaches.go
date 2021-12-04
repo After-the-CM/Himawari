@@ -379,7 +379,7 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 
 	var dumpedResp []byte
 	b := false
-	for _, v := range *d.candidate {
+	for _, v := range d.jsonMessage.Candidate {
 		var inspectReq *http.Request
 		var err error
 		if len(v.PostParams) != 0 {
