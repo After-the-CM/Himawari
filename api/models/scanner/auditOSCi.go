@@ -2,13 +2,14 @@ package scanner
 
 import (
 	"bufio"
+	"fmt"
 
 	"Himawari/models/entity"
 )
 
 func auditOSCi(j *entity.JsonNode) {
 
-	print("Scan OSCI\n")
+	fmt.Println("\x1b[32m"+"Scan OSCI\n", "\x1b[0m")
 
 	d := determinant{
 		kind:          osci,

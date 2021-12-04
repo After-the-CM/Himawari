@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"fmt"
 	"net/http"
 
 	"Himawari/models/entity"
@@ -9,7 +10,7 @@ import (
 
 func auditDirListing(j *entity.JsonNode) {
 
-	print("Scan DirListing\n")
+	fmt.Println("\x1b[32m"+"Scan DirListing", "\x1b[0m")
 
 	d := determinant{
 		kind:          dirListing,

@@ -3,11 +3,12 @@ package scanner
 import (
 	"Himawari/models/entity"
 	"bufio"
+	"fmt"
 )
 
 func auditHTTPHeaderi(j *entity.JsonNode) {
 
-	print("Scan HTTPHeaderinjection\n")
+	fmt.Println("\x1b[32m"+"Scan HTTPHeaderinjection", "\x1b[0m")
 
 	d := determinant{
 		kind:          httpHeaderi,
