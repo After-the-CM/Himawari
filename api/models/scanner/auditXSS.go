@@ -54,11 +54,7 @@ func auditXSS(j *entity.JsonNode) {
 			s.approach = detectStoredXSS
 
 			for _, v := range payloads {
-				s.landmark = genLandmark()
-				s.setGetParam(strings.Replace(v, "[landmark]", s.landmark, 1))
-
-				s.landmark = genLandmark()
-				s.setPostParam(strings.Replace(v, "[landmark]", s.landmark, 1))
+				s.prepareLandmark(v)
 
 				for _, cookie := range j.Cookies {
 					s.landmark = genLandmark()
@@ -67,10 +63,14 @@ func auditXSS(j *entity.JsonNode) {
 
 				if len(j.Messages[i].PostParams) != 0 {
 					s.landmark = genLandmark()
-					s.setPostHeader(strings.Replace(v, "[landmark]", s.landmark, 1))
+					s.setPostUA(strings.Replace(v, "[landmark]", s.landmark, 1))
+					s.landmark = genLandmark()
+					s.setPostRef(strings.Replace(v, "[landmark]", s.landmark, 1))
 				} else {
 					s.landmark = genLandmark()
-					s.setGetHeader(strings.Replace(v, "[landmark]", s.landmark, 1))
+					s.setGetUA(strings.Replace(v, "[landmark]", s.landmark, 1))
+					s.landmark = genLandmark()
+					s.setGetRef(strings.Replace(v, "[landmark]", s.landmark, 1))
 				}
 			}
 		} else {
@@ -78,11 +78,7 @@ func auditXSS(j *entity.JsonNode) {
 			r.kind = reflectedXSS
 			r.approach = detectReflectedXSS
 			for _, v := range payloads {
-				r.landmark = genLandmark()
-				r.setGetParam(strings.Replace(v, "[landmark]", r.landmark, 1))
-
-				r.landmark = genLandmark()
-				r.setPostParam(strings.Replace(v, "[landmark]", r.landmark, 1))
+				r.prepareLandmark(v)
 
 				for _, cookie := range j.Cookies {
 					r.landmark = genLandmark()
@@ -91,10 +87,15 @@ func auditXSS(j *entity.JsonNode) {
 
 				if len(j.Messages[i].PostParams) != 0 {
 					r.landmark = genLandmark()
-					r.setPostHeader(strings.Replace(v, "[landmark]", r.landmark, 1))
+					r.setPostUA(strings.Replace(v, "[landmark]", r.landmark, 1))
+					r.landmark = genLandmark()
+					r.setPostRef(strings.Replace(v, "[landmark]", r.landmark, 1))
 				} else {
 					r.landmark = genLandmark()
-					r.setGetHeader(strings.Replace(v, "[landmark]", r.landmark, 1))
+					r.setGetUA(strings.Replace(v, "[landmark]", r.landmark, 1))
+					r.landmark = genLandmark()
+					r.setGetRef(strings.Replace(v, "[landmark]", r.landmark, 1))
+
 				}
 			}
 		}
