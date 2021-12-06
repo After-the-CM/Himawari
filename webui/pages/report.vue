@@ -207,15 +207,6 @@ export default {
       })
     },
     getVulns() {
-      /*
-      const scanstate = this.$store.state.scanstate
-      console.log('scanstateeeeeeeee', scanstate)
-      if (scanstate.scanstate !== null) {
-        console.log(this.$store.state.scanstate)
-        console.log('finish!')
-        clearInterval(this.finishGetVulnsKey)
-      }
-      */
       this.$axios
         .$get('/api/vuln')
         .then((response) => {

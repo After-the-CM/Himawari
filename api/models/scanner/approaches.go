@@ -379,7 +379,7 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 
 	var dumpedResp []byte
 	b := false
-	for _, v := range *d.candidate {
+	for _, v := range d.jsonMessage.Candidate {
 		var inspectReq *http.Request
 		var err error
 		if len(v.PostParams) != 0 {
@@ -479,6 +479,17 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 }
 
 func searchLandmark(d determinant, req []*http.Request) {
+	if loginMsg.URL != "" {
+		client.Jar = login(client.Jar)
+	}
+
+	var jar4tmp *cookiejar.Jar
+	if d.cookie.Name != "" {
+		jar4tmp = jar
+		client.Jar, _ = cookiejar.New(nil)
+		client.Jar.SetCookies(req[len(req)-1].URL, d.extractCookie(jar4tmp.Cookies(req[len(req)-1].URL)))
+	}
+
 	time.Sleep(entity.RequestDelay)
 
 	resp, err := client.Do(req[len(req)-1])

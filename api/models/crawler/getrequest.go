@@ -70,7 +70,7 @@ func GetRequest(r *entity.RequestStruct) {
 				return
 			}
 			redirect := req.URL.ResolveReference(l)
-			if !isSameOrigin(r.Referer, redirect) {
+			if !shouldCrawl(r.Referer, redirect) {
 				entity.AppendOutOfOrigin(r.Referer.String(), redirect.String())
 				return
 			} else {
