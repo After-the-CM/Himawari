@@ -10,7 +10,7 @@ import (
 
 func auditXSS(j *entity.JsonNode) {
 
-	fmt.Println("\x1b[32m"+"Scan XSS", "\x1b[0m")
+	fmt.Printf("\x1b[36m%s\x1b[0m\n", "XSSの診断を開始しました")
 
 	r := determinant{
 		kind:          reflectedXSS,

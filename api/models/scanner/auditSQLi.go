@@ -9,7 +9,7 @@ import (
 
 func auditSQLi(j *entity.JsonNode) {
 
-	fmt.Println("\x1b[32m"+"Scan SQLi", "\x1b[0m")
+	fmt.Printf("\x1b[36m%s\x1b[0m\n", "SQLiの診断を開始しました")
 
 	e := determinant{
 		kind:          errBasedSQLi,

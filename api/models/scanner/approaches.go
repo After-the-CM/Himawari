@@ -161,7 +161,7 @@ func stringMatching(d determinant, req []*http.Request) {
 
 		for _, msg := range messages {
 			if strings.Contains(targetResp, msg) {
-				fmt.Println(d.kind)
+				fmt.Printf("\x1b[35m%s%s\x1b[0m\n", d.kind, "を検出しました")
 				newIssue := entity.Issue{
 					URL:       u,
 					Kind:      d.kind,
@@ -296,7 +296,7 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 	}
 
 	if flg {
-		fmt.Println(d.kind)
+		fmt.Printf("\x1b[35m%s%s\x1b[0m\n", d.kind, "を検出しました")
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
 			Kind:      d.kind,
@@ -451,7 +451,7 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 		}
 
 		if flg {
-			fmt.Println(d.kind)
+			fmt.Printf("\x1b[35m%s%s\x1b[0m\n", d.kind, "を検出しました")
 			newIssue := entity.Issue{
 				URL:       d.jsonMessage.URL,
 				Kind:      d.kind,
@@ -575,7 +575,7 @@ func detectHTTPHeaderi(d determinant, req []*http.Request) {
 		dumpedResp, err := httputil.DumpResponse(resp, true)
 		logger.ErrHandle(err)
 
-		fmt.Println(d.kind)
+		fmt.Printf("\x1b[35m%s%s\x1b[0m\n", d.kind, "を検出しました")
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
 			Kind:      d.kind,
@@ -661,7 +661,7 @@ func detectCSRF(d determinant, req []*http.Request) {
 		dumpedResp, err := httputil.DumpResponse(resp, true)
 		logger.ErrHandle(err)
 
-		fmt.Println(d.kind)
+		fmt.Printf("\x1b[35m%s%s\x1b[0m\n", d.kind, "を検出しました")
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
 			Kind:      d.kind,
@@ -721,7 +721,7 @@ func detectOpenRedirect(d determinant, req []*http.Request) {
 			return
 		}
 
-		fmt.Println(d.kind)
+		fmt.Printf("\x1b[35m%s%s\x1b[0m\n", d.kind, "を検出しました")
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
 			Kind:      d.kind,

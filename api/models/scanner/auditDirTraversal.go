@@ -8,7 +8,7 @@ import (
 
 func auditDirTraversal(j *entity.JsonNode) {
 
-	fmt.Println("\x1b[32m"+"Scan DirTraversal", "\x1b[0m")
+	fmt.Printf("\x1b[36m%s\x1b[0m\n", "DirTraversalの診断を開始しました")
 
 	d := determinant{
 		kind:          dirTraversal,
