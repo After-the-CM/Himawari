@@ -186,21 +186,21 @@ func (d determinant) setParam(payload string) {
 	}
 }
 
-func (d determinant) prepareLandmark(paload string) {
+func (d determinant) prepareLandmark(payload string) {
 	d.landmark = genLandmark()
-	d.setKeyValues("Added by Himawari", strings.Replace(paload, "[landmark]", d.landmark, 1), true, "GET")
+	d.setKeyValues("Added by Himawari", strings.Replace(payload, "[landmark]", d.landmark, 1), true, "GET")
 
 	for key, value := range d.jsonMessage.GetParams {
 		d.landmark = genLandmark()
-		d.setKeyValues(key, (value[0] + strings.Replace(paload, "[landmark]", d.landmark, 1)), false, "GET")
+		d.setKeyValues(key, (value[0] + strings.Replace(payload, "[landmark]", d.landmark, 1)), false, "GET")
 	}
 
 	d.landmark = genLandmark()
-	d.setKeyValues("Added by Himawari", strings.Replace(paload, "[landmark]", d.landmark, 1), true, "POST")
+	d.setKeyValues("Added by Himawari", strings.Replace(payload, "[landmark]", d.landmark, 1), true, "POST")
 
 	for key, value := range d.jsonMessage.PostParams {
 		d.landmark = genLandmark()
-		d.setKeyValues(key, (value[0] + strings.Replace(paload, "[landmark]", d.landmark, 1)), false, "POST")
+		d.setKeyValues(key, (value[0] + strings.Replace(payload, "[landmark]", d.landmark, 1)), false, "POST")
 	}
 }
 

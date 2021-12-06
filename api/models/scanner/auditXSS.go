@@ -95,7 +95,6 @@ func auditXSS(j *entity.JsonNode) {
 					r.setGetUA(strings.Replace(v, "[landmark]", r.landmark, 1))
 					r.landmark = genLandmark()
 					r.setGetRef(strings.Replace(v, "[landmark]", r.landmark, 1))
-
 				}
 			}
 		}
