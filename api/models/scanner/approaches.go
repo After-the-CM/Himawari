@@ -306,6 +306,16 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 			Request:   string(d.originalReq),
 			Response:  string(dumpedResp),
 		}
+
+		for _, candidate := range d.jsonMessage.Candidate {
+			logger.ErrHandle(err)
+
+			if req[len(req)-1].URL.String() == candidate.URL {
+				io.ReadAll(resp.Body)
+				resp.Body.Close()
+				return
+			}
+		}
 		*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
 		entity.WholeIssue = append(entity.WholeIssue, newIssue)
 		entity.Vulnmap[d.kind].Issues = append(entity.Vulnmap[d.kind].Issues, newIssue)
@@ -497,11 +507,13 @@ func searchLandmark(d determinant, req []*http.Request) {
 		return
 	}
 
-	var targetResp string
-	body, err := io.ReadAll(resp.Body)
-	if !logger.ErrHandle(err) {
-		targetResp = string(body)
-	}
+	/*
+		var targetResp string
+		body, err := io.ReadAll(resp.Body)
+		if !logger.ErrHandle(err) {
+			targetResp = string(body)
+		}
+	*/
 
 	resp.Body.Close()
 
@@ -540,15 +552,17 @@ func searchLandmark(d determinant, req []*http.Request) {
 		searchLandmark(d, req)
 	}
 
-	if strings.Contains(targetResp, d.landmark) {
-		// reflect
-		return
-	} else {
-		// stored
-		if !QuickScan {
-			d.patrol(entity.JsonNodes, d.landmark)
-		}
+	/*
+		if strings.Contains(targetResp, d.landmark) {
+			// reflect
+			return
+		} else {
+	*/
+	// stored
+	if !QuickScan {
+		d.patrol(entity.JsonNodes, d.landmark)
 	}
+	//}
 }
 
 func detectHTTPHeaderi(d determinant, req []*http.Request) {
