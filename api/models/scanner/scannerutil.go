@@ -186,6 +186,24 @@ func (d determinant) setParam(payload string) {
 	}
 }
 
+func (d determinant) prepareLandmark(payload string) {
+	d.landmark = genLandmark()
+	d.setKeyValues("Added by Himawari", strings.Replace(payload, "[landmark]", d.landmark, 1), true, "GET")
+
+	for key, value := range d.jsonMessage.GetParams {
+		d.landmark = genLandmark()
+		d.setKeyValues(key, (value[0] + strings.Replace(payload, "[landmark]", d.landmark, 1)), false, "GET")
+	}
+
+	d.landmark = genLandmark()
+	d.setKeyValues("Added by Himawari", strings.Replace(payload, "[landmark]", d.landmark, 1), true, "POST")
+
+	for key, value := range d.jsonMessage.PostParams {
+		d.landmark = genLandmark()
+		d.setKeyValues(key, (value[0] + strings.Replace(payload, "[landmark]", d.landmark, 1)), false, "POST")
+	}
+}
+
 func (d determinant) setKeyValues(key string, payload string, addparam bool, method string) {
 	d.parameter = key
 
@@ -385,10 +403,7 @@ func initLandmark(n int) func() string {
 }
 
 func (d *determinant) gatherCandidates() {
-	d.landmark = genLandmark()
-	d.setGetParam(d.landmark)
-	d.landmark = genLandmark()
-	d.setPostParam(d.landmark)
+	d.prepareLandmark("[landmark]")
 
 	if len(d.jsonMessage.PostParams) != 0 {
 		d.landmark = genLandmark()
@@ -441,25 +456,6 @@ func (d *determinant) patrol(j entity.JsonNode, landmark string) {
 	}
 	for _, v := range j.Children {
 		d.patrol(v, landmark)
-	}
-}
-
-func (d determinant) setGetParam(payload string) {
-	//paramにpayload=1を追加する
-	//nameがない場合に追加するもの。nameの値を要件等
-	d.setKeyValues("Added by Himawari", payload, true, "GET")
-
-	for k, v := range d.jsonMessage.GetParams {
-		d.setKeyValues(k, (v[0] + payload), false, "GET")
-	}
-}
-
-func (d determinant) setPostParam(payload string) {
-	//paramにpayload=1を追加する
-	d.setKeyValues("Added by Himawari", payload, true, "POST")
-
-	for k, v := range d.jsonMessage.PostParams {
-		d.setKeyValues(k, (v[0] + payload), false, "POST")
 	}
 }
 
