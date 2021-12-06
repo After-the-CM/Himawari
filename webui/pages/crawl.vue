@@ -19,14 +19,7 @@
           <v-tabs v-model="tab" centered>
             <v-tabs-slider color="yellow"></v-tabs-slider>
 
-            <v-tab
-              v-for="item in items"
-              :key="item"
-              @click="
-                flagOn(item)
-                printFlag()
-              "
-            >
+            <v-tab v-for="item in items" :key="item" @click="flagOn(item)">
               {{ item }}
             </v-tab>
           </v-tabs>
@@ -120,6 +113,39 @@
                 </v-expansion-panel-content>
               </v-expansion-panel>
             </v-expansion-panels>
+            <v-expansion-panels>
+              <v-expansion-panel>
+                <v-expansion-panel-header>
+                  除外URLの入力はこちら
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <v-list>
+                    <v-list-item
+                      v-for="(u, index) in exclusiveURL"
+                      :key="index"
+                      style="position: relative"
+                    >
+                      <v-text-field
+                        v-model="u.url"
+                        label="除外URL"
+                        id="url"
+                      ></v-text-field>
+
+                      <delete-form-btn
+                        :deleteform="exclusiveURL"
+                        btnText="削除"
+                        :i="index"
+                      />
+                    </v-list-item>
+                  </v-list>
+                  <add-form-btn
+                    :addform="exclusiveURL"
+                    btnText="除外URL追加"
+                    :adddata="{ url: '' }"
+                  />
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
           </v-card>
           <v-card flat v-else>
             <v-file-input
@@ -164,11 +190,8 @@
 
 <script>
 import { cloneDeep } from 'lodash'
-import InputText from '~/components/InputText.vue'
-import InputNumber from '~/components/InputNumber.vue'
 
 export default {
-  components: { InputText, InputNumber },
   layout: 'original',
   middleware({ $cookies, redirect }) {
     if ($cookies.get('agree') !== 'Agree') {
@@ -182,13 +205,13 @@ export default {
       isflag: true,
       isURL: false,
       url: '',
+      exclusiveURL: [],
       crawlURLRule: [(value) => !!value || '必須項目です'],
       delay: null,
       delayRule: [(value) => Number(value) > 0 || '0以上を入力してください'],
 
       formdatas: null,
       file: null,
-      checkedScanOption: [],
 
       loginflag: false,
       loginReferer: '',
@@ -224,9 +247,7 @@ export default {
         this.loginflag = false
       }
     },
-    printFlag() {
-      console.log('ok')
-    },
+
     doCrawl() {
       this.crawlingFlag = true
       this.$store.commit('crawlParams/changecrawlParams', this.formdatas)
@@ -237,6 +258,10 @@ export default {
 
       forms.append('url', this.url)
       forms.append('delay', this.delay)
+
+      for (const i in this.exclusiveURL) {
+        forms.append('exclusiveURL[]', this.exclusiveURL[i].url)
+      }
 
       if (this.loginflag) {
         forms.append('loginReferer', this.loginReferer)
@@ -249,7 +274,6 @@ export default {
 
         for (const i in this.loginOptions) {
           forms.append('loginKey[]', this.loginOptions[i].key)
-          console.log(this.loginOptions[i].key)
           forms.append('loginValue[]', this.loginOptions[i].value)
           forms.append('loginMethod[]', this.loginOptions[i].method)
         }
@@ -264,9 +288,6 @@ export default {
       this.$axios
         .$post('/api/crawl', forms)
         .then((response) => {
-          console.log(this.url)
-          console.log(response)
-
           this.transitionsitemap()
         })
         .catch((err) => {
@@ -285,8 +306,6 @@ export default {
       this.$axios
         .$post('/sitemap/upload', data)
         .then((response) => {
-          console.log(this.url)
-          console.log(response)
           this.transitionsitemap()
         })
         .catch((err) => {

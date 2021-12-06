@@ -46,6 +46,7 @@ func UploadSitemap(c *gin.Context) {
 	data, err := io.ReadAll(f)
 	logger.ErrHandle(err)
 	json.Unmarshal(data, &entity.JsonNodes)
+	sitemap.CleanSitemapIssue(&entity.JsonNodes)
 	c.String(http.StatusOK, "OK")
 }
 
@@ -58,6 +59,13 @@ func Crawl(c *gin.Context) {
 	var formdata entity.CrawlFormData
 	c.Bind(&formdata)
 
+	exclusiveURLs := formdata.ExclusiveURL
+	for _, exclusiveURL := range exclusiveURLs {
+		u, err := url.Parse(exclusiveURL)
+		logger.ErrHandle(err)
+
+		crawler.ExclusiveURLs = append(crawler.ExclusiveURLs, *u)
+	}
 	delay, err := strconv.Atoi(formdata.Delay)
 	if logger.ErrHandle(err) {
 		delay = 0

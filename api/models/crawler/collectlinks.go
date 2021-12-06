@@ -56,6 +56,17 @@ func parseHtml(doc *goquery.Document, r *entity.RequestStruct) {
 					if logger.ErrHandle(err) {
 						return true
 					}
+					for key, _ := range r.Path.Query() {
+						for n, v := range applyData {
+							if key == n {
+								tmp := r.Path.Query()
+								tmp.Del(key)
+								tmp.Add(key, v)
+								r.Path.RawQuery = tmp.Encode()
+							}
+						}
+
+					}
 					GetRequest(r)
 				}
 				return true

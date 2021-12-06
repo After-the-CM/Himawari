@@ -49,6 +49,7 @@ type CrawlFormData struct {
 	LoginKey     []string `form:"loginKey[]"`
 	LoginValue   []string `form:"loginValue[]"`
 	LoginMethod  []string `form:"loginMethod[]"`
+	ExclusiveURL []string `form:"exclusiveURL[]"`
 	Delay        string   `form:"delay"`
 }
 
