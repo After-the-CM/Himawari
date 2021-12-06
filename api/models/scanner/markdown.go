@@ -54,7 +54,7 @@ func issue2md(issue entity.Issue) string {
 	md += fmt.Sprintf("Evidence|`%s`\n\n", issue.Evidence)
 	md += fmt.Sprintf("Request\n\n")
 	md += fmt.Sprintf("```http\n%s\n```\n\n", issue.Request)
-	md += fmt.Sprintf("Request\n\n")
+	md += fmt.Sprintf("Response\n\n")
 	md += fmt.Sprintf("```http\n%s\n```\n\n", issue.Response)
 	return md
 }
