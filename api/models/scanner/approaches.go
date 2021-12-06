@@ -52,6 +52,7 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 
 		//string()は引数がnilの場合でもnilぽエラーが出ない
 		logger.ErrHandle(err)
+		fmt.Printf("\x1b[35m%s%s\x1b[0m\n", d.kind, "を検出しました")
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
 			Kind:      d.kind,
