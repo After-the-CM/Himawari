@@ -68,7 +68,7 @@ func SetGenLandmark(n int) {
 
 func compareAccessTime(originalTime float64, respTime float64, kind string) bool {
 	if (respTime - originalTime) >= (settingTime - tolerance) {
-		fmt.Println(kind)
+		fmt.Printf("\x1b[35m%s%s\x1b[0m\n", kind, "を検出しました")
 		return true
 	}
 	return false
