@@ -1,9 +1,10 @@
 package scanner
 
 import (
-	"Himawari/models/entity"
 	"bufio"
 	"fmt"
+
+	"Himawari/models/entity"
 )
 
 func auditDirTraversal(j *entity.JsonNode) {

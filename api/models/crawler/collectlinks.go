@@ -5,10 +5,10 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/PuerkitoBio/goquery"
+
 	"Himawari/models/entity"
 	"Himawari/models/logger"
-
-	"github.com/PuerkitoBio/goquery"
 )
 
 var tagUrlAttr = map[string][]string{
