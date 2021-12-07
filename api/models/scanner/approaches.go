@@ -314,6 +314,7 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 				return
 			}
 		}
+
 		*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
 		entity.WholeIssue = append(entity.WholeIssue, newIssue)
 		entity.Vulnmap[d.kind].Issues = append(entity.Vulnmap[d.kind].Issues, newIssue)
@@ -505,14 +506,6 @@ func searchLandmark(d determinant, req []*http.Request) {
 		return
 	}
 
-	/*
-		var targetResp string
-		body, err := io.ReadAll(resp.Body)
-		if !logger.ErrHandle(err) {
-			targetResp = string(body)
-		}
-	*/
-
 	resp.Body.Close()
 
 	location := resp.Header.Get("Location")
@@ -550,17 +543,10 @@ func searchLandmark(d determinant, req []*http.Request) {
 		searchLandmark(d, req)
 	}
 
-	/*
-		if strings.Contains(targetResp, d.landmark) {
-			// reflect
-			return
-		} else {
-	*/
 	// stored
 	if !QuickScan {
 		d.patrol(entity.JsonNodes, d.landmark)
 	}
-	//}
 }
 
 func detectHTTPHeaderi(d determinant, req []*http.Request) {
