@@ -308,8 +308,6 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 		}
 
 		for _, candidate := range d.jsonMessage.Candidate {
-			logger.ErrHandle(err)
-
 			if req[len(req)-1].URL.String() == candidate.URL {
 				io.ReadAll(resp.Body)
 				resp.Body.Close()
