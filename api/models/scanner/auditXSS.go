@@ -9,7 +9,6 @@ import (
 )
 
 func auditXSS(j *entity.JsonNode) {
-	fmt.Printf("\x1b[36m%s\x1b[0m\n", "XSSの診断を開始しました")
 	r := determinant{
 		kind:          reflectedXSS,
 		approach:      detectReflectedXSS,
@@ -21,6 +20,8 @@ func auditXSS(j *entity.JsonNode) {
 		approach:      detectStoredXSS,
 		eachVulnIssue: &j.Issue,
 	}
+
+	fmt.Printf("\x1b[36m%s%s%s\x1b[0m\n", "🔍", r.kind, "の診断を開始しました🔍")
 
 	var payloads []string
 	p := readfile("models/scanner/payload/" + "XSS" + ".txt")

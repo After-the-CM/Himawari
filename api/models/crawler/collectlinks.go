@@ -65,7 +65,6 @@ func parseHtml(doc *goquery.Document, r *entity.RequestStruct) {
 								r.Path.RawQuery = tmp.Encode()
 							}
 						}
-
 					}
 					GetRequest(r)
 				}

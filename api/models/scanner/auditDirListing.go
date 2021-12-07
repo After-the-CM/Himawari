@@ -9,12 +9,13 @@ import (
 )
 
 func auditDirListing(j *entity.JsonNode) {
-	fmt.Printf("\x1b[36m%s\x1b[0m\n", "DirListingの診断を開始しました")
 	d := determinant{
 		kind:          dirListing,
 		approach:      stringMatching,
 		eachVulnIssue: &j.Issue,
 	}
+
+	fmt.Printf("\x1b[36m%s%s%s\x1b[0m\n", "🔍", d.kind, "の診断を開始しました🔍")
 
 	req, err := createGetReq(j.URL, "")
 	if logger.ErrHandle(err) {
