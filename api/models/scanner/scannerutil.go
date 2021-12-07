@@ -66,9 +66,8 @@ func SetGenLandmark(n int) {
 
 //sleep時間は3秒で実行。誤差を考えるなら2.5秒くらい？
 
-func compareAccessTime(originalTime float64, respTime float64, kind string) bool {
+func compareAccessTime(originalTime float64, respTime float64) bool {
 	if (respTime - originalTime) >= (settingTime - tolerance) {
-		fmt.Printf("\x1b[35m%s%s\x1b[0m\n", kind, "を検出しました")
 		return true
 	}
 	return false

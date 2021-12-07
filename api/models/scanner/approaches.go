@@ -47,7 +47,7 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 		d.originalReq = logger.DumpedReq
 	}
 
-	if compareAccessTime(d.jsonMessage.Time, (end.Sub(start)).Seconds(), d.kind) {
+	if compareAccessTime(d.jsonMessage.Time, (end.Sub(start)).Seconds()) {
 		dumpedResp, err := httputil.DumpResponse(resp, true)
 
 		//string()は引数がnilの場合でもnilぽエラーが出ない
