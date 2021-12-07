@@ -2,12 +2,13 @@ package scanner
 
 import (
 	"bufio"
+	"fmt"
 
 	"Himawari/models/entity"
 )
 
 func auditOpenRedirect(j *entity.JsonNode) {
-
+	fmt.Printf("\x1b[36m%s\x1b[0m\n", "OpenRedirectの診断を開始しました")
 	d := determinant{
 		kind:          openRedirect,
 		approach:      detectOpenRedirect,

@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"fmt"
 	"net/http"
 
 	"Himawari/models/entity"
@@ -8,7 +9,7 @@ import (
 )
 
 func auditDirListing(j *entity.JsonNode) {
-
+	fmt.Printf("\x1b[36m%s\x1b[0m\n", "DirListingの診断を開始しました")
 	d := determinant{
 		kind:          dirListing,
 		approach:      stringMatching,

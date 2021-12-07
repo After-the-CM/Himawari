@@ -252,7 +252,7 @@ export default {
       if (this.scanflag !== 'scanning') {
         clearInterval(this.finishGetVulnsKey)
       }
-    }, 3000)
+    }, 5000)
 
     window.addEventListener('beforeunload', () => {
       clearInterval(this.finishGetVulnsKey)

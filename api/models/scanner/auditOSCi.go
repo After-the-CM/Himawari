@@ -2,12 +2,13 @@ package scanner
 
 import (
 	"bufio"
+	"fmt"
 
 	"Himawari/models/entity"
 )
 
 func auditOSCi(j *entity.JsonNode) {
-
+	fmt.Printf("\x1b[36m%s\x1b[0m\n", "OSCiの診断を開始しました")
 	d := determinant{
 		kind:          osci,
 		approach:      timeBasedAttack, //ここでapproachを変えられる
