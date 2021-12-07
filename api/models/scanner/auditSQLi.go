@@ -2,11 +2,13 @@ package scanner
 
 import (
 	"bufio"
+	"fmt"
 
 	"Himawari/models/entity"
 )
 
 func auditSQLi(j *entity.JsonNode) {
+	fmt.Printf("\x1b[36m%s\x1b[0m\n", "SQLiの診断を開始しました")
 	e := determinant{
 		kind:          errBasedSQLi,
 		approach:      stringMatching,

@@ -3,9 +3,11 @@ package scanner
 import (
 	"Himawari/models/entity"
 	"bufio"
+	"fmt"
 )
 
 func auditHTTPHeaderi(j *entity.JsonNode) {
+	fmt.Printf("\x1b[36m%s\x1b[0m\n", "HTTPHeaderiの診断を開始しました")
 	d := determinant{
 		kind:          httpHeaderi,
 		approach:      detectHTTPHeaderi,

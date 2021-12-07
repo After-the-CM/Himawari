@@ -2,10 +2,11 @@ package scanner
 
 import (
 	"Himawari/models/entity"
+	"fmt"
 )
 
 func auditCSRF(j *entity.JsonNode) {
-
+	fmt.Printf("\x1b[36m%s\x1b[0m\n", "CSRFの診断を開始しました")
 	d := determinant{
 		kind:          csrf,
 		approach:      detectCSRF,

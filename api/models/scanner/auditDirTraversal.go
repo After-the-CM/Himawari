@@ -3,10 +3,11 @@ package scanner
 import (
 	"Himawari/models/entity"
 	"bufio"
+	"fmt"
 )
 
 func auditDirTraversal(j *entity.JsonNode) {
-
+	fmt.Printf("\x1b[36m%s\x1b[0m\n", "DirTraversalの診断を開始しました")
 	d := determinant{
 		kind:          dirTraversal,
 		approach:      stringMatching,
