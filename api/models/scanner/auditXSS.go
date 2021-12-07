@@ -73,29 +73,28 @@ func auditXSS(j *entity.JsonNode) {
 					s.setGetRef(strings.Replace(v, "[landmark]", s.landmark, 1))
 				}
 			}
-		} else {
-			// reflect
-			r.kind = reflectedXSS
-			r.approach = detectReflectedXSS
-			for _, v := range payloads {
-				r.prepareLandmark(v)
+		}
+		// reflect
+		r.kind = reflectedXSS
+		r.approach = detectReflectedXSS
+		for _, v := range payloads {
+			r.prepareLandmark(v)
 
-				for _, cookie := range j.Cookies {
-					r.landmark = genLandmark()
-					r.setCookie(cookie, strings.Replace(v, "[landmark]", r.landmark, 1))
-				}
+			for _, cookie := range j.Cookies {
+				r.landmark = genLandmark()
+				r.setCookie(cookie, strings.Replace(v, "[landmark]", r.landmark, 1))
+			}
 
-				if len(j.Messages[i].PostParams) != 0 {
-					r.landmark = genLandmark()
-					r.setPostUA(strings.Replace(v, "[landmark]", r.landmark, 1))
-					r.landmark = genLandmark()
-					r.setPostRef(strings.Replace(v, "[landmark]", r.landmark, 1))
-				} else {
-					r.landmark = genLandmark()
-					r.setGetUA(strings.Replace(v, "[landmark]", r.landmark, 1))
-					r.landmark = genLandmark()
-					r.setGetRef(strings.Replace(v, "[landmark]", r.landmark, 1))
-				}
+			if len(j.Messages[i].PostParams) != 0 {
+				r.landmark = genLandmark()
+				r.setPostUA(strings.Replace(v, "[landmark]", r.landmark, 1))
+				r.landmark = genLandmark()
+				r.setPostRef(strings.Replace(v, "[landmark]", r.landmark, 1))
+			} else {
+				r.landmark = genLandmark()
+				r.setGetUA(strings.Replace(v, "[landmark]", r.landmark, 1))
+				r.landmark = genLandmark()
+				r.setGetRef(strings.Replace(v, "[landmark]", r.landmark, 1))
 			}
 		}
 	}
