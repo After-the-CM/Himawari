@@ -394,7 +394,7 @@ func initLandmark(n int) func() string {
 	cnt := n
 	return func() string {
 		cnt++
-		return "Himawari" + fmt.Sprintf("%05d", cnt)
+		return fmt.Sprintf("65535%05d", cnt)
 	}
 }
 
