@@ -64,7 +64,6 @@ func SetGenLandmark(n int) {
 }
 
 //sleep時間は3秒で実行。誤差を考えるなら2.5秒くらい？
-
 func compareAccessTime(originalTime float64, respTime float64) bool {
 	return (respTime - originalTime) >= (settingTime - tolerance)
 }

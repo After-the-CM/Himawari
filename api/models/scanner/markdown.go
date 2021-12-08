@@ -1,8 +1,9 @@
 package scanner
 
 import (
-	"Himawari/models/entity"
 	"fmt"
+
+	"Himawari/models/entity"
 )
 
 func MarkDown() string {

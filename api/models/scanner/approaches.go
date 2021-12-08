@@ -11,10 +11,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
+
 	"Himawari/models/entity"
 	"Himawari/models/logger"
-
-	"github.com/PuerkitoBio/goquery"
 )
 
 //リダイレクト発生時req[0]がオリジナルのリクエスト
@@ -52,7 +52,7 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 
 		//string()は引数がnilの場合でもnilぽエラーが出ない
 		logger.ErrHandle(err)
-		fmt.Printf("\x1b[35m%s%s\x1b[0m\n", d.kind, "を検出しました")
+		fmt.Printf("\x1b[32m%s%s%s\x1b[0m\n", "🎉", d.kind, "を検出しました🎉")
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
 			Kind:      d.kind,
@@ -162,7 +162,7 @@ func stringMatching(d determinant, req []*http.Request) {
 
 		for _, msg := range messages {
 			if strings.Contains(targetResp, msg) {
-				fmt.Printf("\x1b[35m%s%s\x1b[0m\n", d.kind, "を検出しました")
+				fmt.Printf("\x1b[32m%s%s%s\x1b[0m\n", "🎉", d.kind, "を検出しました🎉")
 				newIssue := entity.Issue{
 					URL:       u,
 					Kind:      d.kind,
@@ -297,7 +297,7 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 	}
 
 	if flg {
-		fmt.Printf("\x1b[35m%s%s\x1b[0m\n", d.kind, "を検出しました")
+		fmt.Printf("\x1b[32m%s%s%s\x1b[0m\n", "🎉", d.kind, "を検出しました🎉")
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
 			Kind:      d.kind,
@@ -452,7 +452,7 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 		}
 
 		if flg {
-			fmt.Printf("\x1b[35m%s%s\x1b[0m\n", d.kind, "を検出しました")
+			fmt.Printf("\x1b[32m%s%s%s\x1b[0m\n", "🎉", d.kind, "を検出しました🎉")
 			newIssue := entity.Issue{
 				URL:       d.jsonMessage.URL,
 				Kind:      d.kind,
@@ -587,7 +587,7 @@ func detectHTTPHeaderi(d determinant, req []*http.Request) {
 		dumpedResp, err := httputil.DumpResponse(resp, true)
 		logger.ErrHandle(err)
 
-		fmt.Printf("\x1b[35m%s%s\x1b[0m\n", d.kind, "を検出しました")
+		fmt.Printf("\x1b[32m%s%s%s\x1b[0m\n", "🎉", d.kind, "を検出しました🎉")
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
 			Kind:      d.kind,
@@ -673,7 +673,7 @@ func detectCSRF(d determinant, req []*http.Request) {
 		dumpedResp, err := httputil.DumpResponse(resp, true)
 		logger.ErrHandle(err)
 
-		fmt.Printf("\x1b[35m%s%s\x1b[0m\n", d.kind, "を検出しました")
+		fmt.Printf("\x1b[32m%s%s%s\x1b[0m\n", "🎉", d.kind, "を検出しました🎉")
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
 			Kind:      d.kind,
@@ -733,7 +733,7 @@ func detectOpenRedirect(d determinant, req []*http.Request) {
 			return
 		}
 
-		fmt.Printf("\x1b[35m%s%s\x1b[0m\n", d.kind, "を検出しました")
+		fmt.Printf("\x1b[32m%s%s%s\x1b[0m\n", "🎉", d.kind, "を検出しました🎉")
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
 			Kind:      d.kind,

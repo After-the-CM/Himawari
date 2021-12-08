@@ -8,7 +8,6 @@ import (
 )
 
 func auditSQLi(j *entity.JsonNode) {
-	fmt.Printf("\x1b[36m%s\x1b[0m\n", "SQLiの診断を開始しました")
 	e := determinant{
 		kind:          errBasedSQLi,
 		approach:      stringMatching,
@@ -20,6 +19,8 @@ func auditSQLi(j *entity.JsonNode) {
 		approach:      timeBasedAttack,
 		eachVulnIssue: &j.Issue,
 	}
+
+	fmt.Printf("\x1b[36m%s%s%s\x1b[0m\n", "🔍", e.kind, "の診断を開始しました🔍")
 
 	var errSQLiPayloads []string
 	ep := readfile("models/scanner/payload/" + e.kind + ".txt")
