@@ -81,3 +81,10 @@ func sortChild(node entity.JsonNode) {
 		}
 	}
 }
+
+func CleanSitemapIssue(node *entity.JsonNode) {
+	for i := 0; len(node.Children) > i; i++ {
+		CleanSitemapIssue(&node.Children[i])
+	}
+	node.Issue = nil
+}

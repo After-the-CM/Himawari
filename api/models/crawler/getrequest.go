@@ -21,7 +21,9 @@ func GetRequest(r *entity.RequestStruct) {
 	}
 
 	abs := r.Referer.ResolveReference(r.Path)
-	if !isSameOrigin(r.Referer, abs) {
+	fmt.Println("🕸️GET: ", abs, "🕸️")
+
+	if !shouldCrawl(r.Referer, abs) {
 		if abs.Scheme == "http" || abs.Scheme == "https" {
 			entity.AppendOutOfOrigin(r.Referer.String(), abs.String())
 		}
@@ -41,6 +43,8 @@ func GetRequest(r *entity.RequestStruct) {
 	req.Header.Set("Referer", r.Referer.String())
 
 	if !sitemap.IsExist(*req) {
+		time.Sleep(entity.RequestDelay)
+
 		start := time.Now()
 		resp, err := client.Do(req)
 		end := time.Now()
@@ -67,7 +71,7 @@ func GetRequest(r *entity.RequestStruct) {
 				return
 			}
 			redirect := req.URL.ResolveReference(l)
-			if !isSameOrigin(r.Referer, redirect) {
+			if !shouldCrawl(r.Referer, redirect) {
 				entity.AppendOutOfOrigin(r.Referer.String(), redirect.String())
 				return
 			} else {

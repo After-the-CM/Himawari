@@ -2,17 +2,19 @@ package scanner
 
 import (
 	"bufio"
+	"fmt"
 
 	"Himawari/models/entity"
 )
 
 func auditOpenRedirect(j *entity.JsonNode) {
-
 	d := determinant{
 		kind:          openRedirect,
 		approach:      detectOpenRedirect,
 		eachVulnIssue: &j.Issue,
 	}
+
+	fmt.Printf("\x1b[36m%s%s%s\x1b[0m\n", "🔍", d.kind, "の診断を開始しました🔍")
 
 	var payload []string
 	p := readfile("models/scanner/payload/" + d.kind + ".txt")

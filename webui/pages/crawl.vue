@@ -1,5 +1,16 @@
 <template>
   <v-app>
+    <scaning-progress-bar :flag="crawlingFlag" />
+    <div v-if="alertFlag">
+      <v-alert
+        color="pink darken-1"
+        border="bottom"
+        dark
+        dismissible
+        style="position: fixed; width: 100%; z-index: 1000"
+        ><div class="font-weight-bold">Something error occurred</div></v-alert
+      >
+    </div>
     <v-card width="50%" class="mx-auto mt-5 mb-12" style="position: relative">
       <v-toolbar color="gray" dark flat>
         <v-toolbar-title>Crawler</v-toolbar-title>
@@ -8,14 +19,7 @@
           <v-tabs v-model="tab" centered>
             <v-tabs-slider color="yellow"></v-tabs-slider>
 
-            <v-tab
-              v-for="item in items"
-              :key="item"
-              @click="
-                flagOn(item)
-                printFlag()
-              "
-            >
+            <v-tab v-for="item in items" :key="item" @click="flagOn(item)">
               {{ item }}
             </v-tab>
           </v-tabs>
@@ -24,12 +28,26 @@
       <v-tabs-items v-model="tab">
         <v-tab-item v-for="(item, i) in items" :key="i">
           <v-card flat v-if="isflag">
-            <input-text
-              v-model="url"
-              labelText="URL"
-              :inputRule="crawlURLRule"
-              textId="url"
-            />
+            <v-row>
+              <v-col cols="9">
+                <input-text
+                  v-model="url"
+                  labelText="URL"
+                  :inputRule="crawlURLRule"
+                  textId="url"
+                  textClass="mx-5"
+                />
+              </v-col>
+              <v-col cols="3">
+                <input-number
+                  v-model="delay"
+                  labelText="delay(ms)"
+                  :inputRule="delayRule"
+                  textId="delay"
+                  textClass="mx-5"
+                />
+              </v-col>
+            </v-row>
 
             <login-option-switch v-model="loginflag" />
             <v-card v-if="loginflag">
@@ -38,11 +56,13 @@
                 v-model="loginReferer"
                 labelText="LoginフォームがあるURL(Referer)"
                 textId="loginref"
+                textClass="mx-5"
               />
               <input-text
                 v-model="loginURL"
                 labelText="Loginリクエストの送信先"
                 textId="loginurl"
+                textClass="mx-5"
               />
               <v-list>
                 <v-row>
@@ -93,6 +113,39 @@
                 </v-expansion-panel-content>
               </v-expansion-panel>
             </v-expansion-panels>
+            <v-expansion-panels>
+              <v-expansion-panel>
+                <v-expansion-panel-header>
+                  除外URLの入力はこちら
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <v-list>
+                    <v-list-item
+                      v-for="(u, index) in exclusiveURL"
+                      :key="index"
+                      style="position: relative"
+                    >
+                      <v-text-field
+                        v-model="u.url"
+                        label="除外URL"
+                        id="url"
+                      ></v-text-field>
+
+                      <delete-form-btn
+                        :deleteform="exclusiveURL"
+                        btnText="削除"
+                        :i="index"
+                      />
+                    </v-list-item>
+                  </v-list>
+                  <add-form-btn
+                    :addform="exclusiveURL"
+                    btnText="除外URL追加"
+                    :adddata="{ url: '' }"
+                  />
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
           </v-card>
           <v-card flat v-else>
             <v-file-input
@@ -110,7 +163,7 @@
       </v-tabs-items>
       <v-btn
         v-if="isflag"
-        :disabled="url === ''"
+        :disabled="url === '' || delay === '' || delay < 0"
         rounded
         absolute
         right
@@ -152,11 +205,13 @@ export default {
       isflag: true,
       isURL: false,
       url: '',
+      exclusiveURL: [],
       crawlURLRule: [(value) => !!value || '必須項目です'],
+      delay: null,
+      delayRule: [(value) => Number(value) > 0 || '0以上を入力してください'],
 
       formdatas: null,
       file: null,
-      checkedScanOption: [],
 
       loginflag: false,
       loginReferer: '',
@@ -167,11 +222,15 @@ export default {
 
       inputfileflag: false,
       fileUploadFlag: true,
+
+      crawlingFlag: false,
+      alertFlag: false,
     }
   },
   created() {
     this.formdatas = cloneDeep(this.$store.state.crawlParams.crawlParams)
     this.url = this.$store.state.crawlURL.crawlURL
+    this.delay = this.$store.state.delay.delay
 
     this.loginReferer = this.$store.state.loginPath.loginRef
     this.loginURL = this.$store.state.loginPath.loginURL
@@ -188,16 +247,21 @@ export default {
         this.loginflag = false
       }
     },
-    printFlag() {
-      console.log('ok')
-    },
+
     doCrawl() {
+      this.crawlingFlag = true
       this.$store.commit('crawlParams/changecrawlParams', this.formdatas)
       this.$store.commit('crawlURL/changecrawlURL', this.url)
+      this.$store.commit('delay/changeDelay', this.delay)
 
       const forms = new FormData()
 
       forms.append('url', this.url)
+      forms.append('delay', this.delay)
+
+      for (const i in this.exclusiveURL) {
+        forms.append('exclusiveURL[]', this.exclusiveURL[i].url)
+      }
 
       if (this.loginflag) {
         forms.append('loginReferer', this.loginReferer)
@@ -210,7 +274,6 @@ export default {
 
         for (const i in this.loginOptions) {
           forms.append('loginKey[]', this.loginOptions[i].key)
-          console.log(this.loginOptions[i].key)
           forms.append('loginValue[]', this.loginOptions[i].value)
           forms.append('loginMethod[]', this.loginOptions[i].method)
         }
@@ -225,13 +288,11 @@ export default {
       this.$axios
         .$post('/api/crawl', forms)
         .then((response) => {
-          console.log(this.url)
-          console.log(response)
-
           this.transitionsitemap()
         })
         .catch((err) => {
-          console.log('err:', err)
+          this.alertFlag = true
+          console.log(err)
         })
       // const params = new URLSearchParams()
     },
@@ -245,8 +306,6 @@ export default {
       this.$axios
         .$post('/sitemap/upload', data)
         .then((response) => {
-          console.log(this.url)
-          console.log(response)
           this.transitionsitemap()
         })
         .catch((err) => {

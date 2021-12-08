@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+	"time"
 
 	"Himawari/models/entity"
 	"Himawari/models/logger"
@@ -23,7 +24,6 @@ type determinant struct {
 	originalReq   []byte
 	approach      func(d determinant, req []*http.Request)
 	eachVulnIssue *[]entity.Issue
-	candidate     *[]entity.JsonMessage
 	landmark      string
 	cookie        entity.JsonCookie
 }
@@ -64,13 +64,8 @@ func SetGenLandmark(n int) {
 }
 
 //sleep時間は3秒で実行。誤差を考えるなら2.5秒くらい？
-
-func compareAccessTime(originalTime float64, respTime float64, kind string) bool {
-	if (respTime - originalTime) >= (settingTime - tolerance) {
-		fmt.Println(kind)
-		return true
-	}
-	return false
+func compareAccessTime(originalTime float64, respTime float64) bool {
+	return (respTime - originalTime) >= (settingTime - tolerance)
 }
 
 func createGetReq(url string, ref string) (req *http.Request, err error) {
@@ -183,6 +178,24 @@ func (d determinant) setParam(payload string) {
 		} else {
 			d.setKeyValues(k, (v[0] + payload), false, "POST")
 		}
+	}
+}
+
+func (d determinant) prepareLandmark(payload string) {
+	d.landmark = genLandmark()
+	d.setKeyValues("Added by Himawari", strings.Replace(payload, "[landmark]", d.landmark, 1), true, "GET")
+
+	for key, value := range d.jsonMessage.GetParams {
+		d.landmark = genLandmark()
+		d.setKeyValues(key, (value[0] + strings.Replace(payload, "[landmark]", d.landmark, 1)), false, "GET")
+	}
+
+	d.landmark = genLandmark()
+	d.setKeyValues("Added by Himawari", strings.Replace(payload, "[landmark]", d.landmark, 1), true, "POST")
+
+	for key, value := range d.jsonMessage.PostParams {
+		d.landmark = genLandmark()
+		d.setKeyValues(key, (value[0] + strings.Replace(payload, "[landmark]", d.landmark, 1)), false, "POST")
 	}
 }
 
@@ -380,33 +393,23 @@ func initLandmark(n int) func() string {
 	cnt := n
 	return func() string {
 		cnt++
-		return "Himawari" + fmt.Sprintf("%05d", cnt)
+		return fmt.Sprintf("65535%05d", cnt)
 	}
 }
 
-func (d *determinant) gatherCandidates(j *entity.JsonNode) {
-	for _, v := range j.Messages {
+func (d *determinant) gatherCandidates() {
+	d.prepareLandmark("[landmark]")
 
+	if len(d.jsonMessage.PostParams) != 0 {
 		d.landmark = genLandmark()
-		d.setGetParam(d.landmark)
+		d.setPostUA(d.landmark)
 		d.landmark = genLandmark()
-		d.setPostParam(d.landmark)
-
-		if len(v.PostParams) != 0 {
-			d.landmark = genLandmark()
-			d.setPostUA(d.landmark)
-			d.landmark = genLandmark()
-			d.setPostRef(d.landmark)
-		} else {
-			d.landmark = genLandmark()
-			d.setGetUA(d.landmark)
-			d.landmark = genLandmark()
-			d.setGetRef(d.landmark)
-		}
-	}
-
-	for _, v := range j.Children {
-		d.gatherCandidates(&v)
+		d.setPostRef(d.landmark)
+	} else {
+		d.landmark = genLandmark()
+		d.setGetUA(d.landmark)
+		d.landmark = genLandmark()
+		d.setGetRef(d.landmark)
 	}
 }
 
@@ -425,6 +428,8 @@ func (d *determinant) patrol(j entity.JsonNode, landmark string) {
 			return
 		}
 
+		time.Sleep(entity.RequestDelay)
+
 		resp, err := client.Do(req)
 		if logger.ErrHandle(err) {
 			return
@@ -437,8 +442,8 @@ func (d *determinant) patrol(j entity.JsonNode, landmark string) {
 		resp.Body.Close()
 
 		if strings.Contains(targetResp, landmark) {
-			if !isExist(d.candidate, v) {
-				*d.candidate = append(*d.candidate, v)
+			if !isExist(&d.jsonMessage.Candidate, v) {
+				d.jsonMessage.Candidate = append(d.jsonMessage.Candidate, v)
 			}
 		}
 
@@ -446,25 +451,6 @@ func (d *determinant) patrol(j entity.JsonNode, landmark string) {
 	}
 	for _, v := range j.Children {
 		d.patrol(v, landmark)
-	}
-}
-
-func (d determinant) setGetParam(payload string) {
-	//paramにpayload=1を追加する
-	//nameがない場合に追加するもの。nameの値を要件等
-	d.setKeyValues("Added by Himawari", payload, true, "GET")
-
-	for k, v := range d.jsonMessage.GetParams {
-		d.setKeyValues(k, (v[0] + payload), false, "GET")
-	}
-}
-
-func (d determinant) setPostParam(payload string) {
-	//paramにpayload=1を追加する
-	d.setKeyValues("Added by Himawari", payload, true, "POST")
-
-	for k, v := range d.jsonMessage.PostParams {
-		d.setKeyValues(k, (v[0] + payload), false, "POST")
 	}
 }
 
@@ -604,6 +590,8 @@ func login(jar http.CookieJar) http.CookieJar {
 	if logger.ErrHandle(err) {
 		return nil
 	}
+
+	time.Sleep(entity.RequestDelay)
 
 	_, err = client.Do(req)
 	if logger.ErrHandle(err) {

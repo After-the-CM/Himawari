@@ -35,11 +35,12 @@ type JsonCookie struct {
 }
 
 type JsonMessage struct {
-	URL        string     `json:"url"`
-	Time       float64    `json:"time"`
-	Referer    string     `json:"referer"`
-	GetParams  url.Values `json:"getParams"`
-	PostParams url.Values `json:"postParams"`
+	URL        string        `json:"url"`
+	Time       float64       `json:"time"`
+	Referer    string        `json:"referer"`
+	GetParams  url.Values    `json:"getParams"`
+	PostParams url.Values    `json:"postParams"`
+	Candidate  []JsonMessage `json:"candidate"`
 }
 
 var Nodes = Node{

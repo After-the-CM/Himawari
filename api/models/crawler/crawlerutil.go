@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	"Himawari/models/entity"
 	"Himawari/models/logger"
@@ -23,13 +24,21 @@ var client = &http.Client{
 	},
 }
 
+var ExclusiveURLs []url.URL
+
 func SetApplydata(name []string, value []string) {
 	for i := 0; len(name) > i; i++ {
 		applyData[name[i]] = value[i]
 	}
 }
 
-func isSameOrigin(ref *url.URL, loc *url.URL) bool {
+func shouldCrawl(ref *url.URL, loc *url.URL) bool {
+	for _, exclusiveURL := range ExclusiveURLs {
+		if exclusiveURL.Path == loc.Path {
+			return false
+		}
+	}
+
 	rport, lport := ref.Port(), loc.Port()
 	if rport == "" {
 		rport = getSchemaPort(ref.Scheme)
@@ -110,6 +119,8 @@ func login(jar http.CookieJar) http.CookieJar {
 	if logger.ErrHandle(err) {
 		return nil
 	}
+
+	time.Sleep(entity.RequestDelay)
 
 	_, err = client.Do(req)
 	if logger.ErrHandle(err) {

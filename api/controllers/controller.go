@@ -2,10 +2,12 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -45,10 +47,12 @@ func UploadSitemap(c *gin.Context) {
 	data, err := io.ReadAll(f)
 	logger.ErrHandle(err)
 	json.Unmarshal(data, &entity.JsonNodes)
+	sitemap.CleanSitemapIssue(&entity.JsonNodes)
 	c.String(http.StatusOK, "OK")
 }
 
 func Crawl(c *gin.Context) {
+	fmt.Printf("\x1b[36m%s\x1b[0m\n", "🌻CRAWLを開始します🌻")
 	log.Println("===============     START CRAWLING     ===============")
 	log.Printf("\n")
 
@@ -56,6 +60,19 @@ func Crawl(c *gin.Context) {
 
 	var formdata entity.CrawlFormData
 	c.Bind(&formdata)
+
+	exclusiveURLs := formdata.ExclusiveURL
+	for _, exclusiveURL := range exclusiveURLs {
+		u, err := url.Parse(exclusiveURL)
+		logger.ErrHandle(err)
+
+		crawler.ExclusiveURLs = append(crawler.ExclusiveURLs, *u)
+	}
+	delay, err := strconv.Atoi(formdata.Delay)
+	if logger.ErrHandle(err) {
+		delay = 0
+	}
+	entity.RequestDelay = time.Duration(delay) * time.Millisecond
 
 	crawler.SetApplydata(formdata.Name, formdata.Value)
 	if formdata.LoginURL != "" {
@@ -70,6 +87,7 @@ func Crawl(c *gin.Context) {
 	// urlのバリデーション
 
 	crawler.Crawl(url)
+	fmt.Printf("\x1b[36m%s\x1b[0m\n", "🌻CRAWLが終了しました🌻")
 	//sitemap.PrintMap()
 	c.String(http.StatusOK, "OK")
 }
@@ -83,14 +101,23 @@ var scanflag string = ""
 
 func Scan(c *gin.Context) {
 	scanflag = "scanning"
+	fmt.Printf("\x1b[36m%s\x1b[0m\n", "🌻SCANを開始します🌻")
 	log.Println("===============     START SCANNING     ===============")
 	log.Printf("\n")
 
 	var formdata entity.ScanFormData
 	c.Bind(&formdata)
 
+	delay, err := strconv.Atoi(formdata.Delay)
+	if logger.ErrHandle(err) {
+		delay = 0
+	}
+	entity.RequestDelay = time.Duration(delay) * time.Millisecond
+
 	if formdata.ScanOption == "Quick Scan" {
 		scanner.QuickScan = true
+	} else {
+		scanner.QuickScan = false
 	}
 
 	if formdata.LoginURL != "" {
@@ -102,7 +129,9 @@ func Scan(c *gin.Context) {
 	}
 
 	scanner.Scan(&entity.JsonNodes)
+
 	scanflag = "finished"
+	fmt.Printf("\x1b[36m%s\x1b[0m\n", "🌻SCANが終了しました🌻")
 	c.String(http.StatusOK, "OK")
 }
 
@@ -116,6 +145,7 @@ func Sort(c *gin.Context) {
 }
 
 func Reset(c *gin.Context) {
+	fmt.Printf("\x1b[36m%s\x1b[0m\n", "🌻RESETを実行します🌻")
 	sitemap.Reset()
 	crawler.Reset()
 	scanner.Reset()

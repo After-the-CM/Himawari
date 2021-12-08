@@ -21,6 +21,8 @@ func auditXSS(j *entity.JsonNode) {
 		eachVulnIssue: &j.Issue,
 	}
 
+	fmt.Printf("\x1b[36m%s%s%s\x1b[0m\n", "🔍", r.kind, "の診断を開始しました🔍")
+
 	var payloads []string
 	p := readfile("models/scanner/payload/" + "XSS" + ".txt")
 	xssPayloads := bufio.NewScanner(p)
@@ -45,25 +47,17 @@ func auditXSS(j *entity.JsonNode) {
 		r.jsonMessage = &j.Messages[i]
 		s.jsonMessage = &j.Messages[i]
 		s.approach = searchLandmark
-		tmpCandidate := make([]entity.JsonMessage, 0)
-		s.candidate = &tmpCandidate
 		if !QuickScan {
-			s.gatherCandidates(&entity.JsonNodes)
+			s.gatherCandidates()
 		}
 
-		fmt.Println(j.Path, *s.candidate)
-
-		if len(*s.candidate) != 0 {
+		if len(s.jsonMessage.Candidate) != 0 {
 			// stored
 			s.kind = storedXSS
 			s.approach = detectStoredXSS
 
 			for _, v := range payloads {
-				s.landmark = genLandmark()
-				s.setGetParam(strings.Replace(v, "[landmark]", s.landmark, 1))
-
-				s.landmark = genLandmark()
-				s.setPostParam(strings.Replace(v, "[landmark]", s.landmark, 1))
+				s.prepareLandmark(v)
 
 				for _, cookie := range j.Cookies {
 					s.landmark = genLandmark()
@@ -72,35 +66,38 @@ func auditXSS(j *entity.JsonNode) {
 
 				if len(j.Messages[i].PostParams) != 0 {
 					s.landmark = genLandmark()
-					s.setPostHeader(strings.Replace(v, "[landmark]", s.landmark, 1))
+					s.setPostUA(strings.Replace(v, "[landmark]", s.landmark, 1))
+					s.landmark = genLandmark()
+					s.setPostRef(strings.Replace(v, "[landmark]", s.landmark, 1))
 				} else {
 					s.landmark = genLandmark()
-					s.setGetHeader(strings.Replace(v, "[landmark]", s.landmark, 1))
+					s.setGetUA(strings.Replace(v, "[landmark]", s.landmark, 1))
+					s.landmark = genLandmark()
+					s.setGetRef(strings.Replace(v, "[landmark]", s.landmark, 1))
 				}
 			}
-		} else {
-			// reflect
-			r.kind = reflectedXSS
-			r.approach = detectReflectedXSS
-			for _, v := range payloads {
+		}
+		// reflect
+		r.kind = reflectedXSS
+		r.approach = detectReflectedXSS
+		for _, v := range payloads {
+			r.prepareLandmark(v)
+
+			for _, cookie := range j.Cookies {
 				r.landmark = genLandmark()
-				r.setGetParam(strings.Replace(v, "[landmark]", r.landmark, 1))
+				r.setCookie(cookie, strings.Replace(v, "[landmark]", r.landmark, 1))
+			}
 
+			if len(j.Messages[i].PostParams) != 0 {
 				r.landmark = genLandmark()
-				r.setPostParam(strings.Replace(v, "[landmark]", r.landmark, 1))
-
-				for _, cookie := range j.Cookies {
-					r.landmark = genLandmark()
-					r.setCookie(cookie, strings.Replace(v, "[landmark]", r.landmark, 1))
-				}
-
-				if len(j.Messages[i].PostParams) != 0 {
-					r.landmark = genLandmark()
-					r.setPostHeader(strings.Replace(v, "[landmark]", r.landmark, 1))
-				} else {
-					r.landmark = genLandmark()
-					r.setGetHeader(strings.Replace(v, "[landmark]", r.landmark, 1))
-				}
+				r.setPostUA(strings.Replace(v, "[landmark]", r.landmark, 1))
+				r.landmark = genLandmark()
+				r.setPostRef(strings.Replace(v, "[landmark]", r.landmark, 1))
+			} else {
+				r.landmark = genLandmark()
+				r.setGetUA(strings.Replace(v, "[landmark]", r.landmark, 1))
+				r.landmark = genLandmark()
+				r.setGetRef(strings.Replace(v, "[landmark]", r.landmark, 1))
 			}
 		}
 	}

@@ -21,17 +21,27 @@
                 :btnSetting="btnSetting"
                 class="ml-5"
               />
+              <v-col cols="2">
+                <input-number
+                  v-model="delay"
+                  labelText="delay(ms)"
+                  :inputRule="delayRule"
+                  textId="delay"
+                />
+              </v-col>
               <login-option-switch v-model="loginflag" />
               <div v-if="loginflag">
                 <input-text
                   v-model.trim="loginReferer"
-                  labelText="LoginフォームがあるURL"
-                  textId="url"
+                  labelText="LoginフォームがあるURL(Referer)"
+                  textId="loginref"
+                  textClass="mx-5"
                 />
                 <input-text
                   v-model.trim="loginURL"
                   labelText="Loginリクエストの送信先"
-                  textId="url"
+                  textId="loginurl"
+                  textClass="mx-5"
                 />
                 <login-option
                   v-model="loginOptions"
@@ -44,10 +54,10 @@
                   :adddata="{ key: '', value: '', method: 'POST' }"
                 />
               </div>
-              <div v-if="randmarkFlag">
+              <div v-if="landmarkFlag">
                 <v-text-field
-                  v-model="randmarkNumber"
-                  label="RandMark(default : 0)"
+                  v-model="landmarkNumber"
+                  label="LandMark(default : 0)"
                   type="number"
                 />
               </div>
@@ -69,6 +79,7 @@
             justify="end"
             class="my-auto ma-auto mb-2 text-capitalize"
             @click="doScan(), transitionsitemap()"
+            :disabled="delay === '' || delay < 0"
             >Start Scan</v-btn
           >
         </v-row>
@@ -82,11 +93,8 @@
 
 <script>
 import { cloneDeep } from 'lodash'
-import LoginOption from '~/components/LoginOption.vue'
-import LoginOptionSwitch from '~/components/LoginOptionSwitch.vue'
-import OutOfScope from '~/components/OutOfScope.vue'
+
 export default {
-  components: { LoginOptionSwitch, LoginOption, OutOfScope },
   layout: 'original',
   middleware({ $cookies, redirect }) {
     if ($cookies.get('agree') !== 'Agree') {
@@ -95,6 +103,9 @@ export default {
   },
   data() {
     return {
+      delay: null,
+      delayRule: [(value) => Number(value) > 0 || '0以上を入力してください'],
+
       loginflag: false,
       loginReferer: null,
       loginURL: null,
@@ -106,11 +117,13 @@ export default {
       ],
       scanOption: 'Full Scan',
       debugParam: null,
-      randmarkFlag: false,
-      randmarkNumber: 0,
+      landmarkFlag: false,
+      landmarkNumber: 0,
     }
   },
   created() {
+    this.delay = this.$store.state.delay.delay
+
     this.loginReferer = this.$store.state.loginPath.loginRef
     this.loginURL = this.$store.state.loginPath.loginURL
     this.loginOptions = cloneDeep(this.$store.state.loginParams.loginParams)
@@ -123,15 +136,18 @@ export default {
       window.location.search.substring(1)
     ).get('debug')
     if (this.debugParam !== null) {
-      this.randmarkFlag = true
+      this.landmarkFlag = true
     }
   },
   methods: {
     doScan() {
+      this.$store.commit('delay/changeDelay', this.delay)
+
       const forms = new FormData()
 
+      forms.append('delay', this.delay)
       forms.append('scanOption', this.scanOption)
-      forms.append('RandmarkNumber', this.randmarkNumber)
+      forms.append('LandmarkNumber', this.landmarkNumber)
 
       if (this.loginflag) {
         forms.append('loginReferer', this.loginReferer)

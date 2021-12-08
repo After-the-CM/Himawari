@@ -5,10 +5,10 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/PuerkitoBio/goquery"
+
 	"Himawari/models/entity"
 	"Himawari/models/logger"
-
-	"github.com/PuerkitoBio/goquery"
 )
 
 var tagUrlAttr = map[string][]string{
@@ -56,6 +56,16 @@ func parseHtml(doc *goquery.Document, r *entity.RequestStruct) {
 					if logger.ErrHandle(err) {
 						return true
 					}
+					for key, _ := range r.Path.Query() {
+						for n, v := range applyData {
+							if key == n {
+								tmp := r.Path.Query()
+								tmp.Del(key)
+								tmp.Add(key, v)
+								r.Path.RawQuery = tmp.Encode()
+							}
+						}
+					}
 					GetRequest(r)
 				}
 				return true
@@ -78,6 +88,8 @@ func parseForms(doc *goquery.Document, r *entity.RequestStruct) {
 			if ok {
 				typ = strings.ToLower(typ)
 				f.Type = typ
+			} else {
+				f.Type = "text"
 			}
 
 			nameAttr, ok := s.Attr("name")

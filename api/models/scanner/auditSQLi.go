@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"bufio"
+	"fmt"
 
 	"Himawari/models/entity"
 )
@@ -18,6 +19,8 @@ func auditSQLi(j *entity.JsonNode) {
 		approach:      timeBasedAttack,
 		eachVulnIssue: &j.Issue,
 	}
+
+	fmt.Printf("\x1b[36m%s%s%s\x1b[0m\n", "🔍", e.kind, "の診断を開始しました🔍")
 
 	var errSQLiPayloads []string
 	ep := readfile("models/scanner/payload/" + e.kind + ".txt")

@@ -1,10 +1,13 @@
 package scanner
 
 import (
+	"fmt"
+
 	"Himawari/models/entity"
 )
 
 func Scan(j *entity.JsonNode) {
+	fmt.Printf("\x1b[36m%s%s%s\x1b[0m\n", "🌻", j.URL, "への診断を開始します🌻")
 	auditOSCi(j)
 	auditDirTraversal(j)
 	auditSQLi(j)
