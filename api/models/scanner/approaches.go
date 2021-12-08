@@ -297,7 +297,6 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 	}
 
 	if flg {
-		fmt.Printf("\x1b[32m%s%s%s\x1b[0m\n", "🎉", d.kind, "を検出しました🎉")
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
 			Kind:      d.kind,
@@ -316,6 +315,7 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 			}
 		}
 
+		fmt.Printf("\x1b[32m%s%s%s\x1b[0m\n", "🎉", d.kind, "を検出しました🎉")
 		*d.eachVulnIssue = append(*d.eachVulnIssue, newIssue)
 		entity.WholeIssue = append(entity.WholeIssue, newIssue)
 		entity.Vulnmap[d.kind].Issues = append(entity.Vulnmap[d.kind].Issues, newIssue)
