@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -51,6 +52,7 @@ func UploadSitemap(c *gin.Context) {
 }
 
 func Crawl(c *gin.Context) {
+	fmt.Printf("\x1b[36m%s\x1b[0m\n", "🌻CRAWLを開始します🌻")
 	log.Println("===============     START CRAWLING     ===============")
 	log.Printf("\n")
 
@@ -85,6 +87,7 @@ func Crawl(c *gin.Context) {
 	// urlのバリデーション
 
 	crawler.Crawl(url)
+	fmt.Printf("\x1b[36m%s\x1b[0m\n", "🌻CRAWLが終了しました🌻")
 	//sitemap.PrintMap()
 	c.String(http.StatusOK, "OK")
 }
@@ -98,6 +101,7 @@ var scanflag string = ""
 
 func Scan(c *gin.Context) {
 	scanflag = "scanning"
+	fmt.Printf("\x1b[36m%s\x1b[0m\n", "🌻SCANを開始します🌻")
 	log.Println("===============     START SCANNING     ===============")
 	log.Printf("\n")
 
@@ -125,7 +129,9 @@ func Scan(c *gin.Context) {
 	}
 
 	scanner.Scan(&entity.JsonNodes)
+
 	scanflag = "finished"
+	fmt.Printf("\x1b[36m%s\x1b[0m\n", "🌻SCANが終了しました🌻")
 	c.String(http.StatusOK, "OK")
 }
 
@@ -139,6 +145,7 @@ func Sort(c *gin.Context) {
 }
 
 func Reset(c *gin.Context) {
+	fmt.Printf("\x1b[36m%s\x1b[0m\n", "🌻RESETを実行します🌻")
 	sitemap.Reset()
 	crawler.Reset()
 	scanner.Reset()

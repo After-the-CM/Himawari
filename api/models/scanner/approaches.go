@@ -11,10 +11,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
+
 	"Himawari/models/entity"
 	"Himawari/models/logger"
-
-	"github.com/PuerkitoBio/goquery"
 )
 
 //リダイレクト発生時req[0]がオリジナルのリクエスト
@@ -47,11 +47,12 @@ func timeBasedAttack(d determinant, req []*http.Request) {
 		d.originalReq = logger.DumpedReq
 	}
 
-	if compareAccessTime(d.jsonMessage.Time, (end.Sub(start)).Seconds(), d.kind) {
+	if compareAccessTime(d.jsonMessage.Time, (end.Sub(start)).Seconds()) {
 		dumpedResp, err := httputil.DumpResponse(resp, true)
 
 		//string()は引数がnilの場合でもnilぽエラーが出ない
 		logger.ErrHandle(err)
+		fmt.Printf("\x1b[32m%s%s%s\x1b[0m\n", "🎉", d.kind, "を検出しました🎉")
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
 			Kind:      d.kind,
@@ -161,7 +162,7 @@ func stringMatching(d determinant, req []*http.Request) {
 
 		for _, msg := range messages {
 			if strings.Contains(targetResp, msg) {
-				fmt.Println(d.kind)
+				fmt.Printf("\x1b[32m%s%s%s\x1b[0m\n", "🎉", d.kind, "を検出しました🎉")
 				newIssue := entity.Issue{
 					URL:       u,
 					Kind:      d.kind,
@@ -255,8 +256,8 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 	var evidence string
 	doc.Find("script").EachWithBreak(func(_ int, s *goquery.Selection) bool {
 		injectedPayload := s.Text()
-		if strings.Contains(injectedPayload, "alert(\""+d.landmark+"\")") {
-			evidence = "alert(\"" + d.landmark + "\")"
+		if strings.Contains(injectedPayload, "alert("+d.landmark+")") {
+			evidence = "alert(" + d.landmark + ")"
 			flg = true
 			return false
 		}
@@ -266,28 +267,28 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 	if !flg {
 		doc.Find("*").EachWithBreak(func(_ int, s *goquery.Selection) bool {
 			href, _ := s.Attr("href")
-			if strings.HasPrefix(href, "javascript:alert(\""+d.landmark+"\")") {
-				evidence = "javascript:alert(\"" + d.landmark + "\")"
+			if strings.HasPrefix(href, "javascript:alert("+d.landmark+")") {
+				evidence = "javascript:alert(" + d.landmark + ")"
 				flg = true
 				return false
 			}
 			src, _ := s.Attr("src")
-			if strings.HasPrefix(src, "javascript:alert(\""+d.landmark+"\")") {
-				evidence = "javascript:alert(\"" + d.landmark + "\")"
+			if strings.HasPrefix(src, "javascript:alert("+d.landmark+")") {
+				evidence = "javascript:alert(" + d.landmark + ")"
 				flg = true
 				return false
 			}
 			if src == "x" {
 				onerror, _ := s.Attr("onerror")
-				if strings.Contains(onerror, "alert(\""+d.landmark+"\")") {
-					evidence = "alert(\"" + d.landmark + "\")"
+				if strings.Contains(onerror, "alert("+d.landmark+")") {
+					evidence = "alert(" + d.landmark + ")"
 					flg = true
 					return false
 				}
 			}
 			onmouseover, _ := s.Attr("onmouseover")
-			if strings.Contains(onmouseover, "alert(\""+d.landmark+"\")") {
-				evidence = "alert(\"" + d.landmark + "\")"
+			if strings.Contains(onmouseover, "alert("+d.landmark+")") {
+				evidence = "alert(" + d.landmark + ")"
 				flg = true
 				return false
 			}
@@ -296,7 +297,7 @@ func detectReflectedXSS(d determinant, req []*http.Request) {
 	}
 
 	if flg {
-		fmt.Println(d.kind)
+		fmt.Printf("\x1b[32m%s%s%s\x1b[0m\n", "🎉", d.kind, "を検出しました🎉")
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
 			Kind:      d.kind,
@@ -419,8 +420,8 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 		var evidence string
 		doc.Find("script").EachWithBreak(func(_ int, s *goquery.Selection) bool {
 			injectedPayload := s.Text()
-			if strings.Contains(injectedPayload, "alert(\""+d.landmark+"\")") {
-				evidence = "alert(\"" + d.landmark + "\")"
+			if strings.Contains(injectedPayload, "alert("+d.landmark+")") {
+				evidence = "alert(" + d.landmark + ")"
 				flg = true
 				return false
 			}
@@ -430,28 +431,28 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 		if !flg {
 			doc.Find("*").EachWithBreak(func(_ int, s *goquery.Selection) bool {
 				href, _ := s.Attr("href")
-				if strings.HasPrefix(href, "javascript:alert(\""+d.landmark+"\")") {
-					evidence = "javascript:alert(\"" + d.landmark + "\")"
+				if strings.HasPrefix(href, "javascript:alert("+d.landmark+")") {
+					evidence = "javascript:alert(" + d.landmark + ")"
 					flg = true
 					return false
 				}
 				src, _ := s.Attr("src")
-				if strings.HasPrefix(src, "javascript:alert(\""+d.landmark+"\")") {
-					evidence = "javascript:alert(\"" + d.landmark + "\")"
+				if strings.HasPrefix(src, "javascript:alert("+d.landmark+")") {
+					evidence = "javascript:alert(" + d.landmark + ")"
 					flg = true
 					return false
 				}
 				if src == "x" {
 					onerror, _ := s.Attr("onerror")
-					if strings.Contains(onerror, "alert(\""+d.landmark+"\")") {
-						evidence = "alert(\"" + d.landmark + "\")"
+					if strings.Contains(onerror, "alert("+d.landmark+")") {
+						evidence = "alert(" + d.landmark + ")"
 						flg = true
 						return false
 					}
 				}
 				onmouseover, _ := s.Attr("onmouseover")
-				if strings.Contains(onmouseover, "alert(\""+d.landmark+"\")") {
-					evidence = "alert(\"" + d.landmark + "\")"
+				if strings.Contains(onmouseover, "alert("+d.landmark+")") {
+					evidence = "alert(" + d.landmark + ")"
 					flg = true
 					return false
 				}
@@ -460,7 +461,7 @@ func detectStoredXSS(d determinant, req []*http.Request) {
 		}
 
 		if flg {
-			fmt.Println(d.kind)
+			fmt.Printf("\x1b[32m%s%s%s\x1b[0m\n", "🎉", d.kind, "を検出しました🎉")
 			newIssue := entity.Issue{
 				URL:       d.jsonMessage.URL,
 				Kind:      d.kind,
@@ -584,7 +585,7 @@ func detectHTTPHeaderi(d determinant, req []*http.Request) {
 		dumpedResp, err := httputil.DumpResponse(resp, true)
 		logger.ErrHandle(err)
 
-		fmt.Println(d.kind)
+		fmt.Printf("\x1b[32m%s%s%s\x1b[0m\n", "🎉", d.kind, "を検出しました🎉")
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
 			Kind:      d.kind,
@@ -670,7 +671,7 @@ func detectCSRF(d determinant, req []*http.Request) {
 		dumpedResp, err := httputil.DumpResponse(resp, true)
 		logger.ErrHandle(err)
 
-		fmt.Println(d.kind)
+		fmt.Printf("\x1b[32m%s%s%s\x1b[0m\n", "🎉", d.kind, "を検出しました🎉")
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
 			Kind:      d.kind,
@@ -730,7 +731,7 @@ func detectOpenRedirect(d determinant, req []*http.Request) {
 			return
 		}
 
-		fmt.Println(d.kind)
+		fmt.Printf("\x1b[32m%s%s%s\x1b[0m\n", "🎉", d.kind, "を検出しました🎉")
 		newIssue := entity.Issue{
 			URL:       d.jsonMessage.URL,
 			Kind:      d.kind,

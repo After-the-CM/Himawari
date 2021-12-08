@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"bufio"
+	"fmt"
 	"strings"
 
 	"Himawari/models/entity"
@@ -19,6 +20,8 @@ func auditXSS(j *entity.JsonNode) {
 		approach:      detectStoredXSS,
 		eachVulnIssue: &j.Issue,
 	}
+
+	fmt.Printf("\x1b[36m%s%s%s\x1b[0m\n", "🔍", r.kind, "の診断を開始しました🔍")
 
 	var payloads []string
 	p := readfile("models/scanner/payload/" + "XSS" + ".txt")

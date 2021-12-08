@@ -64,13 +64,8 @@ func SetGenLandmark(n int) {
 }
 
 //sleep時間は3秒で実行。誤差を考えるなら2.5秒くらい？
-
-func compareAccessTime(originalTime float64, respTime float64, kind string) bool {
-	if (respTime - originalTime) >= (settingTime - tolerance) {
-		fmt.Println(kind)
-		return true
-	}
-	return false
+func compareAccessTime(originalTime float64, respTime float64) bool {
+	return (respTime - originalTime) >= (settingTime - tolerance)
 }
 
 func createGetReq(url string, ref string) (req *http.Request, err error) {
@@ -398,7 +393,7 @@ func initLandmark(n int) func() string {
 	cnt := n
 	return func() string {
 		cnt++
-		return "Himawari" + fmt.Sprintf("%05d", cnt)
+		return fmt.Sprintf("65535%05d", cnt)
 	}
 }
 

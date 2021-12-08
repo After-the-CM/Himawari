@@ -22,6 +22,8 @@ func PostRequest(r *entity.RequestStruct) {
 	}
 
 	abs := r.Referer.ResolveReference(r.Path)
+	fmt.Println("🕸️POST: ", abs, "🕸️")
+
 	if !shouldCrawl(r.Referer, abs) {
 		if abs.Scheme == "http" || abs.Scheme == "https" {
 			entity.AppendOutOfOrigin(r.Referer.String(), abs.String())
