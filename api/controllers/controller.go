@@ -128,6 +128,7 @@ func Scan(c *gin.Context) {
 		scanner.SetGenLandmark(formdata.LandmarkNumber)
 	}
 
+	scanner.CalcApproximateTime(&entity.JsonNodes)
 	scanner.Scan(&entity.JsonNodes)
 
 	scanflag = "finished"
