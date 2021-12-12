@@ -601,7 +601,7 @@ func login(jar http.CookieJar) http.CookieJar {
 }
 
 func CalcApproximateTime(j *entity.JsonNode) {
-	accessTime := retrieveAccessTime(j)
+	accessTime := calcAccessTime(j)
 	fmt.Println("アクセス時間:", accessTime)
 	if entity.RequestDelay.Microseconds() != 0 {
 		fmt.Println("遅延", entity.RequestDelay)
@@ -661,7 +661,7 @@ func countParam(j *entity.JsonNode) (paramNum int) {
 	return paramNum
 }
 
-func retrieveAccessTime(j *entity.JsonNode) float64 {
+func calcAccessTime(j *entity.JsonNode) float64 {
 	var sum, cnt, time float64
 	for i := range j.Messages {
 		sum += j.Messages[i].Time
@@ -670,7 +670,7 @@ func retrieveAccessTime(j *entity.JsonNode) float64 {
 	time = sum / cnt
 
 	for i := range j.Children {
-		time = retrieveAccessTime(&j.Children[i])
+		time = calcAccessTime(&j.Children[i])
 	}
 	return time
 }
