@@ -9,7 +9,9 @@
           <v-col cols="5">
             <v-card flat>
               <v-card-title> Sitemap</v-card-title>
-              <sitemap />
+              <ul>
+                <sitemap-node :item="sitemap" />
+              </ul>
             </v-card>
           </v-col>
           <v-spacer></v-spacer>
@@ -124,6 +126,8 @@ export default {
       debugParam: null,
       landmarkFlag: false,
       landmarkNumber: 0,
+
+      sitemap: {},
       approximateTime: 0,
     }
   },
@@ -136,7 +140,7 @@ export default {
     },
     loginflag() {
       this.calcApproximateTime()
-    }
+    },
   },
   created() {
     this.delay = this.$store.state.delay.delay
@@ -147,7 +151,6 @@ export default {
     if (this.loginURL !== '') {
       this.loginflag = true
     }
-    this.calcApproximateTime()
   },
   mounted() {
     this.debugParam = new URLSearchParams(
@@ -195,32 +198,33 @@ export default {
     transitionsitemap() {
       this.$router.push('/report')
     },
-    calcApproximateTime() {
-      this.$axios
-        .$get('/api/sitemap')
-        .then((response) => {
-          const msgNum = this.countMsg(response)
-          const cookieNum = this.countCookie(response)
-          const paramNum = this.countParam(response)
-          let accessNum = (msgNum * 5 + paramNum + cookieNum) * 315
-          let accessTime = this.calcAccessTime(response)
-          accessTime += Number(this.delay)
+    async calcApproximateTime() {
+      if (!this.sitemap.path) {
+        await this.$axios
+          .$get('/api/sitemap')
+          .then((response) => {
+            this.sitemap = response
+          })
+          .catch((err) => {
+            console.log('err:', err)
+          })
+      }
+      const msgNum = this.countMsg(this.sitemap)
+      const cookieNum = this.countCookie(this.sitemap)
+      const paramNum = this.countParam(this.sitemap)
+      let accessNum = (msgNum * 5 + paramNum + cookieNum) * 315
+      let accessTime = this.calcAccessTime(this.sitemap)
+      accessTime += Number(this.delay)
 
-          if (this.scanOption === 'Full Scan') {
-            accessNum += (msgNum * 2 + paramNum + cookieNum) * msgNum
-          }
-          if (this.loginflag) {
-            accessNum *= 2
-          }
-          accessTime += accessNum * 0.0001
+      if (this.scanOption === 'Full Scan') {
+        accessNum += (msgNum * 2 + paramNum + cookieNum) * msgNum
+      }
+      if (this.loginflag) {
+        accessNum *= 2
+      }
+      accessTime += accessNum * 0.0001
 
-          this.approximateTime = Math.round(
-            (accessTime * accessNum) / 60000
-          ).toString()
-        })
-        .catch((err) => {
-          console.log('err:', err)
-        })
+      this.approximateTime = Math.round((accessTime * accessNum) / 60000)
     },
     calcAccessTime(node) {
       let sum = 0
@@ -260,4 +264,16 @@ export default {
 }
 </script>
 
-<style></style>
+<style>
+.item {
+  cursor: pointer;
+}
+.bold {
+  font-weight: bold;
+}
+ul {
+  padding-left: 1em;
+  line-height: 1.5em;
+  list-style-type: dot;
+}
+</style>
