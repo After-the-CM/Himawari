@@ -16,6 +16,11 @@
           <v-col cols="7" style="border-left: solid 1px gray">
             <v-card flat>
               <v-card-title>ScanOption</v-card-title>
+              <v-card-text
+                ><div class="font-weight-bold">
+                  予想診断時間は {{ approximateTime }}分です。
+                </div>
+              </v-card-text>
               <radio-btn
                 v-model="scanOption"
                 :btnSetting="btnSetting"
@@ -119,6 +124,18 @@ export default {
       debugParam: null,
       landmarkFlag: false,
       landmarkNumber: 0,
+      approximateTime: 0,
+    }
+  },
+  watch: {
+    scanOption() {
+      this.calcApproximateTime()
+    },
+    delay() {
+      this.calcApproximateTime()
+    },
+    loginflag() {
+      this.calcApproximateTime()
     }
   },
   created() {
@@ -130,6 +147,7 @@ export default {
     if (this.loginURL !== '') {
       this.loginflag = true
     }
+    this.calcApproximateTime()
   },
   mounted() {
     this.debugParam = new URLSearchParams(
@@ -176,6 +194,67 @@ export default {
     },
     transitionsitemap() {
       this.$router.push('/report')
+    },
+    calcApproximateTime() {
+      this.$axios
+        .$get('/api/sitemap')
+        .then((response) => {
+          const msgNum = this.countMsg(response)
+          const cookieNum = this.countCookie(response)
+          const paramNum = this.countParam(response)
+          let accessNum = (msgNum * 5 + paramNum + cookieNum) * 315
+          let accessTime = this.calcAccessTime(response)
+          accessTime += Number(this.delay)
+
+          if (this.scanOption === 'Full Scan') {
+            accessNum += (msgNum * 2 + paramNum + cookieNum) * msgNum
+          }
+          if (this.loginflag) {
+            accessNum *= 2
+          }
+          accessTime += accessNum * 0.0001
+
+          this.approximateTime = Math.round(
+            (accessTime * accessNum) / 60000
+          ).toString()
+        })
+        .catch((err) => {
+          console.log('err:', err)
+        })
+    },
+    calcAccessTime(node) {
+      let sum = 0
+      let cnt = 0
+      for (const i in node.messages) {
+        sum += node.messages[i].time
+        cnt++
+      }
+      return sum / cnt
+    },
+    countMsg(node) {
+      let msgNum = node.messages.length
+      for (const i in node.children) {
+        msgNum += this.countMsg(node.children[i])
+      }
+      return msgNum
+    },
+    countCookie(node) {
+      let cookieNum = node.cookies.length
+      for (const i in node.children) {
+        cookieNum += this.countParam(node.children[i])
+      }
+      return cookieNum
+    },
+    countParam(node) {
+      let paramNum = 0
+      for (const i in node.messages) {
+        paramNum += Object.keys(node.messages[i].getParams).length
+        paramNum += Object.keys(node.messages[i].postParams).length
+      }
+      for (const i in node.children) {
+        paramNum += this.countParam(node.children[i])
+      }
+      return paramNum
     },
   },
 }
