@@ -213,7 +213,8 @@ export default {
       const cookieNum = this.countCookie(this.sitemap)
       const paramNum = this.countParam(this.sitemap)
       let accessNum = (msgNum * 5 + paramNum + cookieNum) * 315
-      let accessTime = this.calcAccessTime(this.sitemap)
+      let accessTime = this.retrieveAccessTime(this.sitemap)
+      console.log('accessT:' + accessTime)
       accessTime += Number(this.delay)
 
       if (this.scanOption === 'Full Scan') {
@@ -226,14 +227,18 @@ export default {
 
       this.approximateTime = Math.round((accessTime * accessNum) / 60000)
     },
-    calcAccessTime(node) {
-      let sum = 0
-      let cnt = 0
-      for (const i in node.messages) {
-        sum += node.messages[i].time
-        cnt++
+    retrieveAccessTime(node) {
+      let accessTime
+      if (node.messages[0]) {
+        accessTime = node.messages[0].time
       }
-      return sum / cnt
+      for (const i in node.children) {
+        if (accessTime) {
+          break
+        }
+        accessTime = this.retrieveAccessTime(node.children[i])
+      }
+      return accessTime
     },
     countMsg(node) {
       let msgNum = node.messages.length
