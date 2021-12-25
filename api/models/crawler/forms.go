@@ -23,7 +23,7 @@ func SetValues(form []entity.HtmlForm, r *entity.RequestStruct) {
 		if v.Name != nil {
 			switch {
 			case v.IsOption:
-				if len(v.Options) <= 1 {
+				if len(v.Options) == 1 {
 					values.Set(*v.Name, v.Options[0])
 				} else {
 					values.Set(*v.Name, v.Options[1])
