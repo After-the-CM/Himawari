@@ -1,6 +1,7 @@
 package sitemap
 
 import (
+	"fmt"
 	"net/http/cookiejar"
 	"net/url"
 	"path"
@@ -87,4 +88,16 @@ func CleanSitemapIssue(node *entity.JsonNode) {
 		CleanSitemapIssue(&node.Children[i])
 	}
 	node.Issue = nil
+}
+
+func InitVulnMap(node *entity.JsonNode) {
+	fmt.Println(node.Issue)
+	for i := 0; len(node.Children) > i; i++ {
+		InitVulnMap(&node.Children[i])
+	}
+	for _, v := range node.Issue {
+		fmt.Println(v.Kind)
+		entity.Vulnmap[v.Kind].Issues = append(entity.Vulnmap[v.Kind].Issues, v)
+		fmt.Println(entity.Vulnmap)
+	}
 }

