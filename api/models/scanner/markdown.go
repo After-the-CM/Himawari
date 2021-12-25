@@ -10,7 +10,17 @@ func MarkDown() string {
 	var md string
 	md = fmt.Sprintf("# Vulnerabilities report by Himawari🌻\n\n")
 	for _, vuln := range entity.Vulnmap {
-		if len(vuln.Issues) != 0 {
+		if len(vuln.Issues) != 0 && vuln.Severity == "High" {
+			md += vuln2md(vuln)
+		}
+	}
+	for _, vuln := range entity.Vulnmap {
+		if len(vuln.Issues) != 0 && vuln.Severity == "Medium" {
+			md += vuln2md(vuln)
+		}
+	}
+	for _, vuln := range entity.Vulnmap {
+		if len(vuln.Issues) != 0 && vuln.Severity == "Low" {
 			md += vuln2md(vuln)
 		}
 	}
