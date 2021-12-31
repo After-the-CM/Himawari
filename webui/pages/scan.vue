@@ -214,7 +214,6 @@ export default {
       const paramNum = this.countParam(this.sitemap)
       let accessNum = (msgNum * 5 + paramNum + cookieNum) * 315
       let accessTime = this.retrieveAccessTime(this.sitemap)
-      console.log('accessT:' + accessTime)
       accessTime += Number(this.delay)
 
       if (this.scanOption === 'Full Scan') {
