@@ -173,7 +173,7 @@ var Vulnmap = map[string]*Vuln{
 
 var WholeIssue []Issue
 
-func InitVulnmap() {
+func ResetVulnMap() {
 	for _, v := range Vulnmap {
 		v.Issues = []Issue{}
 	}
