@@ -23,12 +23,16 @@ bash setup.sh
 ## execute
 
 以下のコマンドを実行すると、API Server と WebUI が起動します。  
-実行には Himawari のバイナリが必要なので、`api`ディレクトリで`make setup`で`go build`コマンドを実行してください。  
-**api のコードに変更があった場合は、Himawari のバイナリを更新する必要があります。**  
-(`api`ディレクトリに移り、`make setup`コマンド実行することで`go build`コマンドが実行され、Himawari のバイナリが更新されます。)
 
 ```txt
 bash exec.sh
 ```
 
-Ctrl + C を押すと api server の process も kill されます。
+※ Ctrl + C を押すと api server の process も kill されます。
+
+**api側 のコードに変更があった場合は、Himawari のバイナリを更新する必要があります。**  
+
+```txt
+cd api/
+make setup
+```
