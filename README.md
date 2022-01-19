@@ -28,7 +28,7 @@ bash setup.sh
 bash exec.sh
 ```
 
-※ Ctrl + C を押すと api server の process も kill されます。
+※ `Ctrl + C` を押すと api server の process も kill されます。
 
 **api側 のコードに変更があった場合は、Himawari のバイナリを更新する必要があります。**  
 
