@@ -54,7 +54,7 @@ CrawlerによるSitemapの構築、もしくは`sitemap.json`のImportが完了�
 現在どのページを診断しているのかを確認したい場合は、以下のコマンドで追いかけることができます。
 
 ```txt
-tail -f ~/Himawari/api/nohup.out
+tail -f <path/to/Himawari>/api/nohup.out
 ```
 
 ## 診断終了
@@ -67,6 +67,6 @@ Himawariを起動していたターミナルで`Ctrl + c`を押すことで終�
 Sunflowerは以下のコマンドで停止させてください。
 
 ```
-cd ../Sunflower/
+cd <path/to/Sunflower>
 docker-compose down
 ```
