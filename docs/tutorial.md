@@ -64,3 +64,9 @@ tail -f ~/Himawari/api/nohup.out
 ![](./images/fin.png)
 
 Himawariを起動していたターミナルで`Ctrl + c`を押すことで終了されます。  
+Sunflowerは以下のコマンドで停止させてください。
+
+```
+cd ../Sunflower/
+docker-compose down
+```
