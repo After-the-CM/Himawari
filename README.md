@@ -31,7 +31,7 @@ bash setup.sh
 bash exec.sh
 ```
 
-※ `Ctrl + C` を押すと  server と WebUI の両方の process が kill されます。
+※ `Ctrl + c` を押すと API server と WebUI の両方の process が kill されます。
 
 ## develop
 
@@ -41,8 +41,6 @@ bash exec.sh
 cd webui/
 npm run dev
 ```
-
-※ `Ctrl + C` を押すと  server と WebUI の両方の process が kill されます。
 
 API server 側のコードに変更を加える際には、`make run`コマンドで逐次実行することができます。  
 
