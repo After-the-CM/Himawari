@@ -5,11 +5,11 @@
 ## 環境構築
 
 ```txt
-git clone ~/git@github.com:After-the-CM/Himawari.git
-git clone ~/git@github.com:After-the-CM/Sunflower.git
-cd ~/Sunflower/
+git clone git@github.com:After-the-CM/Himawari.git
+git clone git@github.com:After-the-CM/Sunflower.git
+cd Sunflower/
 docker-compose up -d
-cd ~/Himawari/
+cd ../Himawari/
 bash setup.sh
 bash exec.sh
 ```
