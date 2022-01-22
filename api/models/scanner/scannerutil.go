@@ -593,10 +593,13 @@ func login(jar http.CookieJar) http.CookieJar {
 
 	time.Sleep(entity.RequestDelay)
 
-	_, err = client.Do(req)
+	resp, err := client.Do(req)
 	if logger.ErrHandle(err) {
 		return nil
 	}
+	io.ReadAll(resp.Body)
+	resp.Body.Close()
+
 	return client4login.Jar
 }
 

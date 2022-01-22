@@ -173,8 +173,27 @@ var Vulnmap = map[string]*Vuln{
 
 var WholeIssue []Issue
 
-func InitVulnmap() {
+func ResetVulnMap() {
 	for _, v := range Vulnmap {
 		v.Issues = []Issue{}
 	}
+}
+
+type Vulns []Vuln
+
+func (a Vulns) Len() int      { return len(a) }
+func (a Vulns) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a Vulns) Less(i, j int) bool {
+	if a[i].Severity == "High" {
+		return false
+	} else if a[i].Severity == "Low" {
+		return true
+	}
+
+	if a[j].Severity == "High" {
+		return true
+	} else if a[j].Severity == "Low" {
+		return false
+	}
+	return false
 }
