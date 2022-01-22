@@ -9,7 +9,7 @@ The Gopher character is based on the Go mascot designed by Renée French.
 ## 動作保証環境
 
 以下の version で動作することを確認しています。  
-2021年1月21日時点でのnodejsの安定版(v16.13.2)で動作できることも確認済みです。  
+2022年1月21日時点でのnodejsの安定版(v16.13.2)で動作できることも確認済みです。  
 
 Ubuntu-20.04  
 Go 1.17  
