@@ -2,22 +2,29 @@ package scanner
 
 import (
 	"fmt"
+	"sort"
 
 	"Himawari/models/entity"
 )
 
 func MarkDown() string {
 	var md string
+	var vuln entity.Vulns
 	md = fmt.Sprintf("# Vulnerabilities report by Himawari🌻\n\n")
-	for _, vuln := range entity.Vulnmap {
-		if len(vuln.Issues) != 0 {
-			md += vuln2md(vuln)
+
+	for _, v := range entity.Vulnmap {
+		if len(v.Issues) != 0 {
+			vuln = append(vuln, *v)
 		}
+	}
+	sort.Sort(sort.Reverse(vuln))
+	for _, v := range vuln {
+		md += vuln2md(v)
 	}
 	return md
 }
 
-func vuln2md(vuln *entity.Vuln) string {
+func vuln2md(vuln entity.Vuln) string {
 	var md string
 	md += fmt.Sprintf("## %s %s (Severity: %s)\n\n", vuln.CWE, vuln.Name, vuln.Severity)
 	md += fmt.Sprintf("### 概要\n\n")

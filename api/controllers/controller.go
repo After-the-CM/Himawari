@@ -47,7 +47,7 @@ func UploadSitemap(c *gin.Context) {
 	data, err := io.ReadAll(f)
 	logger.ErrHandle(err)
 	json.Unmarshal(data, &entity.JsonNodes)
-	sitemap.CleanSitemapIssue(&entity.JsonNodes)
+	sitemap.InitVulnMap(&entity.JsonNodes)
 	c.String(http.StatusOK, "OK")
 }
 
@@ -128,6 +128,7 @@ func Scan(c *gin.Context) {
 		scanner.SetGenLandmark(formdata.LandmarkNumber)
 	}
 
+	scanner.CalcApproximateTime(&entity.JsonNodes)
 	scanner.Scan(&entity.JsonNodes)
 
 	scanflag = "finished"

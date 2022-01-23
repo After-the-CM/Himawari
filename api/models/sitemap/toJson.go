@@ -82,9 +82,11 @@ func sortChild(node entity.JsonNode) {
 	}
 }
 
-func CleanSitemapIssue(node *entity.JsonNode) {
+func InitVulnMap(node *entity.JsonNode) {
 	for i := 0; len(node.Children) > i; i++ {
-		CleanSitemapIssue(&node.Children[i])
+		InitVulnMap(&node.Children[i])
 	}
-	node.Issue = nil
+	for _, v := range node.Issue {
+		entity.Vulnmap[v.Kind].Issues = append(entity.Vulnmap[v.Kind].Issues, v)
+	}
 }

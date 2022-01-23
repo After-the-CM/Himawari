@@ -593,9 +593,87 @@ func login(jar http.CookieJar) http.CookieJar {
 
 	time.Sleep(entity.RequestDelay)
 
-	_, err = client.Do(req)
+	resp, err := client.Do(req)
 	if logger.ErrHandle(err) {
 		return nil
 	}
+	io.ReadAll(resp.Body)
+	resp.Body.Close()
+
 	return client4login.Jar
+}
+
+func CalcApproximateTime(j *entity.JsonNode) {
+	accessTime := calcAccessTime(j)
+	fmt.Println("アクセス時間:", accessTime)
+	if entity.RequestDelay.Microseconds() != 0 {
+		fmt.Println("遅延", entity.RequestDelay)
+	}
+	accessTime += float64(entity.RequestDelay.Milliseconds())
+
+	msgNum := countMsg(j)
+	paramNum := countParam(j)
+	cookieNum := countCookie(j)
+	accessNum := ((msgNum * 5) + paramNum + cookieNum) * 315
+	fmt.Println("メッセージ数:", msgNum)
+	fmt.Println("パラメータ数:", paramNum)
+	fmt.Println("Cookie数:", cookieNum)
+	fmt.Println("\tアクセス数:", accessNum)
+	if !QuickScan {
+		fmt.Println("full scan。アクセス数が増加します。")
+		accessNum += ((msgNum * 2) + paramNum + cookieNum) * msgNum
+		fmt.Println("\tアクセス数:", accessNum)
+	}
+
+	accessTime += float64(accessNum) * 0.0001 // 処理時間としてマージン
+
+	if loginMsg.URL != "" {
+		fmt.Println("login有。アクセス数が増加します。")
+		accessNum *= 2
+		fmt.Println("\tアクセス数:", accessNum)
+	}
+
+	fmt.Println("予想診断時間は", int(accessTime*float64(accessNum))/60000, "分です。")
+	fmt.Println("※診断時間はあくまで目安です。診断対象の挙動によって増減します。")
+}
+
+func countMsg(j *entity.JsonNode) (msgNum int) {
+	msgNum = len(j.Messages)
+	for i := range j.Children {
+		msgNum += countMsg(&j.Children[i])
+	}
+	return msgNum
+}
+
+func countCookie(j *entity.JsonNode) (cookieNum int) {
+	cookieNum += len(j.Cookies)
+	for i := range j.Children {
+		cookieNum += countMsg(&j.Children[i])
+	}
+	return cookieNum
+}
+
+func countParam(j *entity.JsonNode) (paramNum int) {
+	for i := range j.Messages {
+		paramNum += len(j.Messages[i].GetParams)
+		paramNum += len(j.Messages[i].PostParams)
+	}
+	for i := range j.Children {
+		paramNum += countMsg(&j.Children[i])
+	}
+	return paramNum
+}
+
+func calcAccessTime(j *entity.JsonNode) float64 {
+	var sum, cnt, time float64
+	for i := range j.Messages {
+		sum += j.Messages[i].Time
+		cnt++
+	}
+	time = sum / cnt
+
+	for i := range j.Children {
+		time = calcAccessTime(&j.Children[i])
+	}
+	return time
 }
